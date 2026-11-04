@@ -1,6 +1,0 @@
-{
-  "installCommand": "cd client && npm ci",
-  "buildCommand": "cd client && npm run build",
-  "outputDirectory": "client/dist/task-manager/browser",
-  "rewrites": [{ "source": "/(.*)", "destination": "/index.html" }]
-}

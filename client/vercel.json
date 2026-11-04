@@ -1,0 +1,6 @@
+{
+  "installCommand": "npm ci",
+  "buildCommand": "npm run build",
+  "outputDirectory": "dist/task-manager/browser",
+  "rewrites": [{ "source": "/(.*)", "destination": "/index.html" }]
+}
