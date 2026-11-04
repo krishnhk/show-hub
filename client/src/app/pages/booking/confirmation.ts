@@ -165,7 +165,7 @@ export class ConfirmationComponent implements OnInit {
   readonly notFound = signal(false);
 
   readonly qrCells = computed<boolean[]>(() => {
-    const code = this.booking()?.qrCode ?? 'SHOWHUB';
+    const code = this.booking()?.qrCode ?? 'THIRAIHUB';
     const cells: boolean[] = [];
     for (let row = 0; row < QR_SIZE; row++) {
       for (let col = 0; col < QR_SIZE; col++) {

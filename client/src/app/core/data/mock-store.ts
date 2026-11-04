@@ -120,7 +120,7 @@ function clone<T>(value: T): T {
 }
 
 /**
- * In-memory implementation of the ShowHub API described in REQUIREMENTS.md.
+ * In-memory implementation of the ThiraiHub API described in REQUIREMENTS.md.
  *
  * The real backend (ASP.NET Core + SQL Server) is not part of this repository
  * yet, so the frontend talks to this store through an HTTP interceptor. Every
@@ -206,7 +206,7 @@ export class MockStore {
     const user = this.requireUser(userId);
     user.firstName = body.firstName?.trim() ?? user.firstName;
     user.lastName = body.lastName?.trim() ?? user.lastName;
-    user.fullName = `${user.firstName} ${user.lastName}`.trim() || user.fullName || 'ShowHub Member';
+    user.fullName = `${user.firstName} ${user.lastName}`.trim() || user.fullName || 'ThiraiHub Member';
     if (body.birthday !== undefined) {
       user.birthday = body.birthday;
     }
@@ -691,7 +691,7 @@ export class MockStore {
       bookedAt: isoNow(),
       cancelledAt: null,
     };
-    booking.qrCode = `SHOWHUB:${booking.confirmationCode}`;
+    booking.qrCode = `THIRAIHUB:${booking.confirmationCode}`;
 
     const walletUsed = body.useWallet
       ? this.applyWallet(userId, 'debit', booking.totalAmount, `Booking ${booking.confirmationCode}`, {
@@ -1308,7 +1308,7 @@ export class MockStore {
       cancelledAt: null,
       fromResale: true,
     };
-    booking.qrCode = `SHOWHUB:${booking.confirmationCode}`;
+    booking.qrCode = `THIRAIHUB:${booking.confirmationCode}`;
     if (walletUsed > 0) {
       booking.walletPaid = walletUsed;
     }
@@ -1513,7 +1513,7 @@ export class MockStore {
   }
 
   private createToken(userId: number): string {
-    return btoa(`showhub:${userId}:${Date.now()}`);
+    return btoa(`thiraihub:${userId}:${Date.now()}`);
   }
 
   userIdFromToken(token: string | null): number {

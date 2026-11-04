@@ -8,7 +8,7 @@ export const THEMES: { id: Theme; label: string; hint: string }[] = [
   { id: 'plain-burgundy', label: 'Plain Burgundy', hint: 'Flat, ivory and wine' },
 ];
 
-const STORAGE_KEY = 'showhub.theme';
+const STORAGE_KEY = 'thiraihub.theme';
 
 function readStored(): Theme {
   try {

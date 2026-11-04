@@ -16,7 +16,7 @@ import { LogoMarkComponent } from '../logo-mark/logo-mark.component';
       <div class="container inner">
         <a class="brand" routerLink="/" (click)="closeAll()">
           <app-logo-mark [width]="42" />
-          <span class="brand-text">ShowHub</span>
+          <span class="brand-text">ThiraiHub</span>
         </a>
 
         <nav class="links" [class.open]="mobileOpen()">

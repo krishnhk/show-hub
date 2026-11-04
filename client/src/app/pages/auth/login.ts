@@ -251,7 +251,7 @@ export class LoginComponent implements OnDestroy {
     this.auth.completeProfile(payload).subscribe({
       next: () => {
         this.loading.set(false);
-        this.toast.success('Profile saved. Welcome to ShowHub!');
+        this.toast.success('Profile saved. Welcome to ThiraiHub!');
         this.finish();
       },
       error: (error: HttpErrorResponse) => {

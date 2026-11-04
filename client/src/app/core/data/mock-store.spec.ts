@@ -56,7 +56,7 @@ describe('MockStore demo flows', () => {
       seatNumbers: available,
     });
     expect(booking.confirmationCode).toBeTruthy();
-    // Each ticket carries the ShowHub service fee.
+    // Each ticket carries the ThiraiHub service fee.
     expect(booking.commissionFee).toBe(2 * BOOKING_COMMISSION_PER_TICKET);
     const cancelled = s.cancelBooking(1, booking.bookingId);
     expect(cancelled.success).toBe(true);
@@ -591,7 +591,7 @@ describe('MockStore demo flows', () => {
       expect(booking.commissionFee).toBe(tx.buyerFee);
       expect(booking.totalAmount).toBe(tx.totalBuyerPays);
       expect(booking.confirmationCode).toBeTruthy();
-      expect(booking.qrCode).toBe(`SHOWHUB:${booking.confirmationCode}`);
+      expect(booking.qrCode).toBe(`THIRAIHUB:${booking.confirmationCode}`);
       expect(s.getBookings(2, {}).bookings.some((b) => b.id === tx.bookingId)).toBe(true);
       expect(() => s.getSeats(booking.showtimeId)).not.toThrow();
       // the sold seats can no longer be listed from the seller's booking

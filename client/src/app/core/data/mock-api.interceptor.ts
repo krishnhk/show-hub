@@ -8,7 +8,7 @@ const API_PREFIX = '/api';
 const MOCK_LATENCY_MS = 220;
 
 /**
- * Serves the ShowHub REST contract from the in-memory mock store.
+ * Serves the ThiraiHub REST contract from the in-memory mock store.
  *
  * Everything the frontend does goes through HttpClient against `/api/**`, so
  * the app works today without the ASP.NET backend. To point the app at the

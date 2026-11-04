@@ -94,7 +94,7 @@ export class PublicProfileComponent implements OnInit {
           this.submitting.set(false);
           this.rating.set(0);
           this.comment.set('');
-          this.toast.success('Your review is live. Thanks for keeping ShowHub trustworthy.');
+          this.toast.success('Your review is live. Thanks for keeping ThiraiHub trustworthy.');
           this.load();
         },
         error: () => this.submitting.set(false),

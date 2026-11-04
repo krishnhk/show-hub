@@ -56,7 +56,7 @@ export class SettingsComponent {
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.href = url;
-    link.download = 'showhub-data.json';
+    link.download = 'thiraihub-data.json';
     link.click();
     URL.revokeObjectURL(url);
     this.toast.success('Your data export is downloading.');

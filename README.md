@@ -1,4 +1,4 @@
-# ShowHub
+# ThiraiHub
 
 A movie-ticket booking and resale marketplace. The Angular client runs against an
 in-memory mock API (no backend needed).

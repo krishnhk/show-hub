@@ -4,7 +4,7 @@ import { Injectable, computed, inject, signal } from '@angular/core';
 import { MovieListResponse } from '../models/catalog.model';
 import { API_BASE } from './auth.service';
 
-const STORAGE_KEY = 'showhub.city';
+const STORAGE_KEY = 'thiraihub.city';
 
 /** The city the user is browsing in. Applies across the app and is remembered between visits. */
 @Injectable({ providedIn: 'root' })

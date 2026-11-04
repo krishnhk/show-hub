@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, OnDestroy, signal } from '@angular/core';
 
-const SEEN_KEY = 'showhub.splash.seen';
+const SEEN_KEY = 'thiraihub.splash.seen';
 const HOLD_MS = 3000;
 const FADE_MS = 400;
 
@@ -10,7 +10,7 @@ const FADE_MS = 400;
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     @if (visible()) {
-      <div class="splash" [class.leaving]="leaving()" role="status" aria-label="Loading ShowHub" (click)="dismiss()">
+      <div class="splash" [class.leaving]="leaving()" role="status" aria-label="Loading ThiraiHub" (click)="dismiss()">
         <div class="lock">
           <svg viewBox="4 12 56 40" aria-hidden="true" focusable="false">
             <g class="tl">
@@ -32,7 +32,7 @@ const FADE_MS = 400;
           </svg>
           <span class="wm" aria-hidden="true">
             @for (letter of letters; track $index) {
-              <i [class.hub]="$index >= 4" [style.--i]="$index">{{ letter }}</i>
+              <i [class.hub]="$index >= 6" [style.--i]="$index">{{ letter }}</i>
             }
           </span>
         </div>
@@ -81,7 +81,7 @@ const FADE_MS = 400;
   `,
 })
 export class SplashComponent implements OnDestroy {
-  readonly letters = 'ShowHub'.split('');
+  readonly letters = 'ThiraiHub'.split('');
   readonly visible = signal(false);
   readonly leaving = signal(false);
 

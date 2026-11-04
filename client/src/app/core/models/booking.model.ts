@@ -78,5 +78,5 @@ export interface CancelBookingResponse {
   message: string;
 }
 
-/** ShowHub adds a per-ticket commission on top of the theatre price. */
+/** ThiraiHub adds a per-ticket commission on top of the theatre price. */
 export const BOOKING_COMMISSION_PER_TICKET = 30;

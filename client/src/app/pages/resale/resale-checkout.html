@@ -43,7 +43,7 @@
               </div>
               <div class="order-seats">
                 <span class="badge badge-accent">{{ ticket.showtime.format }}</span>
-                <span class="badge">Seller: {{ current.counterpart?.fullName ?? 'ShowHub seller' }}</span>
+                <span class="badge">Seller: {{ current.counterpart?.fullName ?? 'ThiraiHub seller' }}</span>
               </div>
             </div>
           } @else {
@@ -87,7 +87,7 @@
 
           <div class="card payment-card">
             <div class="row" style="justify-content: space-between">
-              <span class="text-sm">ShowHub wallet</span>
+              <span class="text-sm">ThiraiHub wallet</span>
               @if (walletUsed() > 0) {
                 <span class="badge badge-success">Applied {{ walletUsed() | inr }}</span>
               } @else {

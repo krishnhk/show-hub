@@ -13,7 +13,7 @@ import {
 } from '../models/user.model';
 
 export const API_BASE = '/api';
-const TOKEN_KEY = 'showhub_token';
+const TOKEN_KEY = 'thiraihub_token';
 
 function readToken(): string | null {
   try {
@@ -53,7 +53,7 @@ export class AuthService {
   readonly profile = this.profileSignal.asReadonly();
 
   readonly isLoggedIn = computed(() => !!this.tokenSignal());
-  readonly displayName = computed(() => this.userSignal()?.fullName || 'ShowHub Member');
+  readonly displayName = computed(() => this.userSignal()?.fullName || 'ThiraiHub Member');
   readonly initials = computed(() => {
     const name = this.userSignal()?.fullName?.trim() ?? '';
     if (!name) {

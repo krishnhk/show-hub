@@ -1,9 +1,9 @@
 ---
 name: verify
-description: How to build, launch and drive the ShowHub Angular client in a real browser to verify a change.
+description: How to build, launch and drive the ThiraiHub Angular client in a real browser to verify a change.
 ---
 
-# Verifying ShowHub
+# Verifying ThiraiHub
 
 The app is `client/` (Angular, in-memory mock API, no backend). Surface = the browser.
 
@@ -18,7 +18,7 @@ The app is `client/` (Angular, in-memory mock API, no backend). Surface = the br
 - Use `puppeteer-core` with the installed Chrome (`C:/Program Files/Google/Chrome/Application/chrome.exe`),
   `headless: 'new'`. Keep the harness outside the repo.
 - Sign in as the demo user without the OTP screen: before load, run
-  `localStorage.setItem('showhub_token', btoa('showhub:1:' + Date.now()))` (`evaluateOnNewDocument`).
+  `localStorage.setItem('thiraihub_token', btoa('thiraihub:1:' + Date.now()))` (`evaluateOnNewDocument`).
   User 1 is Aarav Sharma. For a real OTP flow the code is always `123456`.
 - Chennai is the only city, so the city picker never shows.
 - After a click, wait 300 ms before typing or reading: Angular renders on the next tick.

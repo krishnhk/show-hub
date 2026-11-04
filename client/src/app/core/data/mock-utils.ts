@@ -70,7 +70,7 @@ export function randomConfirmationCode(prefix: string): string {
 
 /** URL-safe pseudo QR payload rendered by the ticket card. */
 export function fakeQrPayload(value: string): string {
-  return `SHOWHUB:${value}`;
+  return `THIRAIHUB:${value}`;
 }
 
 /** Splits a full name at its first space: "Aarav Kumar Sharma" becomes first "Aarav", last "Kumar Sharma". */

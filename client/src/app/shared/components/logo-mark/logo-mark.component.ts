@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, input } from '@angular/core';
 
-/** ShowHub "Ticket Play" mark: a ticket stub with a play cue. */
+/** ThiraiHub "Ticket Play" mark: a ticket stub with a play cue. */
 @Component({
   selector: 'app-logo-mark',
   changeDetection: ChangeDetectionStrategy.OnPush,

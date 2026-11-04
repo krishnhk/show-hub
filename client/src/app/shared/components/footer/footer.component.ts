@@ -24,7 +24,7 @@ interface FooterLink {
         <div class="brand-block">
           <a class="brand" routerLink="/">
             <app-logo-mark [width]="40" />
-            <span class="brand-text">ShowHub</span>
+            <span class="brand-text">ThiraiHub</span>
           </a>
           <p class="tagline">Book seats at the theatre price. Can't make it? Sell them to someone who can.</p>
         </div>
@@ -50,7 +50,7 @@ interface FooterLink {
       </div>
 
       <div class="container legal">
-        <span>© 2026 ShowHub</span>
+        <span>© 2026 ThiraiHub</span>
         <span>Demo build · payments are simulated</span>
       </div>
     </footer>
