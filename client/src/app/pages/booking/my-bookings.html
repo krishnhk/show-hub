@@ -1,0 +1,85 @@
+<div class="container page">
+  <header class="page-head">
+    <div>
+      <h1>My tickets</h1>
+      <p class="subtitle">
+        @if (loading()) {
+          Loading your bookings…
+        } @else {
+          {{ activeList().length }} upcoming
+        }
+      </p>
+    </div>
+  </header>
+
+  @if (error(); as message) {
+    <div class="alert alert-error">{{ message }}</div>
+  }
+
+  @if (loading()) {
+    <app-loading-spinner label="Loading bookings…" />
+  } @else if (bookings().length === 0) {
+    <app-empty-state
+      icon="🎟️"
+      title="No bookings here yet"
+      message="Book a movie and your tickets will show up in this list."
+    >
+      <a class="btn btn-sm" routerLink="/movies">Find a movie</a>
+    </app-empty-state>
+  } @else {
+    @if (activeList().length === 0) {
+      <p class="none">No upcoming tickets.</p>
+    }
+
+    <div class="tickets">
+      @for (booking of shown(); track booking.id) {
+        <a class="ticket" [attr.data-state]="state(booking)" [routerLink]="['/bookings', booking.id, 'confirmation']">
+          <div class="in">
+            <app-film-thumb [posterUrl]="booking.showtime.movie.posterUrl" [alt]="booking.showtime.movie.title" />
+
+            <div class="content">
+              @if (booking.isListed || booking.fromResale) {
+                <span class="tags">
+                  @if (booking.isListed) {
+                    <span class="tag listed">Listed for sale</span>
+                  }
+                  @if (booking.fromResale) {
+                    <span class="tag resale">Resale ticket</span>
+                  }
+                </span>
+              }
+
+              <h3>{{ booking.showtime.movie.title }}</h3>
+
+              <div class="row">
+                <div>
+                  <div class="k">{{ heading(booking) }}{{ booking.showtime.showDateTime | showDate }}</div>
+                  <div class="time" [class.done]="state(booking) === 'past' || state(booking) === 'cancelled'">
+                    {{ booking.showtime.showDateTime | showTime }}
+                  </div>
+                </div>
+
+                <div class="details">
+                  <div>
+                    <span class="k">Venue</span>
+                    <b>{{ booking.showtime.theater.name }}</b>
+                  </div>
+                  <div>
+                    <span class="k">{{ booking.seatNumbers.length === 1 ? 'Seat' : 'Seats' }}</span>
+                    <b>{{ booking.seatNumbers.join(', ') }}</b>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </a>
+      }
+    </div>
+
+    @if (hasMorePast()) {
+      <button type="button" class="more" (click)="showMorePast()">
+        {{ pastShown() === 0 ? 'Show old tickets' : 'Show more old tickets' }}
+      </button>
+    }
+  }
+</div>

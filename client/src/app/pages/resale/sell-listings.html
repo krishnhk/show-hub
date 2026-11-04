@@ -1,0 +1,321 @@
+  <section class="panel listings-panel">
+    <div class="list-head">
+      <div class="panel-title">Your listings</div>
+      @if (store.listings().length > 0) {
+        <div class="filter">
+          <button
+            type="button"
+            class="btn btn-outline filter-btn"
+            aria-haspopup="listbox"
+            [attr.aria-expanded]="filterOpen()"
+            (click)="toggleFilter()"
+          >
+            <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+              <path d="M4 6h16M7 12h10M10 18h4" />
+            </svg>
+            {{ activeFilter().label }}
+            <svg class="caret" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+              <path d="M6 9l6 6 6-6" />
+            </svg>
+          </button>
+          @if (filterOpen()) {
+            <div class="filter-menu" role="listbox" aria-label="Filter listings">
+              @for (f of filters(); track f.id) {
+                <button
+                  type="button"
+                  role="option"
+                  class="filter-item"
+                  [class.on]="filter() === f.id"
+                  [attr.aria-selected]="filter() === f.id"
+                  (click)="setFilter(f.id)"
+                >
+                  <span>{{ f.label }}</span>
+                </button>
+              }
+            </div>
+          }
+        </div>
+      }
+    </div>
+
+    @if (store.listings().length === 0) {
+      <app-empty-state
+        icon="🏷️"
+        title="Nothing listed yet"
+        message="Pick an upcoming booking to create your first resale listing."
+      >
+        <a class="btn btn-sm" routerLink="/sell/new">Sell tickets</a>
+      </app-empty-state>
+    } @else if (visible().length === 0) {
+      <app-empty-state icon="🔎" title="No listings here" message="Try another filter to see the rest.">
+        <button type="button" class="btn btn-outline btn-sm" (click)="setFilter('all')">Show all</button>
+      </app-empty-state>
+    } @else {
+      <ul class="listing-list">
+        @for (listing of visible(); track listing.id) {
+          <li class="listing" [attr.data-status]="listing.status">
+            <span class="l-thumb">
+              <app-film-thumb [posterUrl]="listing.showtime.movie.posterUrl" [alt]="listing.showtime.movie.title" />
+            </span>
+
+            <div class="l-copy">
+              <span class="l-head">
+                <strong class="l-title">{{ listing.showtime.movie.title }}</strong>
+                <span
+                  class="badge"
+                  [class.badge-success]="listing.status === 'Available'"
+                  [class.badge-info]="listing.status === 'Sold'"
+                  [class.badge-muted]="listing.status === 'Delisted' || listing.status === 'Expired'"
+                >
+                  {{ statusLabel(listing.status) }}
+                </span>
+              </span>
+              <span class="l-meta">
+                {{ listing.showtime.theater.name }} · {{ listing.showtime.showDateTime | showDate }},
+                {{ listing.showtime.showDateTime | showTime }}
+              </span>
+              <span class="l-seats" [attr.aria-label]="listing.seatNumbers.length + ' seats'">
+                @for (seat of listing.seatNumbers; track seat) {
+                  <span class="mini-seat">{{ seat }}</span>
+                }
+              </span>
+              <span class="l-note">
+                @if (listing.status === 'Delisted') {
+                  You removed this listing · {{ listing.listedAt | timeAgo }}
+                } @else if (listing.status === 'Expired') {
+                  Show started · back in My Tickets
+                } @else {
+                  Listed {{ listing.listedAt | timeAgo }}
+                }
+              </span>
+            </div>
+
+            <div class="l-price">
+              <span class="l-label">{{ listing.status === 'Sold' ? 'Sold for' : listing.status === 'Available' ? 'Listed at' : listing.status === 'Delisted' ? 'Delisted · listed at' : 'Unsold · listed at' }}</span>
+              <strong>{{ listing.resalePrice | inr }}</strong>
+              @if (listing.status === 'Available' || listing.status === 'Sold') {
+                <span class="l-sub">
+                  {{ listing.status === 'Sold' ? 'Credited to wallet' : 'You get' }} {{ net(listing.resalePrice) | inr }}
+                </span>
+              } @else {
+                <span class="l-sub">Not sold</span>
+              }
+            </div>
+
+            <div class="l-action">
+              @if (listing.status === 'Available') {
+                <button
+                  type="button"
+                  class="btn btn-sm"
+                  (click)="startEdit(listing)"
+                >
+                  Edit
+                </button>
+              } @else {
+                <button type="button" class="btn btn-sm" (click)="viewClosed(listing)">View</button>
+              }
+            </div>
+          </li>
+        }
+      </ul>
+    }
+  </section>
+
+  @if (closedView(); as sold) {
+    <div class="overlay" (click)="closeClosed()">
+      <section
+        class="dialog pop"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="pop-title"
+        (click)="$event.stopPropagation()"
+      >
+        <app-listing-summary
+          [ticket]="sold"
+          [badge]="statusLabel(sold.status) + ' ticket'"
+          [tone]="sold.status === 'Sold' ? 'info' : 'muted'"
+          (closed)="closeClosed()"
+        />
+
+        @if (partNote(sold); as part) {
+          <span class="part">{{ part }}</span>
+        }
+
+        <div class="stub" aria-hidden="true"></div>
+
+        <div class="sold-money">
+          <div class="amount">
+            <span class="k">Bought price</span>
+            <span class="v">{{ sold.originalPrice | inr }}</span>
+          </div>
+          <div class="amount">
+            <span class="k">{{ sold.status === 'Sold' ? 'Sold price' : 'Listed price' }}</span>
+            <span class="v">{{ sold.resalePrice | inr }}</span>
+          </div>
+          <div class="amount" [class.deducted]="sold.status === 'Sold'">
+            <span class="k">Seller fee</span>
+            <span class="v">
+              @if (sold.status === 'Sold') { −{{ sold.sellerCommission | inr }} } @else { None }
+            </span>
+          </div>
+        </div>
+
+        @if (sold.status === 'Sold') {
+          <div class="credit-row">
+            <span class="credit-label">
+              Credited to wallet
+              <span class="credit-note">Sold price − seller fee ({{ feePercent }}%)</span>
+            </span>
+            <strong>{{ sold.sellerReceives | inr }}</strong>
+          </div>
+        } @else {
+          <div class="credit-row none">
+            <span class="credit-label">Credited to wallet</span>
+            <strong>None</strong>
+          </div>
+        }
+
+        <ol class="timeline">
+          <li>
+            <span class="k">Listed at</span>
+            <span class="v">{{ sold.listedAt | showDate }}, {{ sold.listedAt | showTime }}</span>
+          </li>
+          @if (sold.status === 'Sold') {
+            <li>
+              <span class="k">Sold on</span>
+              <span class="v">@if (sold.soldAt) { {{ sold.soldAt | showDate }}, {{ sold.soldAt | showTime }} }</span>
+            </li>
+          } @else {
+            <li class="ended">
+              <span class="k">{{ statusLabel(sold.status) }}</span>
+              <span class="v">{{ sold.status === 'Delisted' ? 'You removed this listing' : 'Show started, tickets returned to My Tickets' }}</span>
+            </li>
+          }
+        </ol>
+      </section>
+    </div>
+  }
+
+  @if (editing(); as ticket) {
+    <div class="overlay" (click)="closeEdit()">
+      <section
+        class="dialog pop"
+        [class.dense]="editGroups().length > 3"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="pop-title"
+        (click)="$event.stopPropagation()"
+      >
+        <app-listing-summary
+          [ticket]="ticket"
+          badge="Active listing"
+          tone="success"
+          note="Locked · seats can't be added or removed"
+          (closed)="closeEdit()"
+        />
+
+        @if (partNote(ticket); as part) {
+          <span class="part">{{ part }}</span>
+        }
+
+        <div class="stub" aria-hidden="true"></div>
+
+        <div class="pop-section">
+          <div class="k">Price per seat</div>
+          <div class="price-lines">
+            @for (group of editGroups(); track group.category) {
+              <div class="price-line">
+                <div class="price-info">
+                  <strong>{{ group.category }}</strong>
+                  @if (groupErrors()[group.category]; as error) {
+                    <span class="text-xs field-error">{{ error }}</span>
+                  } @else {
+                    <span class="text-xs text-muted">
+                      {{ group.seats.length }} seat{{ group.seats.length === 1 ? '' : 's' }} · paid {{ group.paid | inr }} each
+                    </span>
+                  }
+                </div>
+                <div class="price-box">
+                  <span class="rupee">₹</span>
+                  <input
+                    type="number"
+                    class="price-field"
+                    min="1"
+                    [max]="group.paid"
+                    [class.invalid]="groupErrors()[group.category]"
+                    [value]="editPrices()[group.category] ?? ''"
+                    (input)="setPrice(group.category, $any($event.target).value)"
+                    [attr.aria-label]="group.category + ' price per seat'"
+                  />
+                </div>
+              </div>
+            }
+          </div>
+        </div>
+
+        <div class="credit-row">
+          <span class="credit-label">
+            You get
+            <span class="credit-note">
+              Listed at {{ editTotal() | inr }} − seller fee {{ editFee() | inr }} ({{ feePercent }}%)
+            </span>
+          </span>
+          <strong>{{ editReceive() | inr }}</strong>
+        </div>
+        @if (editWarning(); as warning) {
+          <span class="text-xs field-warning">{{ warning }}</span>
+        }
+
+        <div class="pop-section">
+          <div class="k">Buyers can</div>
+          <div class="buy-options" role="radiogroup" aria-label="Buyer option">
+            <button
+              type="button"
+              class="buy-option"
+              role="radio"
+              [class.on]="!editPartial()"
+              [attr.aria-checked]="!editPartial()"
+              (click)="setPartial(false)"
+            >
+              <strong>Buy the whole set</strong>
+              <span class="text-xs text-muted">All {{ ticket.seatNumbers.length }} seats together.</span>
+            </button>
+            <button
+              type="button"
+              class="buy-option"
+              role="radio"
+              [class.on]="editPartial()"
+              [attr.aria-checked]="editPartial()"
+              [disabled]="ticket.seatNumbers.length < 2"
+              (click)="setPartial(true)"
+            >
+              <strong>Buy seat by seat</strong>
+              <span class="text-xs text-muted">
+                @if (ticket.seatNumbers.length < 2) { Needs two or more seats. } @else { Any of the seats. }
+              </span>
+            </button>
+          </div>
+        </div>
+
+        <footer class="actions">
+          <button type="button" class="btn btn-ghost btn-sm danger" (click)="askDelist(ticket)">Delist</button>
+          <span class="spacer"></span>
+          <button type="button" class="btn btn-outline" (click)="closeEdit()">Cancel</button>
+          <button type="button" class="btn" [disabled]="!canSave()" (click)="saveEdit()">
+            {{ saving() ? 'Saving…' : 'Save changes' }}
+          </button>
+        </footer>
+      </section>
+    </div>
+  }
+
+  @if (delistTarget(); as target) {
+    <app-confirm-dialog
+      title="Remove this listing?"
+      [message]="'Seats ' + target.seatNumbers.join(', ') + ' for ' + target.showtime.movie.title + ' will leave the marketplace and return to My tickets.'"
+      confirmLabel="Remove listing"
+      cancelLabel="Keep listed"
+      (confirmed)="confirmDelist()"
+      (cancelled)="delistTarget.set(null)"
+    />
+  }

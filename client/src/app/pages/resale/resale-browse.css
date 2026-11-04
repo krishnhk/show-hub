@@ -1,0 +1,191 @@
+:host {
+  display: block;
+}
+
+.page-head > div:first-child {
+  flex: 1 1 420px;
+  max-width: 700px;
+}
+
+/* One search box, by movie name */
+
+.bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  max-width: 1000px;
+  margin-bottom: 20px;
+}
+
+.search {
+  position: relative;
+  flex: 0 0 380px;
+  max-width: 100%;
+  min-width: 0;
+}
+
+.search-icon {
+  position: absolute;
+  top: 50%;
+  left: 14px;
+  width: 18px;
+  height: 18px;
+  transform: translateY(-50%);
+  fill: none;
+  stroke: var(--text-muted);
+  stroke-width: 2;
+  stroke-linecap: round;
+  pointer-events: none;
+}
+
+.search-input {
+  width: 100%;
+  padding-left: 42px;
+  padding-right: 40px;
+}
+
+.search-input::-webkit-search-cancel-button {
+  display: none;
+  appearance: none;
+}
+
+.clear {
+  position: absolute;
+  top: 50%;
+  right: 8px;
+  width: 28px;
+  height: 28px;
+  transform: translateY(-50%);
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--text-muted);
+  font-size: 0.85rem;
+  cursor: pointer;
+}
+
+.clear:hover {
+  background: var(--surface-2);
+  color: var(--text);
+}
+
+.clear:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+/* Three separate filters, each with its own dropdown */
+
+.filter {
+  position: relative;
+}
+
+.filter-btn {
+  gap: 8px;
+}
+
+.filter-btn.on {
+  border-color: var(--brand);
+  background: var(--brand-soft);
+}
+
+.caret {
+  width: 14px;
+  height: 14px;
+  fill: none;
+  stroke: var(--text-muted);
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.menu {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  z-index: 20;
+  display: flex;
+  flex-direction: column;
+  min-width: 190px;
+  padding: 6px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--bg-elevated, #fff);
+  box-shadow: var(--shadow-lg);
+}
+
+.menu-item {
+  padding: 9px 10px;
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--text);
+  font-family: inherit;
+  font-size: 0.88rem;
+  text-align: left;
+  cursor: pointer;
+}
+
+.menu-item:hover {
+  background: var(--surface-2);
+}
+
+.menu-item.on {
+  background: var(--brand-soft);
+  font-weight: 700;
+}
+
+.reset {
+  padding: 8px 4px;
+  border: 0;
+  background: transparent;
+  color: var(--accent);
+  font-family: inherit;
+  font-size: 0.88rem;
+  font-weight: 700;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  cursor: pointer;
+}
+
+.filter-btn:focus-visible,
+.menu-item:focus-visible,
+.reset:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.grid-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 460px), 1fr));
+  gap: 16px;
+}
+
+/* One section per movie */
+
+.movie-group + .movie-group {
+  margin-top: 28px;
+}
+
+.group-title {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin: 0 0 12px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--border);
+  font-size: 1.2rem;
+}
+
+.group-count {
+  color: var(--text-muted);
+  font-size: 0.82rem;
+  font-weight: 500;
+}
+
+app-day-strip {
+  display: block;
+  margin-bottom: 20px;
+}

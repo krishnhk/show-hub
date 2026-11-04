@@ -1,0 +1,222 @@
+<div class="container page">
+  @if (loading()) {
+    <app-loading-spinner label="Loading your ticket…" />
+  } @else if (notFound() || !booking()) {
+    <app-empty-state
+      icon="🎟️"
+      title="Booking not found"
+      message="We could not find this booking. It may belong to another account."
+    >
+      <a class="btn btn-outline btn-sm" routerLink="/my-bookings">View my tickets</a>
+    </app-empty-state>
+  } @else if (booking(); as current) {
+    <div class="column">
+    <a class="back" routerLink="/my-bookings">← My tickets</a>
+
+    @if (justBooked()) {
+      <div class="banner success" role="status">
+        <span class="banner-icon" aria-hidden="true">✓</span>
+        <div>
+          <strong>Booking confirmed</strong>
+          <span>Your ticket is below. We have also sent it to your email and phone.</span>
+        </div>
+      </div>
+    } @else if (current.status === 'Cancelled') {
+      <div class="banner danger" role="status">
+        <span class="banner-icon" aria-hidden="true">✕</span>
+        <div>
+          <strong>Booking cancelled</strong>
+          <span>This ticket is no longer valid@if (current.cancelledAt) { · cancelled {{ current.cancelledAt | timeAgo }}}.</span>
+        </div>
+      </div>
+    }
+
+    <div class="layout">
+      <article class="ticket" [attr.data-state]="state()">
+        <div class="main">
+          <app-film-thumb [posterUrl]="current.showtime.movie.posterUrl" [alt]="current.showtime.movie.title" />
+
+          <div class="info">
+            <div class="chips">
+              <span class="chip status" [attr.data-state]="state()">{{ statusLabel() }}</span>
+              @if (current.fromResale) {
+                <span class="chip resale">Resale ticket</span>
+              }
+            </div>
+
+            <h1>{{ current.showtime.movie.title }}</h1>
+
+            <div class="facts">
+              <div>
+                <span class="k">Date</span>
+                <b>{{ current.showtime.showDateTime | showDate }}</b>
+              </div>
+              <div>
+                <span class="k">Time</span>
+                <b class="big">{{ current.showtime.showDateTime | showTime }}</b>
+              </div>
+              <div>
+                <span class="k">Language</span>
+                <b>{{ current.showtime.language }}</b>
+              </div>
+              <div>
+                <span class="k">Format</span>
+                <b>{{ current.showtime.format }}</b>
+              </div>
+            </div>
+
+            <div class="place">
+            <div class="where">
+              <span class="k">Venue</span>
+              <b>{{ current.showtime.theater.name }}</b>
+              <span class="address">{{ current.showtime.theater.address }}</span>
+            </div>
+
+            <div class="seat-block">
+              <span class="k">{{ current.seatNumbers.length === 1 ? 'Seat' : 'Seats' }}</span>
+              <div class="seats">
+                @for (seat of current.seatNumbers; track seat) {
+                  <span class="seat" [class.gone]="!isMine(seat)" [attr.title]="isMine(seat) ? null : 'Listed for sale or sold'">{{ seat }}</span>
+                }
+              </div>
+              @if (elsewhere().length > 0) {
+                <a class="resale-note" routerLink="/sell/listings">
+                  {{ elsewhere().length }} on resale or sold · Your listings →
+                </a>
+              }
+            </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="stub">
+          <div class="qr-wrap" [class.dim]="state() !== 'upcoming'">
+            <div class="qr" aria-hidden="true">
+              @for (cell of qrCells(); track $index) {
+                <span class="qr-cell" [class.on]="cell"></span>
+              }
+            </div>
+            @if (state() !== 'upcoming') {
+              <span class="qr-over">
+                {{ state() === 'cancelled' ? 'Cancelled' : state() === 'listed' ? 'Not valid' : 'Show over' }}
+              </span>
+            }
+          </div>
+
+          <div class="code">
+            <span class="k">Confirmation code</span>
+            <div class="code-row">
+              <span class="mono">{{ current.confirmationCode ?? '—' }}</span>
+              <button type="button" class="copy" (click)="copyCode()" aria-label="Copy confirmation code">
+                {{ copied() ? 'Copied' : 'Copy' }}
+              </button>
+            </div>
+          </div>
+
+          @if (state() === 'upcoming') {
+            <p class="scan-hint">Show this QR code at the entrance.</p>
+          } @else if (state() === 'listed') {
+            <p class="scan-hint warn">This QR code is not valid while the tickets are listed for sale.</p>
+          }
+        </div>
+      </article>
+
+      <aside class="side">
+        <section class="card">
+          <h2>Payment</h2>
+          <div class="kv">
+            <span class="k">Seat price ({{ current.quantity }} ×)</span>
+            <span class="v">{{ current.bookingPrice | inr }}</span>
+          </div>
+          <div class="kv">
+            <span class="k">ShowHub service fee</span>
+            <span class="v">{{ current.commissionFee | inr }}</span>
+          </div>
+          <div class="total">
+            <span>Total paid</span>
+            <span>{{ current.totalAmount | inr }}</span>
+          </div>
+          @if (walletUsed() > 0) {
+            <div class="split">
+              <div>
+                <span class="k">From wallet</span>
+                <b>{{ walletUsed() | inr }}</b>
+              </div>
+              <div>
+                <span class="k">By card / UPI</span>
+                <b>{{ cardPaid() | inr }}</b>
+              </div>
+            </div>
+          }
+          <p class="booked">Booked {{ current.bookedAt | timeAgo }}</p>
+        </section>
+
+        @if (canSell() || cancellable() || canDelist()) {
+          <section class="card manage">
+            <h2>Manage</h2>
+            @if (canDelist()) {
+              <button type="button" class="btn btn-block" (click)="askDelist()">Delist from resale</button>
+              <p class="policy">Taking the tickets off the market makes the QR code valid again.</p>
+            }
+            @if (canSell()) {
+              <a class="btn btn-outline btn-block" routerLink="/sell/new" [queryParams]="{ bookingId: current.id }">
+                Sell these tickets
+              </a>
+            }
+            @if (cancellable()) {
+              <button
+                type="button"
+                class="btn btn-ghost btn-block danger"
+                [disabled]="!canCancel() || current.isListed"
+                (click)="askCancel()"
+              >
+                Cancel booking
+              </button>
+              <p class="policy">
+                @if (current.isListed) {
+                  Delist these tickets first, then you can cancel the booking.
+                } @else if (canCancel()) {
+                  Free to cancel until {{ cancelHours }} hours before the show. More than 24 hours before it, 50% of
+                  the amount paid comes back. Inside 24 hours, nothing does.
+                } @else {
+                  Cancellation closed {{ cancelHours }} hours before the show.
+                }
+              </p>
+            }
+          </section>
+        }
+      </aside>
+    </div>
+    </div>
+  }
+
+  @if (cancelOpen() && booking(); as current) {
+    <app-confirm-dialog
+      title="Cancel this booking?"
+      [message]="
+        'Cancelling ' + current.quantity + ' ticket(s) for ' + current.showtime.movie.title +
+        '. A 50% refund applies when more than 24 hours remain before the showtime, inside 24 hours no refund is given. The refund goes back to your wallet first, then to your card.'
+      "
+      confirmLabel="Cancel booking"
+      cancelLabel="Keep tickets"
+      [danger]="true"
+      (confirmed)="confirmCancel()"
+      (cancelled)="closeCancel()"
+    />
+  }
+
+  @if (delistOpen() && booking(); as current) {
+    <app-confirm-dialog
+      title="Delist these tickets?"
+      [message]="
+        'The listed seats for ' + current.showtime.movie.title +
+        ' leave the marketplace and come back to you. Your QR code works again.'
+      "
+      confirmLabel="Delist"
+      cancelLabel="Keep listed"
+      [danger]="false"
+      (confirmed)="confirmDelist()"
+      (cancelled)="closeDelist()"
+    />
+  }
+</div>

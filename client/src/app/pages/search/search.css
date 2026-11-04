@@ -1,0 +1,35 @@
+:host {
+  display: block;
+}
+
+.search-bar {
+  margin-bottom: 8px;
+}
+
+.search-input {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.search-input .input {
+  flex: 1;
+}
+
+.results {
+  margin-top: 8px;
+}
+
+.theatre {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.theatre h3 {
+  margin: 0 0 2px;
+}
+
+.theatre p {
+  margin: 0;
+}

@@ -1,0 +1,161 @@
+<div class="container page narrow">
+  @if (loading()) {
+    <app-loading-spinner label="Preparing your checkout…" />
+  } @else if (notFound() || !transaction()) {
+    <app-empty-state
+      icon="🔒"
+      title="Checkout session not found"
+      message="This order is not yours or the session has expired. Start again from the marketplace."
+    >
+      <a class="btn btn-sm" routerLink="/resale">Back to marketplace</a>
+    </app-empty-state>
+  } @else if (transaction(); as current) {
+    @if (!paid()) {
+      <header class="page-head">
+        <div>
+          <h1>Resale checkout</h1>
+          <p class="subtitle">
+            Pay like a normal booking. The seats appear in My Tickets right away.
+          </p>
+        </div>
+      </header>
+
+      <div class="checkout-grid">
+        <section class="panel">
+          <div class="panel-title">Order summary</div>
+
+          @if (current.ticket; as ticket) {
+            <div class="order-movie">
+              <div class="order-copy">
+                <h2>{{ ticket.showtime.movie.title }}</h2>
+                <p class="text-sm text-muted">
+                  {{ ticket.showtime.theater.name }} · {{ ticket.showtime.theater.city }}
+                </p>
+                <p class="text-sm text-soft">
+                  {{ ticket.showtime.showDateTime | showDate }},
+                  {{ ticket.showtime.showDateTime | showTime }} · {{ ticket.showtime.format }}
+                </p>
+                <div class="row-wrap seats">
+                  @for (seat of ticket.seatNumbers; track seat) {
+                    <span class="chip">{{ seat }}</span>
+                  }
+                </div>
+              </div>
+              <div class="order-seats">
+                <span class="badge badge-accent">{{ ticket.showtime.format }}</span>
+                <span class="badge">Seller: {{ current.counterpart?.fullName ?? 'ShowHub seller' }}</span>
+              </div>
+            </div>
+          } @else {
+            <p class="text-sm text-muted">Ticket details are no longer available.</p>
+          }
+
+          <div class="divider"></div>
+
+          <div class="price-lines">
+            <div class="kv">
+              <span class="k">Resale price</span>
+              <span class="v">{{ current.resalePrice | inr }}</span>
+            </div>
+            <div class="kv">
+              <span class="k">Buyer fee (2.5% + ₹0.30)</span>
+              <span class="v">{{ current.buyerFee | inr }}</span>
+            </div>
+            <div class="total-row">
+              <span>Total due now</span>
+              <span>{{ current.totalBuyerPays | inr }}</span>
+            </div>
+            @if (walletUsed() > 0) {
+              <div class="kv">
+                <span class="k">Paid from wallet</span>
+                <span class="v">− {{ walletUsed() | inr }}</span>
+              </div>
+              <div class="kv">
+                <span class="k">To pay by card/UPI</span>
+                <span class="v">{{ amountDue() | inr }}</span>
+              </div>
+            }
+          </div>
+
+          <div class="alert alert-info">
+            Once you pay, the seats are added to My Tickets and the seller is paid to their wallet.
+          </div>
+        </section>
+
+        <aside class="panel surface-sticky">
+          <div class="panel-title">Payment</div>
+
+          <div class="card payment-card">
+            <div class="row" style="justify-content: space-between">
+              <span class="text-sm">ShowHub wallet</span>
+              @if (walletUsed() > 0) {
+                <span class="badge badge-success">Applied {{ walletUsed() | inr }}</span>
+              } @else {
+                <span class="text-xs text-muted">
+                  {{ wallet.balance() > 0 ? 'Not applied to this order' : 'Wallet is empty' }}
+                </span>
+              }
+            </div>
+          </div>
+
+          @if (!walletCoversAll()) {
+            <div class="card payment-card">
+              <div class="row" style="justify-content: space-between">
+                <span class="mono">•••• •••• •••• 4242</span>
+                <span class="text-xs text-muted">VISA</span>
+              </div>
+              <p class="text-xs text-muted">Demo card — no real charge is made in this build.</p>
+            </div>
+          }
+
+          <div class="divider"></div>
+
+          @if (isOwnListing()) {
+            <div class="alert alert-error">You can't buy your own listing.</div>
+          }
+          <button
+            type="button"
+            class="btn btn-block btn-lg"
+            [disabled]="paying() || isOwnListing()"
+            (click)="pay()"
+          >
+            @if (paying()) {
+              Processing…
+            } @else if (walletCoversAll()) {
+              Pay {{ current.totalBuyerPays | inr }} from wallet
+            } @else {
+              Pay {{ amountDue() | inr }}
+            }
+          </button>
+          <p class="hint">
+            By paying you agree to the resale terms. Resale tickets are final once booked.</p>
+        </aside>
+      </div>
+    } @else {
+      <div class="panel success-panel">
+        <div class="success-icon" aria-hidden="true">🎟️</div>
+        <h1>Payment successful</h1>
+        <p class="subtitle">
+          Your tickets are booked
+          @if (current.ticket) {
+            for {{ current.ticket.showtime.movie.title }}
+          }
+          and are in My Tickets now.
+        </p>
+
+        @if (walletUsed() > 0) {
+          <p class="text-sm text-muted">
+            {{ walletUsed() | inr }} from your wallet · {{ amountDue() | inr }} by card/UPI
+          </p>
+        } @else {
+          <p class="text-sm text-muted">{{ current.totalBuyerPays | inr }} paid by card/UPI</p>
+        }
+
+        <div class="row-wrap success-actions">
+          <a class="btn" [routerLink]="ticketsLink()">View my tickets</a>
+          <a class="btn btn-ghost" routerLink="/resale">Browse more tickets</a>
+        </div>
+      </div>
+    }
+  }
+</div>

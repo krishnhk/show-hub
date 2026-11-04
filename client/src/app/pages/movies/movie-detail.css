@@ -1,0 +1,244 @@
+:host {
+  display: block;
+}
+
+.back-link {
+  display: inline-block;
+  margin-bottom: 14px;
+  color: var(--text-muted);
+}
+
+.back-link:hover {
+  color: var(--accent);
+  text-decoration: none;
+}
+
+/* One band: poster on the left, everything about the film on the right */
+
+.hero {
+  display: grid;
+  grid-template-columns: 200px minmax(0, 1fr);
+  gap: 28px;
+  align-items: start;
+}
+
+.hero-poster {
+  width: 100%;
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+
+.hero-info {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-width: 0;
+  max-width: 68ch;
+}
+
+.hero-info h1 {
+  margin: 0;
+  font-size: clamp(1.7rem, 3vw, 2.4rem);
+  line-height: 1.1;
+}
+
+.eyebrow {
+  margin: 0;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+
+.facts {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 10px;
+  margin: 0;
+  color: var(--text-soft);
+  font-size: 0.95rem;
+}
+
+.cert {
+  padding: 1px 8px;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.dot { color: var(--text-muted); }
+.rating b { color: var(--text); }
+
+.description {
+  margin: 0;
+  color: var(--text-soft);
+  line-height: 1.7;
+}
+
+.detail-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+}
+
+.showtimes-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.showtimes-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.showtimes-head h2 {
+  margin: 0;
+  font-size: 1.25rem;
+}
+
+.showtimes-head p { margin: 2px 0 0; }
+
+app-day-strip {
+  display: block;
+}
+
+.theatre-list {
+  display: flex;
+  flex-direction: column;
+}
+
+.theatre-block {
+  display: grid;
+  grid-template-columns: 240px minmax(0, 1fr);
+  gap: 8px 24px;
+  align-items: center;
+  padding: 16px 0;
+  border-top: 1px solid var(--border);
+}
+
+.theatre-head h3 {
+  margin: 0;
+  font-size: 1rem;
+}
+
+.theatre-head p { margin: 2px 0 0; }
+
+/* Ticket-shaped showtime: fixed size, cut corners, dashed tear line under the time. */
+.showtime-chip {
+  position: relative;
+  isolation: isolate;
+  flex-direction: column;
+  justify-content: center;
+  align-items: stretch;
+  gap: 6px;
+  width: 124px;
+  height: 68px;
+  padding: 8px 14px;
+  border: 0;
+  border-radius: 0;
+  text-align: center;
+  line-height: 1.2;
+  /* The chip is the outline colour; ::before is the fill laid 1px inside it. */
+  --edge: var(--border);
+  background: var(--edge);
+  /* Corners curve inward (concave quarter circles), 10px radius. */
+  clip-path: path('M10 0H114A10 10 0 0 0 124 10V58A10 10 0 0 0 114 68H10A10 10 0 0 0 0 58V10A10 10 0 0 0 10 0Z');
+}
+
+.showtime-chip::before {
+  content: '';
+  position: absolute;
+  inset: 1px;
+  z-index: -1;
+  background: var(--surface-2);
+  transition: background 140ms ease;
+  clip-path: path('M9 0H113A9 9 0 0 0 122 9V57A9 9 0 0 0 113 66H9A9 9 0 0 0 0 57V9A9 9 0 0 0 9 0Z');
+}
+
+.showtime-chip:not(:disabled):hover,
+.showtime-chip:focus-visible {
+  --edge: var(--accent);
+}
+
+.showtime-chip:not(:disabled):hover::before {
+  background: var(--surface-3);
+}
+
+/* Keyboard focus: a thicker accent outline, since clip-path hides the normal focus ring. */
+.showtime-chip:focus-visible {
+  outline: none;
+}
+
+.showtime-chip:focus-visible::before {
+  inset: 2px;
+  clip-path: path('M8 0H112A8 8 0 0 0 120 8V56A8 8 0 0 0 112 64H8A8 8 0 0 0 0 56V8A8 8 0 0 0 8 0Z');
+}
+
+.showtime-chip .fmt {
+  padding-top: 5px;
+  border-top: 1px dashed var(--border);
+}
+
+.showtime-chip .time {
+  font-weight: 700;
+  color: var(--text);
+}
+
+.showtime-chip.low {
+  --edge: var(--warning, #c98a1a);
+}
+
+.legend {
+  display: flex;
+  align-items: center;
+  gap: 8px 14px;
+  margin: 0;
+}
+
+.key {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  margin-right: -6px;
+  border-radius: 50%;
+  background: var(--warning, #c98a1a);
+}
+
+.key.sold {
+  background: var(--text-muted);
+  opacity: 0.5;
+}
+
+.showtime-chip:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.showtime-chip:disabled:hover {
+  color: var(--text-soft);
+}
+
+@media (max-width: 768px) {
+  .hero {
+    grid-template-columns: 120px minmax(0, 1fr);
+    gap: 16px;
+  }
+
+  .theatre-block {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 375px) {
+  .showtime-chip {
+    padding: 8px 10px;
+  }
+}

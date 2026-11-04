@@ -1,0 +1,96 @@
+:host {
+  display: block;
+}
+
+.summary-grid {
+  margin-bottom: 18px;
+}
+
+.summary-card {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 14px 16px;
+}
+
+.summary-card strong {
+  font-size: 1.4rem;
+  font-weight: 800;
+}
+
+.tabs {
+  margin-bottom: 18px;
+}
+
+.order-card {
+  display: grid;
+  grid-template-columns: 88px minmax(0, 1fr) minmax(220px, 280px);
+  gap: 18px;
+  align-items: flex-start;
+}
+
+.order-thumb {
+  width: 88px;
+}
+
+.order-thumb .poster-fallback {
+  font-size: 0.58rem;
+  padding: 6px;
+}
+
+.order-body {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 0;
+}
+
+.order-body h3 {
+  margin: 0;
+  font-size: 1.1rem;
+}
+
+.order-body p {
+  margin: 0;
+}
+
+.meta {
+  gap: 6px;
+  margin-top: 2px;
+}
+
+.seat-chip {
+  cursor: default;
+  padding: 3px 9px;
+  font-size: 0.76rem;
+}
+
+.order-money {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding-left: 18px;
+  border-left: 1px solid var(--border-soft);
+}
+
+.order-actions {
+  margin-top: 10px;
+}
+
+@media (max-width: 900px) {
+  .order-card {
+    grid-template-columns: 64px minmax(0, 1fr);
+  }
+
+  .order-thumb {
+    width: 64px;
+  }
+
+  .order-money {
+    grid-column: 1 / -1;
+    padding-left: 0;
+    border-left: none;
+    border-top: 1px solid var(--border-soft);
+    padding-top: 12px;
+  }
+}

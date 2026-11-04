@@ -1,0 +1,13 @@
+<app-splash />
+<app-location-picker />
+
+<div class="loader-bar" [class.active]="loading.isLoading()"></div>
+
+<app-navbar />
+
+<main class="app-main">
+  <router-outlet />
+</main>
+
+<app-footer />
+<app-toast-container />

@@ -1,0 +1,149 @@
+<div class="container page">
+  <header class="page-head">
+    <div>
+      <h1>Resale orders</h1>
+      <p class="subtitle">
+        Your resale purchases and sales. Bought tickets are in My Tickets; sale proceeds go straight to your wallet.
+      </p>
+    </div>
+    <a class="btn btn-outline btn-sm" routerLink="/resale">Browse marketplace</a>
+  </header>
+
+  <div class="grid grid-auto summary-grid">
+    <div class="card summary-card">
+      <span class="text-xs text-muted">Buying</span>
+      <strong>{{ totals().buying }}</strong>
+    </div>
+    <div class="card summary-card">
+      <span class="text-xs text-muted">Selling</span>
+      <strong>{{ totals().selling }}</strong>
+    </div>
+  </div>
+
+  <div class="chip-row tabs">
+    @for (item of tabs; track item.key) {
+      <button type="button" class="chip" [class.active]="tab() === item.key" (click)="setTab(item.key)">
+        {{ item.label }}
+      </button>
+    }
+  </div>
+
+  @if (error(); as message) {
+    <div class="alert alert-error">{{ message }}</div>
+  }
+
+  @if (loading()) {
+    <app-loading-spinner label="Loading orders…" />
+  } @else if (visible().length === 0) {
+    <app-empty-state
+      icon="📦"
+      title="No resale orders yet"
+      message="Buy a spare seat from the marketplace, or list one of your own bookings for sale."
+    >
+      <div class="row-wrap" style="justify-content: center">
+        <a class="btn btn-sm" routerLink="/resale">Browse resale</a>
+        <a class="btn btn-outline btn-sm" routerLink="/sell/new">Sell a ticket</a>
+      </div>
+    </app-empty-state>
+  } @else {
+    <div class="stack">
+      @for (transaction of visible(); track transaction.id) {
+        <article class="card order-card">
+          <div class="poster order-thumb">
+            @if (transaction.ticket; as ticket) {
+              @if (ticket.showtime.movie.posterUrl) {
+                <img [src]="ticket.showtime.movie.posterUrl" [alt]="ticket.showtime.movie.title" />
+              } @else {
+                <div class="poster-fallback"><span>{{ ticket.showtime.movie.title }}</span></div>
+              }
+            } @else {
+              <div class="poster-fallback"><span>Resale</span></div>
+            }
+          </div>
+
+          <div class="order-body">
+            <div class="row-wrap">
+              <span class="badge" [class.badge-brand]="transaction.role === 'buyer'" [class.badge-accent]="transaction.role === 'seller'">
+                {{ transaction.role === 'buyer' ? 'Bought' : 'Sold' }}
+              </span>
+              <span class="badge" [class]="statusClass(transaction)">{{ transaction.status }}</span>
+              <span class="text-xs text-muted">Order #{{ transaction.id }}</span>
+            </div>
+
+            <h3>{{ transaction.ticket?.showtime?.movie?.title ?? 'Resale ticket' }}</h3>
+
+            @if (transaction.ticket; as ticket) {
+              <p class="text-sm text-muted">
+                {{ ticket.showtime.theater.name }} · {{ ticket.showtime.showDateTime | showDate }},
+                {{ ticket.showtime.showDateTime | showTime }}
+              </p>
+              <div class="row-wrap">
+                @for (seat of ticket.seatNumbers; track seat) {
+                  <span class="chip seat-chip">{{ seat }}</span>
+                }
+              </div>
+            }
+
+            <div class="row-wrap meta">
+              <span class="text-xs text-muted">
+                {{ transaction.role === 'buyer' ? 'Seller' : 'Buyer' }}:
+                @if (transaction.counterpart; as other) {
+                  <a class="link-plain" [routerLink]="['/profile', other.id]">{{ other.fullName }}</a>
+                } @else {
+                  —
+                }
+              </span>
+              <span class="text-xs text-muted">· {{ transaction.purchasedAt | timeAgo }}</span>
+            </div>
+          </div>
+
+          <div class="order-money">
+            @if (transaction.role === 'buyer') {
+              <div class="kv">
+                <span class="k">Ticket</span>
+                <span class="v">{{ transaction.resalePrice | inr }}</span>
+              </div>
+              <div class="kv">
+                <span class="k">Buyer fee</span>
+                <span class="v">{{ transaction.buyerFee | inr }}</span>
+              </div>
+              <div class="total-row">
+                <span>Paid</span>
+                <span>{{ transaction.totalBuyerPays | inr }}</span>
+              </div>
+            } @else {
+              <div class="kv">
+                <span class="k">Sale price</span>
+                <span class="v">{{ transaction.resalePrice | inr }}</span>
+              </div>
+              <div class="kv">
+                <span class="k">ShowHub fee</span>
+                <span class="v">−{{ transaction.resalePrice - transaction.sellerReceives | inr }}</span>
+              </div>
+              <div class="total-row">
+                <span>Credited to your wallet</span>
+                <span>{{ transaction.sellerReceives | inr }}</span>
+              </div>
+            }
+
+            <div class="stack-sm order-actions">
+              @if (transaction.role === 'buyer' && transaction.status === 'Completed') {
+                <a class="btn btn-sm" routerLink="/my-bookings">View tickets</a>
+              }
+              @if (transaction.counterpart; as other) {
+                @if (transaction.status === 'Completed') {
+                  <a class="btn btn-ghost btn-sm" [routerLink]="['/profile', other.id]">
+                    Rate {{ transaction.role === 'buyer' ? 'seller' : 'buyer' }}
+                  </a>
+                }
+              }
+              @if (transaction.ticket; as ticket) {
+                <a class="btn btn-ghost btn-sm" [routerLink]="['/resale', ticket.id]">View listing</a>
+              }
+            </div>
+          </div>
+        </article>
+      }
+    </div>
+  }
+</div>

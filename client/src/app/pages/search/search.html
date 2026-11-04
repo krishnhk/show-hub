@@ -1,0 +1,88 @@
+<div class="container page">
+  <header class="page-head">
+    <div>
+      <h1>Search</h1>
+      <p class="subtitle">Movies and theatres in {{ location.city() }}</p>
+    </div>
+  </header>
+
+  <section class="panel search-bar">
+    <div class="field">
+      <label for="site-search">Search movies or theatres</label>
+      <div class="search-input">
+        <input
+          id="site-search"
+          class="input"
+          type="search"
+          [formControl]="queryControl"
+          placeholder="Movie, genre, language or theatre"
+          autocomplete="off"
+        />
+        @if (queryControl.value) {
+          <button type="button" class="btn btn-ghost btn-sm" (click)="clear()">Clear</button>
+        }
+      </div>
+    </div>
+  </section>
+
+  @if (error(); as message) {
+    <div class="alert alert-error">{{ message }}</div>
+  }
+
+  @if (loading()) {
+    <div class="loading-block"><div class="spinner spinner-lg"></div><span>Searching…</span></div>
+  } @else if (noResults()) {
+    <app-empty-state
+      icon="🔎"
+      title="Nothing found"
+      [message]="'No movies or theatres in ' + location.city() + ' match that search. Try a different word.'"
+    >
+      <button type="button" class="btn btn-outline btn-sm" (click)="clear()">Clear search</button>
+    </app-empty-state>
+  } @else {
+    @if (theaters().length > 0) {
+      <section class="results">
+        <div class="section-title">
+          <h2>{{ searching() ? 'Theatres' : 'Theatres in ' + location.city() }}</h2>
+          <span class="text-sm text-muted">{{ theaters().length }}</span>
+        </div>
+        <div class="grid grid-auto-lg">
+          @for (theater of theaters(); track theater.id) {
+            <article class="card theatre">
+              <div>
+                <h3>{{ theater.name }}</h3>
+                <p class="text-xs text-muted selectable">{{ theater.address }}</p>
+              </div>
+              @if (theater.movies.length > 0) {
+                <div class="stack-sm">
+                  <span class="label">Now showing</span>
+                  <div class="chip-row">
+                    @for (movie of theater.movies; track movie.id) {
+                      <a class="chip" [routerLink]="['/movies', movie.id]">{{ movie.title }}</a>
+                    }
+                  </div>
+                </div>
+              } @else {
+                <p class="text-xs text-muted">No shows listed right now.</p>
+              }
+            </article>
+          }
+        </div>
+      </section>
+    }
+
+    @if (movies().length > 0) {
+      <section class="results">
+        <div class="section-title">
+          <h2>{{ searching() ? 'Movies' : 'Now showing' }}</h2>
+          <span class="text-sm text-muted">{{ movies().length }}</span>
+        </div>
+        <div class="grid grid-auto">
+          @for (movie of movies(); track movie.id) {
+            <app-movie-card [movie]="movie" [price]="null" />
+          }
+        </div>
+      </section>
+    }
+  }
+</div>

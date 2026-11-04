@@ -1,0 +1,108 @@
+<div class="container page">
+  <header class="page-head">
+    <div>
+      <h1>Settings</h1>
+      <p class="subtitle">Theme, notifications, your data and your account.</p>
+    </div>
+  </header>
+
+  @if (!user()) {
+    <div class="alert alert-warning">Sign in to manage your settings.</div>
+  } @else if (user(); as me) {
+    <div class="settings-grid">
+      <section class="panel wide">
+        <div class="panel-title">Appearance</div>
+        <div class="themes" role="radiogroup" aria-label="Theme">
+          @for (option of theme.themes; track option.id) {
+            <button
+              type="button"
+              role="radio"
+              class="theme-option"
+              [attr.aria-checked]="theme.theme() === option.id"
+              (click)="pickTheme(option.id)"
+            >
+              <span class="theme-swatch" [attr.data-swatch]="option.id" aria-hidden="true"></span>
+              <span class="theme-text">
+                <strong>{{ option.label }}</strong>
+                <small>{{ option.hint }}</small>
+              </span>
+            </button>
+          }
+        </div>
+      </section>
+
+      <aside class="panels">
+        <div class="panel">
+          <div class="panel-title">Account</div>
+          <div class="kv">
+            <span class="k">Phone</span>
+            <span class="v mono">{{ me.phoneNumber }}</span>
+          </div>
+          <div class="kv">
+            <span class="k">Phone verified</span>
+            <span class="v">
+              @if (me.isPhoneVerified) {
+                <span class="badge badge-success">Verified</span>
+              } @else {
+                <span class="badge badge-warning">Pending</span>
+              }
+            </span>
+          </div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-title">Notifications</div>
+          <label class="toggle">
+            <input
+              type="checkbox"
+              [checked]="notifications().booking"
+              (change)="toggleNotification('booking')"
+            />
+            <span>Booking confirmations & reminders</span>
+          </label>
+          <label class="toggle">
+            <input
+              type="checkbox"
+              [checked]="notifications().resale"
+              (change)="toggleNotification('resale')"
+            />
+            <span>Resale orders & sales</span>
+          </label>
+          <p class="hint">Preferences are stored on this device in the demo.</p>
+        </div>
+
+        <div class="panel wide">
+          <div class="panel-title">Data & privacy</div>
+          <div class="data-actions">
+            <button type="button" class="btn btn-outline btn-sm" (click)="exportData()">
+              Export my data
+            </button>
+            <button type="button" class="btn btn-ghost btn-sm" (click)="logout()">
+              Sign out
+            </button>
+            <button
+              type="button"
+              class="btn btn-ghost btn-sm danger"
+              (click)="confirmDelete.set(true)"
+            >
+              Delete account
+            </button>
+          </div>
+          <p class="hint">Deleting pauses your account for 30 days before permanent removal.</p>
+        </div>
+      </aside>
+    </div>
+  }
+
+  @if (confirmDelete()) {
+    <app-confirm-dialog
+      title="Delete your account?"
+      message="Your listings will be removed and your profile hidden. You can restore it within 30 days."
+      confirmLabel="Delete account"
+      cancelLabel="Keep my account"
+      [danger]="true"
+      (confirmed)="deleteAccount()"
+      (cancelled)="confirmDelete.set(false)"
+    />
+  }
+</div>

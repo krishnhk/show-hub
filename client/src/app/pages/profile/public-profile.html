@@ -1,0 +1,166 @@
+<div class="container page">
+  @if (loading()) {
+    <app-loading-spinner label="Loading profile…" />
+  } @else if (notFound() || !profile()) {
+    <app-empty-state
+      icon="👤"
+      title="Member not found"
+      message="This profile may have been deactivated or the link is incorrect."
+    >
+      <a class="btn btn-sm" routerLink="/movies">Back to movies</a>
+    </app-empty-state>
+  } @else if (profile(); as data) {
+    <section class="panel hero">
+      <span class="avatar hero-avatar">
+        @if (data.user.profileImageUrl) {
+          <img [src]="data.user.profileImageUrl" [alt]="data.user.fullName" />
+        } @else {
+          {{ initials(data.user) }}
+        }
+      </span>
+
+      <div class="hero-body">
+        <div class="row-wrap">
+          <h1>{{ data.user.fullName }}</h1>
+          @if (data.stats.verifiedSeller) {
+            <span class="badge badge-success">Verified seller</span>
+          }
+        </div>
+        <p class="text-sm text-muted">
+          {{ data.user.city }} · {{ data.user.userType }} · joined
+          {{ data.stats.memberSince | showDate }}
+        </p>
+        @if (data.user.bio) {
+          <p class="text-sm text-soft">{{ data.user.bio }}</p>
+        } @else {
+          <p class="text-sm text-muted">This member has not added a bio yet.</p>
+        }
+        @if (data.user.interests.length > 0) {
+          <div class="row-wrap">
+            @for (interest of data.user.interests; track interest) {
+              <span class="chip">{{ interest }}</span>
+            }
+          </div>
+        }
+      </div>
+
+      <div class="hero-actions">
+        @if (isSelf()) {
+          <a class="btn btn-outline btn-sm" routerLink="/profile">Edit my profile</a>
+        }
+      </div>
+    </section>
+
+    <div class="grid grid-auto stat-grid">
+      <div class="card stat-card">
+        <span class="text-xs text-muted">Bookings</span>
+        <strong>{{ data.stats.totalBookings }}</strong>
+      </div>
+      <div class="card stat-card">
+        <span class="text-xs text-muted">Resale sales</span>
+        <strong>{{ data.stats.totalSales }}</strong>
+      </div>
+      @if (isSelf()) {
+        <div class="card stat-card">
+          <span class="text-xs text-muted">Total earned</span>
+          <strong>{{ data.stats.totalEarned | inr }}</strong>
+        </div>
+      }
+    </div>
+
+    <div class="grid grid-auto ratings-grid">
+      <div class="card rating-card">
+        <span class="text-xs text-muted">Seller rating</span>
+        <app-star-rating [value]="data.user.sellerRating" size="lg" [showValue]="true" />
+        <span class="text-xs text-muted">{{ data.user.sellerReviewCount }} reviews</span>
+      </div>
+      <div class="card rating-card">
+        <span class="text-xs text-muted">Buyer rating</span>
+        <app-star-rating [value]="data.user.buyerRating" size="lg" [showValue]="true" />
+        <span class="text-xs text-muted">{{ data.user.buyerReviewCount }} reviews</span>
+      </div>
+    </div>
+
+    <div class="profile-columns">
+      <section class="panel">
+        <div class="row-wrap" style="justify-content: space-between">
+          <div class="panel-title">Reviews</div>
+          <span class="badge">{{ reviews().length }}</span>
+        </div>
+
+        @if (reviews().length === 0) {
+          <p class="text-sm text-muted">No reviews yet.</p>
+        } @else {
+          <div class="stack-sm">
+            @for (review of reviews(); track review.id) {
+              <div class="review">
+                <div class="row-wrap">
+                  <app-star-rating [value]="review.rating" size="sm" />
+                  <strong class="text-sm">{{ review.reviewerName ?? 'ShowHub member' }}</strong>
+                  <span class="badge">{{ review.type }}</span>
+                  <span class="spacer"></span>
+                  <span class="text-xs text-muted">{{ review.createdAt | timeAgo }}</span>
+                </div>
+                @if (review.comment) {
+                  <p class="text-sm text-soft">{{ review.comment }}</p>
+                }
+              </div>
+            }
+          </div>
+        }
+      </section>
+
+      @if (!isSelf() && signedIn()) {
+        <aside class="panel surface-sticky">
+          <div class="panel-title">Leave a review</div>
+
+          <div class="field">
+            <label>What are you reviewing?</label>
+            <div class="chip-row">
+              @for (option of reviewTypes; track option.value) {
+                <button
+                  type="button"
+                  class="chip"
+                  [class.active]="reviewType() === option.value"
+                  (click)="reviewType.set(option.value)"
+                >
+                  {{ option.label }}
+                </button>
+              }
+            </div>
+          </div>
+
+          <app-star-rating
+            [value]="rating()"
+            [interactive]="true"
+            size="lg"
+            (ratingChange)="rating.set($event)"
+          />
+
+          <div class="field">
+            <label for="review-comment">Comment (optional)</label>
+            <textarea
+              id="review-comment"
+              class="textarea"
+              rows="3"
+              maxlength="200"
+              placeholder="What was it like dealing with this member?"
+              [value]="comment()"
+              (input)="comment.set($any($event.target).value)"
+            ></textarea>
+          </div>
+
+          <button
+            type="button"
+            class="btn btn-block"
+            [disabled]="submitting()"
+            (click)="submitReview()"
+          >
+            {{ submitting() ? 'Posting…' : 'Post review' }}
+          </button>
+          <p class="hint">Reviews are public and cannot be edited after posting.</p>
+        </aside>
+      }
+    </div>
+  }
+</div>

@@ -1,0 +1,74 @@
+:host {
+  display: block;
+}
+
+.group {
+  margin-bottom: 24px;
+}
+
+.notification-list {
+  padding: 6px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.notification {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  width: 100%;
+  text-align: left;
+  padding: 12px;
+  border: none;
+  border-radius: var(--radius);
+  background: transparent;
+  color: var(--text);
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.notification:hover {
+  background: var(--surface-2);
+}
+
+.notification.unread {
+  background: color-mix(in srgb, var(--accent) 7%, transparent);
+}
+
+.notification.unread:hover {
+  background: color-mix(in srgb, var(--accent) 12%, transparent);
+}
+
+.notif-icon {
+  width: 36px;
+  height: 36px;
+  flex: none;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: var(--surface-2);
+  font-size: 1rem;
+}
+
+.notif-body {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+  flex: 1;
+}
+
+.notif-arrow {
+  color: var(--text-muted);
+  font-size: 1.2rem;
+  line-height: 1;
+  align-self: center;
+}
+
+.dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--brand);
+}

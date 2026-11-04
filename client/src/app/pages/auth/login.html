@@ -1,0 +1,233 @@
+<div class="auth-shell">
+  <div class="auth-card card">
+    <div class="brand">
+      <app-logo-mark [width]="46" />
+      <span class="brand-text">ShowHub</span>
+    </div>
+
+    <div class="steps" aria-hidden="true">
+      <span [class.done]="step() !== 'phone'"></span>
+      <span [class.done]="step() === 'profile'"></span>
+      <span [class.done]="step() === 'profile'"></span>
+    </div>
+
+    @if (errorMessage(); as message) {
+      <div class="alert alert-error">{{ message }}</div>
+    }
+
+    @switch (step()) {
+      @case ('phone') {
+        <div class="head">
+          <h1>Sign in with your phone</h1>
+          <p class="text-soft text-sm">
+            We will send a 6-digit OTP to verify your number. No password to remember.
+          </p>
+        </div>
+
+        <form [formGroup]="phoneForm" (ngSubmit)="sendOtp()" novalidate>
+          <div class="field">
+            <label for="phoneNumber">Phone number</label>
+            <div class="phone-row">
+              <span class="prefix mono">+91</span>
+              <input
+                id="phoneNumber"
+                class="input"
+                type="tel"
+                inputmode="numeric"
+                maxlength="10"
+                autocomplete="tel-national"
+                placeholder="9876543210"
+                formControlName="phoneNumber"
+                (input)="sanitizePhone($event)"
+              />
+            </div>
+            @if (phoneForm.controls.phoneNumber.touched && phoneForm.controls.phoneNumber.invalid) {
+              <span class="error-text">Enter a valid 10-digit mobile number.</span>
+            }
+          </div>
+
+          <button class="btn btn-lg btn-block" type="submit" [disabled]="!phoneValid() || loading()">
+            @if (loading()) {
+              <span class="spinner btn-spinner"></span>
+              Sending OTP…
+            } @else {
+              Send OTP
+            }
+          </button>
+        </form>
+
+        <p class="hint demo">Demo: sign in with {{ demoPhone }} — the OTP is always 123456.</p>
+      }
+
+      @case ('otp') {
+        <div class="head">
+          <h1>Enter the 6-digit OTP</h1>
+          @if (noticeMessage(); as message) {
+            <p class="text-soft text-sm">{{ message }}</p>
+          }
+        </div>
+
+        <form [formGroup]="otpForm" (ngSubmit)="verifyOtp()" novalidate>
+          <div class="field">
+            <label for="otp">One-time password</label>
+            <input
+              id="otp"
+              class="input otp-input mono"
+              type="text"
+              inputmode="numeric"
+              maxlength="6"
+              autocomplete="one-time-code"
+              placeholder="000000"
+              formControlName="otp"
+              (input)="sanitizeOtp($event)"
+            />
+          </div>
+
+          @if (devOtp(); as code) {
+            <p class="hint demo">Demo OTP: {{ code }}</p>
+          }
+
+          <button class="btn btn-lg btn-block" type="submit" [disabled]="!otpValid() || loading()">
+            @if (loading()) {
+              <span class="spinner btn-spinner"></span>
+              Verifying…
+            } @else {
+              Verify &amp; continue
+            }
+          </button>
+        </form>
+
+        <div class="row-between">
+          <button type="button" class="btn btn-ghost btn-sm" (click)="backToPhone()">
+            Change phone number
+          </button>
+          <button
+            type="button"
+            class="btn btn-ghost btn-sm"
+            [disabled]="resendIn() > 0 || loading()"
+            (click)="resendOtp()"
+          >
+            @if (resendIn() > 0) {
+              Resend OTP in {{ resendIn() }}s
+            } @else {
+              Resend OTP
+            }
+          </button>
+        </div>
+      }
+
+      @case ('profile') {
+        <div class="head">
+          <h1>Complete your profile</h1>
+          <p class="text-soft text-sm">
+            A few quick details so buyers and sellers know who they are dealing with.
+          </p>
+        </div>
+
+        <form [formGroup]="profileForm" (ngSubmit)="submitProfile()" novalidate class="stack-sm">
+          <div class="form-grid">
+            <div class="field">
+              <label for="firstName">First name</label>
+              <input
+                id="firstName"
+                class="input"
+                type="text"
+                autocomplete="given-name"
+                formControlName="firstName"
+              />
+              @if (profileForm.controls.firstName.touched && profileForm.controls.firstName.invalid) {
+                <span class="error-text">First name is required.</span>
+              }
+            </div>
+
+            <div class="field">
+              <label for="lastName">Last name</label>
+              <input
+                id="lastName"
+                class="input"
+                type="text"
+                autocomplete="family-name"
+                formControlName="lastName"
+              />
+              @if (profileForm.controls.lastName.touched && profileForm.controls.lastName.invalid) {
+                <span class="error-text">Last name is required.</span>
+              }
+            </div>
+          </div>
+
+          <div class="form-grid">
+            <div class="field">
+              <label for="email">Email <span class="text-muted">(optional)</span></label>
+              <input
+                id="email"
+                class="input"
+                type="email"
+                autocomplete="email"
+                placeholder="you@example.com"
+                formControlName="email"
+              />
+              @if (profileForm.controls.email.touched && profileForm.controls.email.invalid) {
+                <span class="error-text">Enter a valid email address.</span>
+              }
+            </div>
+
+            <div class="field">
+              <label for="city">City</label>
+              <select id="city" class="select" formControlName="city">
+                @for (city of cities; track city) {
+                  <option [value]="city">{{ city }}</option>
+                }
+              </select>
+            </div>
+          </div>
+
+          <div class="field">
+            <span class="label">I mainly want to</span>
+            <div class="role-row">
+              @for (role of roles; track role) {
+                <label class="radio" [class.active]="profileForm.controls.userType.value === role">
+                  <input type="radio" formControlName="userType" [value]="role" />
+                  <span>{{ role }}</span>
+                </label>
+              }
+            </div>
+          </div>
+
+          <div class="field">
+            <label for="birthday">Birthday <span class="text-muted">(optional)</span></label>
+            <input id="birthday" class="input" type="date" formControlName="birthday" />
+          </div>
+
+          <div class="field">
+            <span class="label">Interests <span class="text-muted">(optional)</span></span>
+            <div class="chip-row">
+              @for (interest of interests; track interest) {
+                <button
+                  type="button"
+                  class="chip"
+                  [class.active]="isInterestSelected(interest)"
+                  (click)="toggleInterest(interest)"
+                >
+                  {{ interest }}
+                </button>
+              }
+            </div>
+          </div>
+
+          <button class="btn btn-lg btn-block" type="submit" [disabled]="!profileValid() || loading()">
+            @if (loading()) {
+              <span class="spinner btn-spinner"></span>
+              Saving…
+            } @else {
+              Finish sign up
+            }
+          </button>
+        </form>
+      }
+    }
+
+    <div class="foot">
+      <a class="text-xs text-muted" routerLink="/">Browse movies without signing in</a>
+    </div>
+  </div>
+</div>

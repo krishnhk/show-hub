@@ -1,0 +1,26 @@
+<div class="container page">
+  <header class="page-head">
+    <div>
+      <h1>Sell your tickets</h1>
+      <p class="subtitle">
+        Life happens. List seats you cannot use and recover up to 95% of the price — ShowHub keeps a
+        5% seller fee.
+      </p>
+    </div>
+    <a class="wallet-card" routerLink="/wallet" aria-label="Open your wallet">
+      <span class="wallet-label">Wallet</span>
+      <strong class="wallet-amount">{{ wallet.balance() | inr }}</strong>
+      <span class="wallet-link">View wallet →</span>
+    </a>
+  </header>
+
+  <nav class="tabs" aria-label="Selling">
+    <a routerLink="new" routerLinkActive="active">Sell tickets</a>
+    <a routerLink="listings" routerLinkActive="active">
+      Your listings
+      <span class="tab-count">{{ store.stats().active }}</span>
+    </a>
+  </nav>
+
+  <router-outlet />
+</div>

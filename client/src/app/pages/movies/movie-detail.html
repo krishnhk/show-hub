@@ -1,0 +1,115 @@
+<div class="container page">
+  @if (loading() && !movie()) {
+    <app-loading-spinner label="Loading movie…" />
+  } @else if (error() && !movie()) {
+    <div class="alert alert-error">{{ error() }}</div>
+  } @else {
+    <a class="back-link text-sm" routerLink="/movies">← All movies</a>
+
+    <div class="detail-stack">
+      @if (movie(); as current) {
+        <article class="hero">
+          <div class="poster hero-poster">
+            @if (current.posterUrl) {
+              <img [src]="current.posterUrl" [alt]="current.title" />
+            } @else {
+              <div class="poster-fallback">
+                <span>{{ current.title }}</span>
+              </div>
+            }
+          </div>
+
+          <div class="hero-info">
+            <p class="eyebrow">Released {{ current.releaseDate | showDate }}</p>
+            <h1>{{ current.title }}</h1>
+
+            <p class="facts">
+              <span class="cert">{{ current.certificate }}</span>
+              <span>{{ runtime(current.durationMinutes) }}</span>
+              <span class="dot" aria-hidden="true">·</span>
+              <span>{{ current.genre }}</span>
+              <span class="dot" aria-hidden="true">·</span>
+              <span class="rating"><b>★ {{ current.tmdbRating }}</b> / 10</span>
+            </p>
+
+            <p class="description">
+              {{ current.description ?? 'No synopsis available for this movie yet.' }}
+            </p>
+
+            @if (current.tags.length > 0) {
+              <div class="row-wrap">
+                @for (tag of current.tags; track tag) {
+                  <span class="badge badge-info">{{ tag }}</span>
+                }
+              </div>
+            }
+          </div>
+        </article>
+      } @else {
+        <app-empty-state
+          icon="🎬"
+          title="Movie not found"
+          message="This movie is no longer listed on ShowHub."
+        />
+      }
+
+      <section class="panel showtimes-panel">
+        <div class="showtimes-head">
+          <div>
+            <h2>Book tickets</h2>
+            <p class="text-sm text-muted">Shows in {{ location.city() }}{{ language ? ' · ' + language : '' }}</p>
+          </div>
+
+        </div>
+
+        <app-day-strip
+          label="Show day"
+          [days]="stripDays()"
+          [selected]="selectedDate()"
+          (picked)="selectDate($event)"
+        />
+
+        @if (loading()) {
+          <app-loading-spinner label="Loading showtimes…" />
+        } @else if (groups().length === 0) {
+          <app-empty-state
+            icon="🎞️"
+            title="No showtimes"
+            [message]="'There are no shows for this movie in ' + location.city() + ' on this day.'"
+          />
+        } @else {
+          <div class="theatre-list">
+            @for (group of groups(); track group.theater.id) {
+              <div class="theatre-block">
+                <div class="theatre-head">
+                  <h3>{{ group.theater.name }}</h3>
+                  <p class="text-xs text-muted selectable">{{ group.theater.address }}</p>
+                </div>
+                <div class="chip-row">
+                  @for (showtime of group.showtimes; track showtime.id) {
+                    <button
+                      type="button"
+                      class="chip showtime-chip"
+                      [class.low]="seatsLeft(showtime) === 'low'"
+                      [disabled]="seatsLeft(showtime) === 'sold-out'"
+                      [attr.title]="seatsLeft(showtime) === 'low' ? 'Filling fast' : seatsLeft(showtime) === 'sold-out' ? 'Sold out' : null"
+                      (click)="goToSeats(showtime)"
+                    >
+                      <span class="time">{{ showtime.showDateTime | showTime }}</span>
+                      <span class="fmt text-xs text-muted">{{ showtime.format }}</span>
+                    </button>
+                  }
+                </div>
+              </div>
+            }
+          </div>
+
+          <p class="legend text-xs text-muted">
+            <span class="key"></span> Filling fast
+            <span class="key sold"></span> Sold out
+          </p>
+        }
+      </section>
+    </div>
+  }
+</div>

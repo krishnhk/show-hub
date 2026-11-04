@@ -1,0 +1,90 @@
+<div class="container page">
+  <header class="page-head">
+    <div>
+      <h1>Notifications</h1>
+      <p class="subtitle">
+        @if (unreadCount() > 0) {
+          {{ unreadCount() }} unread
+        } @else {
+          You are all caught up.
+        }
+      </p>
+    </div>
+    <button
+      type="button"
+      class="btn btn-outline btn-sm"
+      [disabled]="unreadCount() === 0 || markingAll()"
+      (click)="markAllRead()"
+    >
+      {{ markingAll() ? 'Marking…' : 'Mark all read' }}
+    </button>
+  </header>
+
+  @if (error(); as message) {
+    <div class="alert alert-error">{{ message }}</div>
+  }
+
+  @if (loading()) {
+    <app-loading-spinner label="Loading notifications…" />
+  } @else if (notifications().length === 0) {
+    <app-empty-state
+      icon="🔔"
+      title="Nothing here yet"
+      message="Booking confirmations, resale updates and wallet activity will appear here."
+    />
+  } @else {
+    @if (today().length > 0) {
+      <div class="group">
+        <h2 class="section-title">Today</h2>
+        <div class="panel notification-list">
+          @for (item of today(); track item.id) {
+            <button type="button" class="notification" [class.unread]="!item.isRead" (click)="open(item)">
+              <span class="notif-icon" aria-hidden="true">{{ icon(item.type) }}</span>
+              <span class="notif-body">
+                <span class="row-wrap">
+                  <strong>{{ item.title }}</strong>
+                  @if (!item.isRead) {
+                    <span class="dot" aria-label="Unread"></span>
+                  }
+                  <span class="spacer"></span>
+                  <span class="text-xs text-muted">{{ item.createdAt | timeAgo }}</span>
+                </span>
+                <span class="text-sm text-soft">{{ item.body }}</span>
+              </span>
+              @if (item.link) {
+                <span class="notif-arrow" aria-hidden="true">›</span>
+              }
+            </button>
+          }
+        </div>
+      </div>
+    }
+
+    @if (earlier().length > 0) {
+      <div class="group">
+        <h2 class="section-title">Earlier</h2>
+        <div class="panel notification-list">
+          @for (item of earlier(); track item.id) {
+            <button type="button" class="notification" [class.unread]="!item.isRead" (click)="open(item)">
+              <span class="notif-icon" aria-hidden="true">{{ icon(item.type) }}</span>
+              <span class="notif-body">
+                <span class="row-wrap">
+                  <strong>{{ item.title }}</strong>
+                  @if (!item.isRead) {
+                    <span class="dot" aria-label="Unread"></span>
+                  }
+                  <span class="spacer"></span>
+                  <span class="text-xs text-muted">{{ item.createdAt | timeAgo }}</span>
+                </span>
+                <span class="text-sm text-soft">{{ item.body }}</span>
+              </span>
+              @if (item.link) {
+                <span class="notif-arrow" aria-hidden="true">›</span>
+              }
+            </button>
+          }
+        </div>
+      </div>
+    }
+  }
+</div>

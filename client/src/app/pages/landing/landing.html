@@ -1,0 +1,189 @@
+<div class="landing">
+  <div class="container top">
+    @if (hero(); as movie) {
+      <section class="feature" aria-label="Featured movie">
+        <div class="feature-copy">
+          <span class="eyebrow">{{ movie.genre }}</span>
+          <h1>{{ movie.title }}</h1>
+          <p class="facts">
+            {{ movie.certificate }} · {{ movie.durationMinutes }} min · ★ {{ movie.tmdbRating }}
+          </p>
+          @if (movie.description) {
+            <p class="blurb">{{ movie.description }}</p>
+          }
+
+          <div class="book">
+            <button type="button" class="btn feature-btn" (click)="book(movie)">Book tickets</button>
+          </div>
+
+          @if (featuredPicks().length > 1) {
+            <div class="dots" role="group" aria-label="Choose featured movie">
+              @for (pick of featuredPicks(); track pick.id; let i = $index) {
+                <button
+                  type="button"
+                  class="dot"
+                  [class.on]="pick.id === movie.id"
+                  [attr.aria-label]="'Feature ' + pick.title"
+                  [attr.aria-pressed]="pick.id === movie.id"
+                  (click)="showFeatured(i)"
+                ></button>
+              }
+            </div>
+          }
+        </div>
+
+        <div class="feature-art">
+          <div class="poster feature-poster">
+            @if (movie.posterUrl) {
+              <img [src]="movie.posterUrl" [alt]="movie.title" />
+            } @else {
+              <div class="poster-fallback">
+                <span>{{ movie.title }}</span>
+              </div>
+            }
+          </div>
+        </div>
+      </section>
+    } @else if (loading()) {
+      <app-loading-spinner label="Loading movies…" />
+    }
+  </div>
+
+  @if (choosing() && hero(); as movie) {
+    <app-language-chooser
+      [title]="movie.title"
+      [languages]="heroLanguages()"
+      (chosen)="chooseLanguage(movie, $event)"
+      (closed)="choosing.set(false)"
+    />
+  }
+
+  <section class="container section">
+    <div class="section-title">
+      <h2>Also showing</h2>
+      <a class="text-sm" routerLink="/movies">See all movies →</a>
+    </div>
+
+    @if (loading()) {
+      <app-loading-spinner label="Loading movies…" />
+    } @else if (others().length > 0) {
+      <div class="movies">
+        @for (movie of others(); track movie.id) {
+          <app-movie-card [movie]="movie" />
+        }
+      </div>
+    } @else if (!hero()) {
+      <app-empty-state
+        icon="🎞️"
+        title="No movies listed yet"
+        message="The catalogue is empty right now. Check back shortly."
+      />
+    }
+  </section>
+
+  @if (spareTop().length > 0) {
+    <section class="container section">
+      <div class="section-title">
+        <h2>Spare seats, soonest first</h2>
+        <a class="text-sm" routerLink="/resale">See all resale →</a>
+      </div>
+      <div class="spare-grid">
+        @for (ticket of spareTop(); track ticket.id) {
+          <a class="spare" [routerLink]="['/resale', ticket.id]">
+            <span class="spare-top">
+              <strong class="spare-movie">{{ ticket.showtime.movie.title }}</strong>
+              @if (ticket.discountPercent > 0) {
+                <span class="spare-off">{{ ticket.discountPercent }}% off</span>
+              }
+            </span>
+
+            <span class="spare-when">
+              {{ ticket.showtime.showDateTime | showDate }} · {{ ticket.showtime.showDateTime | showTime }}
+            </span>
+            <span class="spare-where">{{ ticket.showtime.theater.name }}</span>
+            <span class="spare-fmt">{{ ticket.showtime.language }} · {{ ticket.showtime.format }}</span>
+
+            <span class="spare-seats">
+              @for (seat of ticket.seatNumbers; track seat) {
+                <span class="spare-seat">{{ seat }}</span>
+              }
+            </span>
+
+            <span class="spare-foot">
+              <span class="spare-mode">
+                @if (ticket.seatNumbers.length > 1) {
+                  {{ ticket.allowPartial ? 'Seat by seat' : 'All together' }}
+                }
+              </span>
+              <span class="spare-price">
+                @if (ticket.originalPrice > ticket.resalePrice) {
+                  <s>{{ ticket.originalPrice | inr }}</s>
+                }
+                <strong>{{ ticket.resalePrice | inr }}</strong>
+              </span>
+            </span>
+          </a>
+        }
+      </div>
+    </section>
+  }
+
+  @if (nextShow(); as next) {
+    <div class="dock">
+      @if (dockOpen()) {
+        <div class="slides-panel" role="region" aria-label="Your upcoming shows">
+          <div class="slides" #track (scroll)="onSlides(track)" tabindex="0">
+            @for (show of upcoming(); track show.id; let i = $index) {
+              <a class="stub" [routerLink]="['/bookings', show.id, 'confirmation']">
+                <span class="stub-label">{{ i === 0 ? 'Your next show' : 'Then' }}</span>
+                <strong class="stub-title">{{ show.showtime.movie.title }}</strong>
+                <span class="stub-when">
+                  {{ show.showtime.showDateTime | showDate }} · {{ show.showtime.showDateTime | showTime }}
+                </span>
+                <span class="stub-go">View ticket →</span>
+              </a>
+            }
+          </div>
+
+          @if (upcoming().length > 1) {
+            <div class="slides-nav">
+              <button type="button" class="arr" aria-label="Previous show" [disabled]="slide() === 0" (click)="step(track, -1)">‹</button>
+              <span class="slide-dots" aria-hidden="true">
+                @for (show of upcoming(); track show.id; let i = $index) {
+                  <i [class.on]="i === slide()"></i>
+                }
+              </span>
+              <span class="slide-count">{{ slide() + 1 }} of {{ upcoming().length }}</span>
+              <button type="button" class="arr" aria-label="Next show" [disabled]="slide() === upcoming().length - 1" (click)="step(track, 1)">›</button>
+            </div>
+          }
+        </div>
+      }
+
+      @if (!dockOpen()) {
+        <button
+          type="button"
+          class="pill"
+          [attr.aria-expanded]="dockOpen()"
+          (click)="toggleDock()"
+        >
+          <span class="pill-badge" aria-hidden="true">
+            <svg viewBox="0 0 24 24" focusable="false">
+              <path d="M5 7h14a1 1 0 0 1 1 1v2.2a1.8 1.8 0 0 0 0 3.6V16a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1v-2.2a1.8 1.8 0 0 0 0-3.6V8a1 1 0 0 1 1-1z" />
+              <path d="M14 8.5v7" stroke-dasharray="1.6 1.6" />
+            </svg>
+          </span>
+          <span class="pill-text">
+            <strong>{{ next.showtime.movie.title }}</strong>
+            <span class="pill-when">{{ next.showtime.showDateTime | showDate }} · {{ next.showtime.showDateTime | showTime }}</span>
+          </span>
+          <span class="pill-open" aria-hidden="true">
+            <svg viewBox="0 0 24 24" focusable="false">
+              <path d="M6 15l6-6 6 6" />
+            </svg>
+          </span>
+        </button>
+      }
+    </div>
+  }
+</div>

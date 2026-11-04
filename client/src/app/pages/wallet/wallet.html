@@ -1,0 +1,47 @@
+<div class="container page">
+  <header class="page-head">
+    <div>
+      <h1>Wallet</h1>
+      <p class="subtitle">Resale earnings land here. Use the balance on your next booking or resale purchase.</p>
+    </div>
+  </header>
+
+  <section class="balance" aria-label="Balance">
+    <div class="balance-main">
+      <span class="k">Available balance</span>
+      <strong class="amount">{{ store.balance() | inr }}</strong>
+    </div>
+    <div class="balance-split">
+      <div class="tile">
+        <span class="k">Money in</span>
+        <span class="v in">{{ moneyIn() | inr }}</span>
+      </div>
+      <div class="tile">
+        <span class="k">Money out</span>
+        <span class="v">{{ moneyOut() | inr }}</span>
+      </div>
+    </div>
+  </section>
+
+  <section class="panel history">
+    <div class="history-head">
+      <div class="panel-title">Transaction history</div>
+      <div class="tabs" role="tablist" aria-label="Filter transactions">
+        @for (tab of tabs(); track tab.id) {
+          <button
+            type="button"
+            role="tab"
+            class="tab"
+            [class.on]="flow() === tab.id"
+            [attr.aria-selected]="flow() === tab.id"
+            (click)="flow.set(tab.id)"
+          >
+            {{ tab.label }} <span class="tab-count">{{ tab.count }}</span>
+          </button>
+        }
+      </div>
+    </div>
+
+    <app-wallet-history [entries]="entries()" [limit]="1000" />
+  </section>
+</div>

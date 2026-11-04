@@ -1,0 +1,106 @@
+<div class="container page">
+  <header class="page-head">
+    <div>
+      <h1>Resale marketplace</h1>
+      <p class="subtitle">
+        Spare seats from other bookers{{ city() ? ' in ' + city() : '' }}, below the original price. Pay like a normal
+        booking and the seats appear in My Tickets right away.
+      </p>
+    </div>
+  </header>
+
+  <div class="bar">
+    <div class="search">
+      <svg class="search-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+        <circle cx="11" cy="11" r="7" />
+        <path d="M20 20l-3.5-3.5" />
+      </svg>
+      <input
+        class="input search-input"
+        type="search"
+        placeholder="Search by movie name"
+        aria-label="Search by movie name"
+        [value]="query()"
+        (input)="query.set($any($event.target).value)"
+      />
+      @if (query()) {
+        <button type="button" class="clear" aria-label="Clear search" (click)="clearSearch()">✕</button>
+      }
+    </div>
+
+
+    @for (d of dropdowns(); track d.key) {
+      <div class="filter">
+        <button
+          type="button"
+          class="btn btn-outline filter-btn"
+          [class.on]="d.value !== null"
+          aria-haspopup="listbox"
+          [attr.aria-expanded]="openMenu() === d.key"
+          (click)="toggleMenu(d.key)"
+        >
+          <span class="filter-label">{{ d.value ?? d.label }}</span>
+          <svg class="caret" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+            <path d="M6 9l6 6 6-6" />
+          </svg>
+        </button>
+
+        @if (openMenu() === d.key) {
+          <div class="menu" role="listbox" [attr.aria-label]="d.label">
+            @for (o of d.options; track o.id) {
+              <button
+                type="button"
+                role="option"
+                class="menu-item"
+                [class.on]="d.selected === o.id"
+                [attr.aria-selected]="d.selected === o.id"
+                (click)="pick(d.key, o.id)"
+              >
+                {{ o.label }}
+              </button>
+            }
+          </div>
+        }
+      </div>
+    }
+
+    @if (narrowed()) {
+      <button type="button" class="reset" (click)="clearAll()">Clear all</button>
+    }
+  </div>
+
+  <app-day-strip [days]="days()" [selected]="day()" (picked)="selectDay($event)" />
+
+  @if (error(); as message) {
+    <div class="alert alert-error">{{ message }}</div>
+  }
+
+  @if (loading()) {
+    <app-loading-spinner label="Finding spare tickets…" />
+  } @else if (tickets().length === 0) {
+    <app-empty-state
+      icon="♻️"
+      [title]="narrowed() ? 'No tickets match' : 'No resale tickets right now'"
+      [message]="narrowed() ? 'Try a different movie name, number of tickets or language.' : 'New seats are listed every day. Check back soon.'"
+    >
+      @if (narrowed()) {
+        <button type="button" class="btn btn-outline btn-sm" (click)="clearAll()">Clear all</button>
+      }
+    </app-empty-state>
+  } @else {
+    @for (group of groups(); track group.title) {
+      <section class="movie-group" [attr.aria-label]="group.title">
+        <h2 class="group-title">
+          {{ group.title }}
+          <span class="group-count">{{ group.tickets.length }} {{ group.tickets.length === 1 ? 'listing' : 'listings' }}</span>
+        </h2>
+        <div class="grid-cards">
+          @for (ticket of group.tickets; track ticket.id) {
+            <app-resale-card [ticket]="ticket" />
+          }
+        </div>
+      </section>
+    }
+  }
+
+</div>

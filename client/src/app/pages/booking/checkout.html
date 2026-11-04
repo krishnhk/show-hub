@@ -1,0 +1,166 @@
+<div class="container page">
+  @if (loading()) {
+    <app-loading-spinner label="Preparing checkout…" />
+  } @else if (!showtime()) {
+    <div class="alert alert-error">
+      {{ paymentError() ?? 'This show could not be loaded.' }}
+    </div>
+    <a class="btn btn-outline btn-sm" [routerLink]="['/book', showtimeId, 'seats']">
+      Back to seat selection
+    </a>
+  } @else {
+    <header class="page-head">
+      <div>
+        <a class="back-link text-sm" [routerLink]="['/book', showtimeId, 'seats']">
+          ← Back to seat selection
+        </a>
+        <h1>Checkout</h1>
+        <p class="subtitle">Review your seats and confirm the payment.</p>
+      </div>
+    </header>
+
+    <div class="split">
+      <section class="stack">
+        <article class="panel">
+          <div class="panel-title">Show details</div>
+          @if (showtime(); as current) {
+            <div class="row show-row">
+              <div class="poster thumb">
+                @if (current.movie.posterUrl) {
+                  <img [src]="current.movie.posterUrl" [alt]="current.movie.title" />
+                } @else {
+                  <div class="poster-fallback">
+                    <span>{{ current.movie.title }}</span>
+                  </div>
+                }
+              </div>
+              <div class="stack-sm">
+                <h3>{{ current.movie.title }}</h3>
+                <p class="text-sm text-muted">{{ current.theater.name }}</p>
+                <p class="text-sm text-muted selectable">{{ current.theater.address }}</p>
+                <div class="row-wrap">
+                  <span class="badge">{{ current.showDateTime | showDate }}</span>
+                  <span class="badge">{{ current.showDateTime | showTime }}</span>
+                  <span class="badge badge-brand">{{ current.format }}</span>
+                </div>
+              </div>
+            </div>
+          }
+        </article>
+
+        <article class="panel">
+          <div class="panel-title">Selected seats</div>
+          <div class="chip-row">
+            @for (seat of selectedSeats(); track seat.id) {
+              <span class="chip seat-chip">
+                {{ seat.id }}
+                <span class="text-xs text-muted">{{ seat.price | inr }}</span>
+              </span>
+            }
+          </div>
+          @if (selectedSeats().length !== seatNumbers().length) {
+            <p class="hint">Some seats are no longer on the map. Please pick your seats again.</p>
+          }
+        </article>
+
+        <article class="panel">
+          <div class="panel-title">Pay with wallet</div>
+          <div class="card-flat payment-row">
+            <div class="stack-sm">
+              <span class="text-sm">ShowHub wallet</span>
+              @if (wallet.balance() > 0) {
+                <span class="text-xs text-muted">Available balance {{ wallet.balance() | inr }}</span>
+              } @else {
+                <span class="text-xs text-muted">Wallet is empty</span>
+              }
+            </div>
+            <button
+              type="button"
+              class="toggle"
+              role="switch"
+              aria-label="Pay with wallet"
+              [class.on]="useWallet()"
+              [attr.aria-checked]="useWallet()"
+              [disabled]="wallet.balance() <= 0"
+              (click)="toggleWallet()"
+            >
+              <span class="knob"></span>
+            </button>
+          </div>
+        </article>
+
+        @if (!walletCoversAll()) {
+          <article class="panel">
+            <div class="panel-title">Payment method</div>
+            <div class="card-flat payment-row">
+              <div class="row">
+                <span class="card-brand">VISA</span>
+                <div class="stack-sm">
+                  <span class="text-sm">•••• 4242</span>
+                  <span class="text-xs text-muted">Aarav Sharma · Expires 04/29</span>
+                </div>
+              </div>
+              <button type="button" class="btn btn-ghost btn-sm" (click)="changePaymentMethod()">
+                Change
+              </button>
+            </div>
+            <p class="hint">Payments are simulated in this build. No real money is charged.</p>
+          </article>
+        }
+      </section>
+
+      <aside class="panel surface-sticky summary">
+        <div class="panel-title">Order summary</div>
+
+        <div class="price-lines">
+          <div class="kv">
+            <span class="k">Seat price ({{ quantity() }} ×)</span>
+            <span class="v">{{ seatSubtotal() | inr }}</span>
+          </div>
+          <div class="kv">
+            <span class="k">ShowHub service fee</span>
+            <span class="v">{{ commission() | inr }}</span>
+          </div>
+          <div class="total-row">
+            <span>Total payable</span>
+            <span>{{ total() | inr }}</span>
+          </div>
+          @if (useWallet()) {
+            <div class="kv">
+              <span class="k">Paid from wallet</span>
+              <span class="v">− {{ walletPortion() | inr }}</span>
+            </div>
+            <div class="kv">
+              <span class="k">To pay by card/UPI</span>
+              <span class="v">{{ cardPortion() | inr }}</span>
+            </div>
+          }
+        </div>
+
+        @if (paymentError(); as message) {
+          <div class="alert alert-error">{{ message }}</div>
+        }
+
+        <button
+          type="button"
+          class="btn btn-block btn-lg"
+          [disabled]="paying() || !quantity()"
+          (click)="pay()"
+        >
+          @if (paying()) {
+            Paying…
+          } @else if (walletCoversAll()) {
+            Pay {{ total() | inr }} from wallet
+          } @else {
+            Confirm &amp; pay {{ cardPortion() | inr }}
+          }
+        </button>
+
+        <p class="hint">
+          By continuing you agree to the ShowHub booking terms. Cancellation refunds are 50% when
+          more than 24 hours remain before the showtime.
+        </p>
+      </aside>
+    </div>
+  }
+</div>

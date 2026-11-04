@@ -1,0 +1,63 @@
+:host {
+  display: block;
+}
+
+.back-link {
+  display: inline-block;
+  margin-bottom: 6px;
+  color: var(--text-muted);
+}
+
+.back-link:hover {
+  color: var(--accent);
+  text-decoration: none;
+}
+
+.seat-panel {
+  overflow: hidden;
+}
+
+.seat-map-wrapper {
+  overflow-x: auto;
+}
+
+.summary {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.show-info h3 {
+  margin: 0;
+}
+
+.show-info p {
+  margin: 0;
+}
+
+.price-lines {
+  display: flex;
+  flex-direction: column;
+}
+
+.seat-chip {
+  gap: 6px;
+  color: var(--text);
+}
+
+.seat-chip:hover {
+  border-color: var(--danger);
+  color: var(--danger);
+}
+
+@media (max-width: 768px) {
+  .summary {
+    gap: 12px;
+  }
+}
+
+.chosen {
+  margin: 0;
+  font-weight: 700;
+  line-height: 1.6;
+}
