@@ -252,6 +252,7 @@
 
 /* The featured film, like a lobby poster */
 .feature {
+  touch-action: pan-y;
   display: grid;
   grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr);
   gap: 20px;
@@ -261,6 +262,12 @@
   background: linear-gradient(120deg, var(--poster-to), #2a0f0a);
   color: #fff;
 }
+
+@keyframes feature-in-right { from { opacity: 0; transform: translateX(36px); } to { opacity: 1; transform: none; } }
+@keyframes feature-in-left { from { opacity: 0; transform: translateX(-36px); } to { opacity: 1; transform: none; } }
+
+.feature-copy.from-right { animation: feature-in-right 260ms ease-out; }
+.feature-copy.from-left { animation: feature-in-left 260ms ease-out; }
 
 .feature-copy {
   display: flex;
@@ -477,6 +484,7 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
+  .feature-copy { animation: none !important; }
   .pill { transition: none; }
 }
 

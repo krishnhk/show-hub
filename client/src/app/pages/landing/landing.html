@@ -1,8 +1,14 @@
 <div class="landing">
   <div class="container top">
     @if (hero(); as movie) {
-      <section class="feature" aria-label="Featured movie">
-        <div class="feature-copy">
+      <section
+        class="feature"
+        aria-label="Featured movie"
+        (touchstart)="swipeStart($event)"
+        (touchend)="swipeEnd($event)"
+      >
+        @for (shown of [movie]; track shown.id) {
+        <div class="feature-copy" [class.from-left]="swipeDirection() < 0" [class.from-right]="swipeDirection() >= 0">
           <span class="eyebrow">{{ movie.genre }}</span>
           <h1>{{ movie.title }}</h1>
           <p class="facts">
@@ -31,6 +37,7 @@
             </div>
           }
         </div>
+        }
 
         <div class="feature-art">
           <div class="poster feature-poster">

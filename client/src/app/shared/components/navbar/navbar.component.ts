@@ -48,7 +48,7 @@ import { LogoMarkComponent } from '../logo-mark/logo-mark.component';
                 />
                 <circle cx="12" cy="9.5" r="2.5" fill="currentColor" />
               </svg>
-              {{ city }}
+              <span class="city-name">{{ city }}</span>
             </button>
           }
 
@@ -283,8 +283,9 @@ import { LogoMarkComponent } from '../logo-mark/logo-mark.component';
     @media (max-width: 520px) {
       .inner { gap: 8px; }
       .actions { gap: 6px; }
-      .brand-text { display: none; }
-      .city-btn { padding: 0 10px; font-size: 0.8rem; }
+      .brand-text { font-size: 1rem; }
+      .city-name { display: none; }
+      .city-btn { padding: 0 10px; }
     }
   `,
 })

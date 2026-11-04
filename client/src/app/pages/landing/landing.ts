@@ -209,8 +209,28 @@ export class LandingComponent {
     track.scrollBy({ left: direction * this.stride(track), behavior: 'smooth' });
   }
 
+  /** Which way the featured film last moved, so the next one slides in from the right side. */
+  readonly swipeDirection = signal(1);
+  private touchStartX = 0;
+  private touchStartY = 0;
+
   showFeatured(index: number): void {
+    this.swipeDirection.set(index >= this.featuredIndex() ? 1 : -1);
     this.featuredIndex.set(index);
+  }
+
+  swipeStart(event: TouchEvent): void {
+    this.touchStartX = event.changedTouches[0].clientX;
+    this.touchStartY = event.changedTouches[0].clientY;
+  }
+
+  /** A mostly horizontal swipe moves to the next or previous featured film. */
+  swipeEnd(event: TouchEvent): void {
+    const dx = event.changedTouches[0].clientX - this.touchStartX;
+    const dy = event.changedTouches[0].clientY - this.touchStartY;
+    if (Math.abs(dx) < 50 || Math.abs(dx) < Math.abs(dy) * 1.5) return;
+    const next = this.featuredIndex() + (dx < 0 ? 1 : -1);
+    if (next >= 0 && next < this.featuredPicks().length) this.showFeatured(next);
   }
 
   /** A film in several languages asks for one first; otherwise it opens straight away. */

@@ -26,7 +26,7 @@ describe('MockStore demo flows', () => {
     s.sendOtp('9876543210');
     const auth = s.verifyOtp('9876543210', '123456');
     expect(auth.token).toBeTruthy();
-    expect(auth.user?.fullName).toBe('Aarav Sharma');
+    expect(auth.user?.fullName).toBe('Mad Monkey');
     expect(s.userIdFromToken(auth.token)).toBe(1);
   });
 

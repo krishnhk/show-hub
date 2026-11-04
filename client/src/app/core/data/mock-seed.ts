@@ -419,10 +419,10 @@ export const USERS: User[] = [
   {
     id: 1,
     phoneNumber: '+919876543210',
-    fullName: 'Aarav Sharma',
-    firstName: 'Aarav',
-    lastName: 'Sharma',
-    email: 'aarav@example.com',
+    fullName: 'Mad Monkey',
+    firstName: 'Mad',
+    lastName: 'Monkey',
+    email: 'madmonkey@example.com',
     city: 'Chennai',
     bio: 'Action and sci-fi fan. Usually booking last-minute IMAX seats.',
     profileImageUrl: null,
@@ -1185,7 +1185,7 @@ export const REVIEWS: Review[] = [
     rating: 5,
     comment: 'Delivered the tickets within minutes of the payment. Very responsive.',
     createdAt: isoDaysAgo(4),
-    reviewerName: 'Aarav Sharma',
+    reviewerName: 'Mad Monkey',
   },
   {
     id: 2,
@@ -1205,7 +1205,7 @@ export const REVIEWS: Review[] = [
     rating: 5,
     comment: 'Paid immediately and confirmed delivery. Would buy again.',
     createdAt: isoDaysAgo(6),
-    reviewerName: 'Aarav Sharma',
+    reviewerName: 'Mad Monkey',
   },
   {
     id: 5,

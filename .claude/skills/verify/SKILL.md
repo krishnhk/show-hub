@@ -19,7 +19,7 @@ The app is `client/` (Angular, in-memory mock API, no backend). Surface = the br
   `headless: 'new'`. Keep the harness outside the repo.
 - Sign in as the demo user without the OTP screen: before load, run
   `localStorage.setItem('thiraihub_token', btoa('thiraihub:1:' + Date.now()))` (`evaluateOnNewDocument`).
-  User 1 is Aarav Sharma. For a real OTP flow the code is always `123456`.
+  User 1 is Mad Monkey. For a real OTP flow the code is always `123456`.
 - Chennai is the only city, so the city picker never shows.
 - After a click, wait 300 ms before typing or reading: Angular renders on the next tick.
 - A new `browser.createBrowserContext()` gives a signed-out session.
