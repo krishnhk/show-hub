@@ -1,0 +1,56 @@
+# See https://docs.github.com/get-started/getting-started-with-git/ignoring-files for more about ignoring files.
+
+# Compiled output
+client/dist
+/tmp
+client/out-tsc
+/bazel-out
+
+# Node
+client/node_modules
+npm-debug.log
+yarn-error.log
+
+# IDEs and editors
+.idea/
+.project
+.classpath
+.c9/
+*.launch
+.settings/
+*.sublime-workspace
+
+# Visual Studio Code
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+!.vscode/mcp.json
+.history/*
+
+# Miscellaneous
+client/.angular
+client/.tmp-check
+client/.angular/cache
+.sass-cache/
+/connect.lock
+client/coverage
+/libpeerconnection.log
+testem.log
+client/typings
+__screenshots__/
+
+# Local config and secrets
+.env
+.env.*
+
+# Logs
+*.log
+
+# System files
+.DS_Store
+Thumbs.db
+
+# Local copies kept before bigger changes (not part of the project)
+backup/
