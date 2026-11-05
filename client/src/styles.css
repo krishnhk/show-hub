@@ -1042,6 +1042,9 @@ table.data tbody tr:hover { background: rgba(255, 255, 255, 0.04); }
   .grid-auto { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); }
   .grid-auto-lg { grid-template-columns: 1fr; }
   .toast-stack { left: 14px; right: 14px; bottom: 14px; max-width: none; }
+
+  /* The navbar is always in reach on a phone, so the "← back" links above each page are left out */
+  .back-link { display: none !important; }
 }
 
 /* The home page's floating next-show pill covers the bottom of the screen, so leave room under the footer */
