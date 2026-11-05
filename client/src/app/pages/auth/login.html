@@ -36,7 +36,7 @@
                 inputmode="numeric"
                 maxlength="10"
                 autocomplete="tel-national"
-                placeholder="9876543210"
+                placeholder="10-digit mobile number"
                 formControlName="phoneNumber"
                 (input)="sanitizePhone($event)"
               />
@@ -55,8 +55,6 @@
             }
           </button>
         </form>
-
-        <p class="hint demo">Demo: sign in with {{ demoPhone }} — the OTP is always 123456.</p>
       }
 
       @case ('otp') {
@@ -82,10 +80,6 @@
               (input)="sanitizeOtp($event)"
             />
           </div>
-
-          @if (devOtp(); as code) {
-            <p class="hint demo">Demo OTP: {{ code }}</p>
-          }
 
           <button class="btn btn-lg btn-block" type="submit" [disabled]="!otpValid() || loading()">
             @if (loading()) {

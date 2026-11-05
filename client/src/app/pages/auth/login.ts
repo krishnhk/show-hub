@@ -27,7 +27,6 @@ const INTERESTS = [
 const ROLES: UserType[] = ['Buyer', 'Seller', 'Both'];
 const RESEND_SECONDS = 30;
 const OTP_LENGTH = 6;
-const DEMO_PHONE = '9876543210';
 
 @Component({
   selector: 'app-login',
@@ -46,13 +45,11 @@ export class LoginComponent implements OnDestroy {
   readonly cities = CITIES;
   readonly interests = INTERESTS;
   readonly roles = ROLES;
-  readonly demoPhone = DEMO_PHONE;
 
   readonly step = signal<LoginStep>('phone');
   readonly loading = signal(false);
   readonly errorMessage = signal('');
   readonly noticeMessage = signal('');
-  readonly devOtp = signal<string | null>(null);
   readonly resendIn = signal(0);
   readonly selectedInterests = signal<string[]>([]);
 
@@ -143,7 +140,6 @@ export class LoginComponent implements OnDestroy {
           return;
         }
         this.noticeMessage.set(response.message);
-        this.devOtp.set(response.devOtp ?? null);
         this.otpForm.reset();
         this.step.set('otp');
         this.startCountdown();
@@ -166,7 +162,6 @@ export class LoginComponent implements OnDestroy {
       next: (response) => {
         this.loading.set(false);
         this.noticeMessage.set(response.message);
-        this.devOtp.set(response.devOtp ?? null);
         this.startCountdown();
       },
       error: (error: HttpErrorResponse) => {
@@ -207,7 +202,6 @@ export class LoginComponent implements OnDestroy {
   backToPhone(): void {
     this.errorMessage.set('');
     this.noticeMessage.set('');
-    this.devOtp.set(null);
     this.otpForm.reset();
     this.clearCountdown();
     this.step.set('phone');

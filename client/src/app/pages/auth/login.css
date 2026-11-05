@@ -136,14 +136,6 @@ form {
   flex-wrap: wrap;
 }
 
-.demo {
-  background: var(--accent-soft);
-  border: 1px dashed color-mix(in srgb, var(--accent) 35%, transparent);
-  color: var(--accent);
-  padding: 9px 11px;
-  border-radius: var(--radius-sm);
-}
-
 .foot {
   border-top: 1px solid var(--border-soft);
   padding-top: 12px;
