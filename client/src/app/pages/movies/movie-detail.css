@@ -196,27 +196,6 @@ app-day-strip {
   --edge: var(--warning, #c98a1a);
 }
 
-.legend {
-  display: flex;
-  align-items: center;
-  gap: 8px 14px;
-  margin: 0;
-}
-
-.key {
-  display: inline-block;
-  width: 10px;
-  height: 10px;
-  margin-right: -6px;
-  border-radius: 50%;
-  background: var(--warning, #c98a1a);
-}
-
-.key.sold {
-  background: var(--text-muted);
-  opacity: 0.5;
-}
-
 .showtime-chip:disabled {
   opacity: 0.4;
   cursor: not-allowed;
@@ -235,6 +214,23 @@ app-day-strip {
   .theatre-block {
     grid-template-columns: 1fr;
   }
+}
+
+/* Phones: a short film summary, so the show times start on the first screen */
+@media (max-width: 560px) {
+  .back-link { margin-bottom: 8px; }
+  .detail-stack { gap: 14px; }
+
+  .hero { grid-template-columns: 84px minmax(0, 1fr); gap: 12px; align-items: center; }
+  .hero-info { gap: 6px; }
+  .hero-info h1 { font-size: 1.3rem; }
+  .eyebrow { display: none; }
+  .facts { font-size: 0.82rem; gap: 2px 8px; }
+  .description { display: none; }
+  .hero-info .row-wrap { display: none; }
+
+  .showtimes-panel { gap: 10px; padding: 14px; }
+  .showtimes-head h2 { font-size: 1.1rem; }
 }
 
 @media (max-width: 375px) {
