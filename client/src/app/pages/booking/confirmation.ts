@@ -9,9 +9,9 @@ import { ToastService } from '../../core/services/toast.service';
 import { WalletStore } from '../../core/services/wallet.store';
 import { ConfirmDialogComponent } from '../../shared/components/confirm-dialog/confirm-dialog.component';
 import { EmptyStateComponent } from '../../shared/components/empty-state/empty-state.component';
-import { FilmThumbComponent } from '../../shared/components/film-thumb/film-thumb.component';
+import { ShowSummaryComponent } from '../../shared/components/show-summary/show-summary.component';
 import { LoadingSpinnerComponent } from '../../shared/components/loading-spinner/loading-spinner.component';
-import { ShowDatePipe, ShowTimePipe, TimeAgoPipe } from '../../shared/pipes/date.pipes';
+import { TimeAgoPipe } from '../../shared/pipes/date.pipes';
 import { InrPipe } from '../../shared/pipes/inr.pipe';
 
 const QR_SIZE = 21;
@@ -56,9 +56,7 @@ function isFinderPixel(row: number, col: number): boolean {
     ConfirmDialogComponent,
     LoadingSpinnerComponent,
     EmptyStateComponent,
-    FilmThumbComponent,
-    ShowDatePipe,
-    ShowTimePipe,
+    ShowSummaryComponent,
     TimeAgoPipe,
     InrPipe,
   ],
@@ -126,6 +124,19 @@ export class ConfirmationComponent implements OnInit {
   readonly canDelist = computed(() => {
     const current = this.booking();
     return !!current && current.isListed && current.resaleListingId !== null && !this.started();
+  });
+
+  readonly statusTone = computed(() => {
+    switch (this.state()) {
+      case 'cancelled':
+        return 'danger';
+      case 'past':
+        return 'muted';
+      case 'listed':
+        return 'info';
+      default:
+        return 'success';
+    }
   });
 
   readonly statusLabel = computed(() => {

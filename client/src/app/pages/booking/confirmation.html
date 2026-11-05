@@ -33,57 +33,33 @@
 
     <div class="layout">
       <article class="ticket" [attr.data-state]="state()">
-        <div class="main">
-          <app-film-thumb [posterUrl]="current.showtime.movie.posterUrl" [alt]="current.showtime.movie.title" />
-
-          <div class="info">
-            <div class="title-row">
-              <h1>{{ current.showtime.movie.title }}</h1>
-              <div class="chips">
-                <span class="chip status" [attr.data-state]="state()">{{ statusLabel() }}</span>
-                @if (current.fromResale) {
-                  <span class="chip resale">Resale ticket</span>
-                }
-              </div>
-            </div>
-
-            <div class="facts">
-              <div>
-                <span class="k">Date &amp; time</span>
-                <b class="when">{{ current.showtime.showDateTime | showDate }} | {{ current.showtime.showDateTime | showTime }}</b>
-              </div>
-              <div>
-                <span class="k">Language</span>
-                <b>{{ current.showtime.language }}</b>
-              </div>
-              <div>
-                <span class="k">Format</span>
-                <b>{{ current.showtime.format }}</b>
-              </div>
-            </div>
-
-            <div class="place">
-            <div class="where">
-              <span class="k">Venue</span>
-              <b>{{ current.showtime.theater.name }}</b>
-            </div>
-
-            <div class="seat-block">
-              <span class="k">{{ current.seatNumbers.length === 1 ? 'Seat' : 'Seats' }}</span>
-              <div class="seats">
-                @for (seat of current.seatNumbers; track seat) {
-                  <span class="seat" [class.gone]="!isMine(seat)" [attr.title]="isMine(seat) ? null : 'Listed for sale or sold'">{{ seat }}</span>
-                }
-              </div>
-              @if (elsewhere().length > 0) {
-                <a class="resale-note" routerLink="/sell/listings">
-                  {{ elsewhere().length }} on resale or sold · Your listings →
-                </a>
-              }
-            </div>
-            </div>
+        <app-show-summary
+          class="left"
+          [posterUrl]="current.showtime.movie.posterUrl"
+          [title]="current.showtime.movie.title"
+          [dateTime]="current.showtime.showDateTime"
+          [theatre]="current.showtime.theater.name"
+          [format]="current.showtime.format"
+          [language]="current.showtime.language"
+          [seatCount]="current.seatNumbers.length"
+        >
+          <div ssTags class="ss-tags">
+            <span class="ss-tag" [attr.data-tone]="statusTone()">{{ statusLabel() }}</span>
+            @if (current.fromResale) {
+              <span class="ss-tag" data-tone="info">Resale ticket</span>
+            }
           </div>
-        </div>
+          <div ssChips class="ss-chips" [attr.aria-label]="current.seatNumbers.length + (current.seatNumbers.length === 1 ? ' seat' : ' seats')">
+            @for (seat of current.seatNumbers; track seat) {
+              <span class="ss-chip" [class.gone]="!isMine(seat)" [attr.title]="isMine(seat) ? null : 'Listed for sale or sold'">{{ seat }}</span>
+            }
+          </div>
+          @if (elsewhere().length > 0) {
+            <a ssAction class="ss-link" [routerLink]="current.resaleListingId ? ['/sell/listings', current.resaleListingId] : '/sell/listings'">
+              {{ current.resaleListingId ? 'View listing' : 'Your listings' }}
+            </a>
+          }
+        </app-show-summary>
 
         <div class="stub">
           <div class="qr-wrap" [class.dim]="state() !== 'upcoming'">

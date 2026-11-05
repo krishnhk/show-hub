@@ -9,7 +9,7 @@ import { ResaleService } from '../../core/services/resale.service';
 import { ToastService } from '../../core/services/toast.service';
 import { ConfirmDialogComponent } from '../../shared/components/confirm-dialog/confirm-dialog.component';
 import { EmptyStateComponent } from '../../shared/components/empty-state/empty-state.component';
-import { FilmThumbComponent } from '../../shared/components/film-thumb/film-thumb.component';
+import { ShowSummaryComponent } from '../../shared/components/show-summary/show-summary.component';
 import { LoadingSpinnerComponent } from '../../shared/components/loading-spinner/loading-spinner.component';
 import { ShowDatePipe, ShowTimePipe } from '../../shared/pipes/date.pipes';
 import { InrPipe } from '../../shared/pipes/inr.pipe';
@@ -33,7 +33,7 @@ interface EditGroup {
 @Component({
   selector: 'app-sell-listing-detail',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [RouterLink, EmptyStateComponent, LoadingSpinnerComponent, FilmThumbComponent, ConfirmDialogComponent, ShowDatePipe, ShowTimePipe, InrPipe],
+  imports: [RouterLink, EmptyStateComponent, LoadingSpinnerComponent, ShowSummaryComponent, ConfirmDialogComponent, ShowDatePipe, ShowTimePipe, InrPipe],
   templateUrl: './sell-listing-detail.html',
   styleUrl: './sell-listing-detail.css',
 })

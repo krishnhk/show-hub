@@ -5,29 +5,28 @@
     <app-loading-spinner label="Loading listing…" />
   } @else if (ticket(); as current) {
     <div class="layout">
-      <aside class="show">
-        <app-film-thumb [posterUrl]="current.showtime.movie.posterUrl" [alt]="current.showtime.movie.title" />
-
-        <div class="show-info">
-          <div class="title-row">
-            <h1>{{ current.showtime.movie.title }}</h1>
-            <span class="status">{{ current.status === 'Available' ? 'Active listing' : statusLabel(current.status) }}</span>
-          </div>
-          <p class="when">{{ current.showtime.showDateTime | showDate }} · {{ current.showtime.showDateTime | showTime }}</p>
-          <p class="venue">{{ current.showtime.theater.name }}</p>
-          <div class="seat-row" [attr.aria-label]="current.seatNumbers.length + ' seats'">
-            @for (seat of current.seatNumbers; track seat) {
-              <span class="seat">{{ seat }}</span>
-            }
-          </div>
-          @if (partNote(current); as part) {
-            <span class="part">{{ part }}</span>
-          }
-          @if (current.status === 'Available') {
-            <span class="part">Seats are locked and can't be added or removed.</span>
+      <app-show-summary
+        [posterUrl]="current.showtime.movie.posterUrl"
+        [title]="current.showtime.movie.title"
+        [dateTime]="current.showtime.showDateTime"
+        [theatre]="current.showtime.theater.name"
+        [format]="current.showtime.format"
+        [language]="current.showtime.language"
+        [seatCount]="current.seatNumbers.length"
+      >
+        <span ssTags class="ss-tag">{{ current.status === 'Available' ? 'Active listing' : statusLabel(current.status) }}</span>
+        <div ssChips class="ss-chips" [attr.aria-label]="current.seatNumbers.length + ' seats'">
+          @for (seat of current.seatNumbers; track seat) {
+            <span class="ss-chip">{{ seat }}</span>
           }
         </div>
-      </aside>
+        @if (partNote(current); as part) {
+          <p class="ss-note">{{ part }}</p>
+        }
+        @if (current.status === 'Available') {
+          <p class="ss-note">Seats are locked and can't be added or removed.</p>
+        }
+      </app-show-summary>
 
       <section class="card">
         @if (current.status === 'Available') {

@@ -123,130 +123,10 @@
   clip-path: inset(0 0 50% 0);
 }
 
-.main {
-  display: grid;
-  grid-template-columns: auto minmax(0, 1fr);
-  gap: 22px;
-  align-items: center;
-  padding: 24px;
-  --thumb-w: 156px;
-  --thumb-h: 218px;
-}
-
-.info {
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
-  min-width: 0;
-}
-
-.title-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 10px;
-}
-
-.chips {
-  display: flex;
-  flex: none;
-  flex-wrap: nowrap;
-  gap: 6px;
-}
-
-.chip { white-space: nowrap; }
-
-.chip {
-  padding: 2px 10px;
-  border-radius: 999px;
-  background: var(--surface-3);
-  color: var(--text-soft);
-  font-size: 0.72rem;
-  font-weight: 700;
-}
-
-/* One colour per status: confirmed green, listed blue, completed grey, cancelled red */
-.chip.status {
-  background: var(--success-soft);
-  color: var(--success);
-}
-
-.chip.status[data-state='listed'] {
-  background: var(--info-soft);
-  color: var(--info);
-}
-
-.chip.status[data-state='past'] {
-  background: var(--surface-3);
-  color: var(--text-muted);
-}
-
-.chip.status[data-state='cancelled'] {
-  background: var(--danger-soft);
-  color: var(--danger);
-}
-
-.chip.resale {
-  background: var(--info-soft);
-  color: var(--info);
-}
-
-h1 {
-  margin: 0;
-  font-size: 1.7rem;
-  line-height: 1.12;
-}
-
-.facts {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 12px 40px;
-}
-
-/* Every value on the ticket is the same size and weight; the small caps label above says what it is */
-.facts b,
-.where b {
-  display: block;
-  font-family: inherit;
-  font-weight: 500;
-  font-size: 0.95rem;
-}
-
-.place {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 14px 56px;
-}
-
-.seats {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
-}
-
-.seat {
-  padding: 3px 12px;
-  border: 1px solid var(--border);
-  border-radius: 999px;
-  background: var(--surface-2);
-  color: var(--text-soft);
-  font-size: 0.82rem;
-  font-weight: 700;
-}
-
-.seat.gone {
-  border-style: dashed;
-  background: transparent;
-  color: var(--text-muted);
-  text-decoration: line-through;
-}
-
-.resale-note {
-  display: inline-block;
-  margin-top: 8px;
-  font-size: 0.8rem;
-  font-weight: 600;
-  color: var(--info);
+/* The show and its seats (shared component) on the left, the QR code on a stub to the right */
+.left {
+  --ss-border: 0;
+  --ss-radius: 13px 0 0 13px;
 }
 
 .stub {
@@ -447,28 +327,22 @@ h1 {
     display: none;
   }
 
-  /* Phones: a small portrait poster beside the details, so the whole poster shows */
-  .main {
-    grid-template-columns: auto minmax(0, 1fr);
-    gap: 14px;
-    align-items: start;
-    padding: 14px;
-    --thumb-w: 84px;
-    --thumb-h: 120px;
+  .left {
+    --ss-radius: 13px 13px 0 0;
   }
 
-  .info { gap: 10px; }
-  /* One left edge: date and time on its own row, language and format side by side, then venue and seats */
-  .facts { display: grid; grid-template-columns: 1fr 1fr; gap: 10px 16px; }
-  .facts > div:first-child { grid-column: 1 / -1; }
-  .place { display: grid; grid-template-columns: 1fr; gap: 10px; }
-
+  /* Phone stub: QR code, code and hint stacked on the centre line */
   .stub {
+    gap: 12px;
+    padding: 16px;
     border-left: 0;
     border-top: 2px dashed var(--border);
   }
 
-  h1 {
-    font-size: 1.45rem;
+  .qr {
+    width: 150px;
+    height: 150px;
+    padding: 6px;
   }
+
 }
