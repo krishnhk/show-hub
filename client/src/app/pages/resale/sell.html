@@ -8,6 +8,9 @@
       </p>
     </div>
     <a class="wallet-card" routerLink="/wallet" aria-label="Open your wallet">
+      <svg class="wallet-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+        <path d="M4 7.5A2.5 2.5 0 0 1 6.5 5H18v3M4 7.5V17a2 2 0 0 0 2 2h12.5a1.500 1.500 0 0 0 1.500-1.500v-8A1.500 1.500 0 0 0 18.500 8H6.500A2.500 2.500 0 0 1 4 5.500M16 13.500h.01" />
+      </svg>
       <span class="wallet-label">Wallet</span>
       <strong class="wallet-amount">{{ wallet.balance() | inr }}</strong>
       <span class="wallet-link">View wallet →</span>

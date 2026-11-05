@@ -68,6 +68,16 @@ export const routes: Routes = [
     loadComponent: () => import('./pages/resale/resale-detail').then((m) => m.ResaleDetailComponent),
   },
   {
+    path: 'sell/new/:bookingId',
+    canActivate: [authGuard],
+    loadComponent: () => import('./pages/resale/sell-booking').then((m) => m.SellBookingComponent),
+  },
+  {
+    path: 'sell/listings/:id',
+    canActivate: [authGuard],
+    loadComponent: () => import('./pages/resale/sell-listing-detail').then((m) => m.SellListingDetailComponent),
+  },
+  {
     path: 'sell',
     canActivate: [authGuard],
     loadComponent: () => import('./pages/resale/sell').then((m) => m.SellComponent),

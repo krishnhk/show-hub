@@ -1,0 +1,188 @@
+<div class="container page">
+  <a class="back-link text-sm" routerLink="/sell/listings">← Your listings</a>
+
+  @if (store.loading() && !ticket()) {
+    <app-loading-spinner label="Loading listing…" />
+  } @else if (ticket(); as current) {
+    <div class="layout">
+      <aside class="show">
+        <app-film-thumb [posterUrl]="current.showtime.movie.posterUrl" [alt]="current.showtime.movie.title" />
+
+        <div class="show-info">
+          <div class="title-row">
+            <h1>{{ current.showtime.movie.title }}</h1>
+            <span class="status">{{ current.status === 'Available' ? 'Active listing' : statusLabel(current.status) }}</span>
+          </div>
+          <p class="when">{{ current.showtime.showDateTime | showDate }} · {{ current.showtime.showDateTime | showTime }}</p>
+          <p class="venue">{{ current.showtime.theater.name }}</p>
+          <div class="seat-row" [attr.aria-label]="current.seatNumbers.length + ' seats'">
+            @for (seat of current.seatNumbers; track seat) {
+              <span class="seat">{{ seat }}</span>
+            }
+          </div>
+          @if (partNote(current); as part) {
+            <span class="part">{{ part }}</span>
+          }
+          @if (current.status === 'Available') {
+            <span class="part">Seats are locked and can't be added or removed.</span>
+          }
+        </div>
+      </aside>
+
+      <section class="card">
+        @if (current.status === 'Available') {
+          @let ticket = current;
+
+          <div class="block">
+            <h2 class="label">Price per seat</h2>
+            <div class="price-lines">
+              @for (group of editGroups(); track group.category) {
+                <div class="price-line">
+                  <div class="price-info">
+                    <strong>{{ group.category }}</strong>
+                    @if (groupErrors()[group.category]; as error) {
+                      <span class="hint field-error">{{ error }}</span>
+                    } @else {
+                      <span class="hint">
+                        {{ group.seats.length }} seat{{ group.seats.length === 1 ? '' : 's' }} · paid {{ group.paid | inr }} each
+                      </span>
+                    }
+                  </div>
+                  <div class="price-box" [class.invalid]="groupErrors()[group.category]">
+                    <span class="rupee">₹</span>
+                    <input
+                      type="number"
+                      class="price-field"
+                      min="1"
+                      [max]="group.paid"
+                      [value]="editPrices()[group.category] ?? ''"
+                      (input)="setPrice(group.category, $any($event.target).value)"
+                      [attr.aria-label]="group.category + ' price per seat'"
+                    />
+                  </div>
+                </div>
+              }
+            </div>
+          </div>
+
+          <dl class="receipt">
+            <div>
+              <dt>Listed at</dt>
+              <dd>{{ editTotal() | inr }}</dd>
+            </div>
+            <div>
+              <dt>Seller fee ({{ feePercent }}%)</dt>
+              <dd>−{{ editFee() | inr }}</dd>
+            </div>
+            <div class="total">
+              <dt>You get</dt>
+              <dd>{{ editReceive() | inr }}</dd>
+            </div>
+          </dl>
+          @if (editWarning(); as warning) {
+            <p class="hint field-warning">{{ warning }}</p>
+          }
+
+          <div class="block">
+            <h2 class="label">Buyers can</h2>
+            <div class="seg" role="group" aria-label="Buyer option">
+              <button
+                type="button"
+                [class.on]="!editPartial()"
+                [attr.aria-pressed]="!editPartial()"
+                (click)="setPartial(false)"
+              >
+                <strong>Buy the whole set</strong>
+                <span class="hint">All {{ ticket.seatNumbers.length }} seat{{ ticket.seatNumbers.length === 1 ? '' : 's' }} together</span>
+              </button>
+              <button
+                type="button"
+                [class.on]="editPartial()"
+                [attr.aria-pressed]="editPartial()"
+                [disabled]="ticket.seatNumbers.length < 2"
+                (click)="setPartial(true)"
+              >
+                <strong>Buy seat by seat</strong>
+                <span class="hint">
+                  @if (ticket.seatNumbers.length < 2) { Needs two or more seats } @else { Any of the seats }
+                </span>
+              </button>
+            </div>
+          </div>
+
+          <div class="actions">
+            <button type="button" class="link danger" (click)="askDelist(ticket)">Delist</button>
+            <span class="spacer"></span>
+            <button type="button" class="btn btn-outline" (click)="back()">Cancel</button>
+            <button type="button" class="btn" [disabled]="!canSave()" (click)="saveEdit()">
+              {{ saving() ? 'Saving…' : 'Save changes' }}
+            </button>
+          </div>
+                } @else {
+          @let sold = current;
+
+          <div class="block">
+            <h2 class="label">Summary</h2>
+            <dl class="receipt">
+              <div>
+                <dt>Bought price</dt>
+                <dd>{{ sold.originalPrice | inr }}</dd>
+              </div>
+              <div>
+                <dt>{{ sold.status === 'Sold' ? 'Sold price' : 'Listed price' }}</dt>
+                <dd>{{ sold.resalePrice | inr }}</dd>
+              </div>
+              <div>
+                <dt>Seller fee</dt>
+                <dd>@if (sold.status === 'Sold') { −{{ sold.sellerCommission | inr }} } @else { None }</dd>
+              </div>
+              <div class="total">
+                <dt>Credited to wallet</dt>
+                <dd>@if (sold.status === 'Sold') { {{ sold.sellerReceives | inr }} } @else { None }</dd>
+              </div>
+            </dl>
+            @if (sold.status === 'Sold') {
+              <p class="hint">Sold price − seller fee ({{ feePercent }}%)</p>
+            }
+          </div>
+
+          <div class="block">
+            <h2 class="label">History</h2>
+            <ol class="timeline">
+              <li>
+                <span class="k">Listed at</span>
+                <span class="v">{{ sold.listedAt | showDate }}, {{ sold.listedAt | showTime }}</span>
+              </li>
+              @if (sold.status === 'Sold') {
+                <li>
+                  <span class="k">Sold on</span>
+                  <span class="v">@if (sold.soldAt) { {{ sold.soldAt | showDate }}, {{ sold.soldAt | showTime }} }</span>
+                </li>
+              } @else {
+                <li>
+                  <span class="k">{{ statusLabel(sold.status) }}</span>
+                  <span class="v">{{ sold.status === 'Delisted' ? 'You removed this listing' : 'Show started, tickets returned to My Tickets' }}</span>
+                </li>
+              }
+            </ol>
+          </div>
+        }
+      </section>
+    </div>
+  } @else {
+    <app-empty-state icon="🏷️" title="Listing not found" message="It may have been removed.">
+      <a class="btn btn-sm" routerLink="/sell/listings">Your listings</a>
+    </app-empty-state>
+  }
+
+  @if (delistTarget(); as target) {
+    <app-confirm-dialog
+      title="Remove this listing?"
+      [message]="'Seats ' + target.seatNumbers.join(', ') + ' for ' + target.showtime.movie.title + ' will leave the marketplace and return to My tickets.'"
+      confirmLabel="Remove listing"
+      cancelLabel="Keep listed"
+      (confirmed)="confirmDelist()"
+      (cancelled)="delistTarget.set(null)"
+    />
+  }
+</div>

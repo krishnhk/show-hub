@@ -89,10 +89,50 @@
 }
 
 
+/* Phones: no intro text, the wallet as one slim row, tighter tabs */
+/* On desktop the card shows the word Wallet; the icon is for phones */
+.wallet-icon { display: none; }
+
+/* Phones: the heading and the wallet share one row; the wallet is a small pill with the balance */
 @media (max-width: 560px) {
+  .page-head {
+    flex-wrap: nowrap;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 8px;
+    gap: 10px;
+  }
+
+  .page-head h1 { font-size: 1.4rem; }
+  .page-head .subtitle { display: none; }
+
   .wallet-card {
-    align-items: flex-start;
-    width: 100%;
+    flex: none;
+    flex-direction: row;
+    align-items: center;
+    gap: 6px;
+    width: auto;
+    padding: 6px 12px;
+    border-radius: 999px;
     text-align: left;
   }
+
+  .wallet-icon {
+    display: block;
+    width: 18px;
+    height: 18px;
+    fill: none;
+    stroke: var(--text-muted);
+    stroke-width: 1.8;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+
+  .wallet-label,
+  .wallet-link { display: none; }
+
+  .wallet-amount { font-size: 1rem; }
+
+  .tabs { margin-bottom: 10px; }
+  .tabs a { flex: 1; justify-content: center; padding: 8px 12px; }
 }
