@@ -1,6 +1,7 @@
 import { Movie, SeatCategory, Showtime, Theater, languagesOf } from '../models/catalog.model';
 import { User, WalletEntry } from '../models/user.model';
 import { Booking, BOOKING_COMMISSION_PER_TICKET } from '../models/booking.model';
+import { resaleBuyerFee } from './resale-rules';
 import { ResaleTicket, ResaleTransaction } from '../models/resale.model';
 import { Review } from '../models/social.model';
 import { AppNotification } from '../models/social.model';
@@ -745,6 +746,23 @@ function upcomingShow(title: string): Showtime | undefined {
   return upcomingShows.get(title);
 }
 
+/**
+ * The first show of a film at a given theatre that is at least a day away, or the first show anywhere when that
+ * theatre has none. The four-category sample ticket needs the theatre whose halls have all four categories.
+ */
+function upcomingShowAt(title: string, theaterId: number | undefined): Showtime | undefined {
+  const movieId = MOVIES.find((movie) => movie.title === title)?.id;
+  const dayAway = Date.now() + 24 * 60 * 60 * 1000;
+  return (
+    SHOWTIMES.find(
+      (showtime) =>
+        showtime.movieId === movieId &&
+        showtime.theaterId === theaterId &&
+        new Date(showtime.showDateTime).getTime() > dayAway,
+    ) ?? upcomingShow(title)
+  );
+}
+
 export function buildBookings(): Booking[] {
   const bookings: Booking[] = [];
   let id = 500;
@@ -794,7 +812,7 @@ export function buildBookings(): Booking[] {
   // Jailer 2. Both are active tickets, for shows at least a day away.
   const activeTickets = [
     { show: upcomingShow('Scene'), seats: ['B2', 'D6'] },
-    { show: upcomingShow('Jailer 2'), seats: ['A3', 'B5', 'F2', 'G9'] },
+    { show: upcomingShowAt('Jailer 2', fourCategoryTheaterId()), seats: ['A3', 'B5', 'F2', 'G9'] },
   ];
   for (const { show: fourCategory, seats } of activeTickets) {
     if (fourCategory) {
@@ -1007,7 +1025,7 @@ function buildResaleTickets(): ResaleTicket[] {
     ticket.resalePrice = Math.round(ticket.originalPrice * discount);
     ticket.sellerCommission = Math.round(ticket.resalePrice * 0.05 * 100) / 100;
     ticket.sellerReceives = Math.round((ticket.resalePrice - ticket.sellerCommission) * 100) / 100;
-    ticket.buyerFee = Math.round((ticket.resalePrice * 0.025 + 0.3) * 100) / 100;
+    ticket.buyerFee = resaleBuyerFee(booking.seatNumbers.length);
     const listedShowtime = SHOWTIMES.find((item) => item.id === booking.showtimeId);
     if (listedShowtime) {
       ticket.seatPrices = splitByListPrice(listedShowtime, booking.seatNumbers, ticket.resalePrice);
@@ -1046,7 +1064,7 @@ const demoSoldTickets: ResaleTicket[] = demoSoldBookings.map((booking, index) =>
     originalPrice: booking.bookingPrice,
     resalePrice,
     sellerCommission: commission,
-    buyerFee: Math.round((resalePrice * 0.025 + 0.3) * 100) / 100,
+    buyerFee: resaleBuyerFee(booking.seatNumbers.length),
     sellerReceives: Math.round((resalePrice - commission) * 100) / 100,
     status: 'Sold',
     listedAt: isoDaysAgo(5 - index),
@@ -1071,7 +1089,7 @@ const demoOpenTickets: ResaleTicket[] = demoOpenBookings.map((booking, index) =>
     originalPrice: booking.bookingPrice,
     resalePrice,
     sellerCommission: commission,
-    buyerFee: Math.round((resalePrice * 0.025 + 0.3) * 100) / 100,
+    buyerFee: resaleBuyerFee(booking.seatNumbers.length),
     sellerReceives: Math.round((resalePrice - commission) * 100) / 100,
     status: index === 0 ? 'Available' : 'Delisted',
     listedAt: isoDaysAgo(index === 0 ? 0 : 2, 2),
@@ -1106,7 +1124,7 @@ if (splitShowtime && splitBooking) {
     originalPrice: paidEach,
     resalePrice: askEach,
     sellerCommission: commission,
-    buyerFee: Math.round((askEach * 0.025 + 0.3) * 100) / 100,
+    buyerFee: resaleBuyerFee(1),
     sellerReceives: Math.round((askEach - commission) * 100) / 100,
     status,
     listedAt: isoDaysAgo(1, 4),
@@ -1131,7 +1149,7 @@ RESALE_TICKETS.push({
   originalPrice: unsoldBooking.bookingPrice,
   resalePrice: unsoldPrice,
   sellerCommission: unsoldCommission,
-  buyerFee: Math.round((unsoldPrice * 0.025 + 0.3) * 100) / 100,
+  buyerFee: resaleBuyerFee(unsoldBooking.seatNumbers.length),
   sellerReceives: Math.round((unsoldPrice - unsoldCommission) * 100) / 100,
   status: 'Expired',
   listedAt: isoDaysAgo(1),
@@ -1148,8 +1166,8 @@ export const RESALE_TRANSACTIONS: ResaleTransaction[] = [
     buyerId: 1,
     sellerId: RESALE_TICKETS[0]?.sellerId ?? 2,
     resalePrice: RESALE_TICKETS[0]?.resalePrice ?? 220,
-    buyerFee: RESALE_TICKETS[0]?.buyerFee ?? 5.8,
-    totalBuyerPays: (RESALE_TICKETS[0]?.resalePrice ?? 220) + (RESALE_TICKETS[0]?.buyerFee ?? 5.8),
+    buyerFee: RESALE_TICKETS[0]?.buyerFee ?? resaleBuyerFee(1),
+    totalBuyerPays: (RESALE_TICKETS[0]?.resalePrice ?? 220) + (RESALE_TICKETS[0]?.buyerFee ?? resaleBuyerFee(1)),
     sellerReceives: RESALE_TICKETS[0]?.sellerReceives ?? 209,
     status: 'Completed',
     paymentId: 'pi_mock_txn',
