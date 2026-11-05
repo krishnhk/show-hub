@@ -9,74 +9,70 @@
       Back to seat selection
     </a>
   } @else {
-    <header class="page-head">
+    <div class="co">
       <div>
-        <a class="back-link text-sm" [routerLink]="['/book', showtimeId, 'seats']">
-          ← Back to seat selection
-        </a>
-        <h1>Checkout</h1>
-        <p class="subtitle">Review your seats and confirm the payment.</p>
+        <a class="back-link text-sm" [routerLink]="['/book', showtimeId, 'seats']">← Back to seat selection</a>
+        <h1 class="co-title">Checkout</h1>
       </div>
-    </header>
 
-    <div class="split">
-      <section class="stack">
-        <article class="panel">
-          <div class="panel-title">Show details</div>
-          @if (showtime(); as current) {
-            <div class="row show-row">
-              <div class="poster thumb">
-                @if (current.movie.posterUrl) {
-                  <img [src]="current.movie.posterUrl" [alt]="current.movie.title" />
-                } @else {
-                  <div class="poster-fallback">
-                    <span>{{ current.movie.title }}</span>
-                  </div>
-                }
-              </div>
-              <div class="stack-sm">
-                <h3>{{ current.movie.title }}</h3>
-                <p class="text-sm text-muted">{{ current.theater.name }}</p>
-                <p class="text-sm text-muted selectable">{{ current.theater.address }}</p>
-                <div class="row-wrap">
-                  <span class="badge">{{ current.showDateTime | showDate }}</span>
-                  <span class="badge">{{ current.showDateTime | showTime }}</span>
-                  <span class="badge badge-brand">{{ current.format }}</span>
-                </div>
-              </div>
-            </div>
-          }
-        </article>
-
-        <article class="panel">
-          <div class="panel-title">Selected seats</div>
-          <div class="chip-row">
+      @if (showtime(); as current) {
+        <app-show-summary
+          [posterUrl]="current.movie.posterUrl"
+          [title]="current.movie.title"
+          [dateTime]="current.showDateTime"
+          [theatre]="current.theater.name"
+          [format]="current.format"
+          [language]="current.language"
+          [seatCount]="selectedSeats().length"
+        >
+          <div ssChips class="ss-chips">
             @for (seat of selectedSeats(); track seat.id) {
-              <span class="chip seat-chip">
-                {{ seat.id }}
-                <span class="text-xs text-muted">{{ seat.price | inr }}</span>
-              </span>
+              <span class="ss-chip">{{ seat.id }}</span>
             }
           </div>
           @if (selectedSeats().length !== seatNumbers().length) {
-            <p class="hint">Some seats are no longer on the map. Please pick your seats again.</p>
+            <p class="ss-note">Some seats are no longer on the map. Please pick your seats again.</p>
           }
-        </article>
+        </app-show-summary>
+      }
 
-        <article class="panel">
-          <div class="panel-title">Pay with wallet</div>
-          <div class="card-flat payment-row">
-            <div class="stack-sm">
-              <span class="text-sm">ThiraiHub wallet</span>
-              @if (wallet.balance() > 0) {
-                <span class="text-xs text-muted">Available balance {{ wallet.balance() | inr }}</span>
-              } @else {
-                <span class="text-xs text-muted">Wallet is empty</span>
-              }
+      <section class="co-card">
+        <div class="co-total">
+          <h2 class="co-label">You pay</h2>
+          <span class="co-amount">{{ total() | inr }}</span>
+          <dl class="co-sum">
+            <div>
+              <dt>Seat price <span class="muted">· {{ quantity() }} seat{{ quantity() === 1 ? '' : 's' }}</span></dt>
+              <dd>{{ seatSubtotal() | inr }}</dd>
             </div>
+            <div>
+              <dt>ThiraiHub fee <span class="muted">· {{ feePerTicket | inr }} × {{ quantity() }}</span></dt>
+              <dd>{{ commission() | inr }}</dd>
+            </div>
+            @if (useWallet()) {
+              <div class="first-split">
+                <dt>From wallet</dt>
+                <dd>−{{ walletPortion() | inr }}</dd>
+              </div>
+              <div>
+                <dt>By card / UPI</dt>
+                <dd>{{ cardPortion() | inr }}</dd>
+              </div>
+            }
+          </dl>
+        </div>
+
+        <div class="co-pay">
+          <div class="co-opt">
+            <span>
+              Pay with wallet
+              <small>
+                @if (wallet.balance() > 0) { {{ wallet.balance() | inr }} available } @else { Wallet is empty }
+              </small>
+            </span>
             <button
               type="button"
-              class="toggle"
+              class="switch"
               role="switch"
               aria-label="Pay with wallet"
               [class.on]="useWallet()"
@@ -87,80 +83,36 @@
               <span class="knob"></span>
             </button>
           </div>
-        </article>
 
-        @if (!walletCoversAll()) {
-          <article class="panel">
-            <div class="panel-title">Payment method</div>
-            <div class="card-flat payment-row">
-              <div class="row">
-                <span class="card-brand">VISA</span>
-                <div class="stack-sm">
-                  <span class="text-sm">•••• 4242</span>
-                  <span class="text-xs text-muted">Mad Monkey · Expires 04/29</span>
-                </div>
-              </div>
-              <button type="button" class="btn btn-ghost btn-sm" (click)="changePaymentMethod()">
-                Change
-              </button>
-            </div>
-            <p class="hint">Payments are simulated in this build. No real money is charged.</p>
-          </article>
-        }
-      </section>
-
-      <aside class="panel surface-sticky summary">
-        <div class="panel-title">Order summary</div>
-
-        <div class="price-lines">
-          <div class="kv">
-            <span class="k">Seat price ({{ quantity() }} ×)</span>
-            <span class="v">{{ seatSubtotal() | inr }}</span>
-          </div>
-          <div class="kv">
-            <span class="k">ThiraiHub service fee</span>
-            <span class="v">{{ commission() | inr }}</span>
-          </div>
-          <div class="total-row">
-            <span>Total payable</span>
-            <span>{{ total() | inr }}</span>
-          </div>
-          @if (useWallet()) {
-            <div class="kv">
-              <span class="k">Paid from wallet</span>
-              <span class="v">− {{ walletPortion() | inr }}</span>
-            </div>
-            <div class="kv">
-              <span class="k">To pay by card/UPI</span>
-              <span class="v">{{ cardPortion() | inr }}</span>
+          @if (!walletCoversAll()) {
+            <div class="co-opt">
+              <span class="co-left">
+                <span class="co-brand">VISA</span>
+                <span>•••• 4242 <small>Mad Monkey · Expires 04/29</small></span>
+              </span>
+              <button type="button" class="co-link" (click)="changePaymentMethod()">Change</button>
             </div>
           }
+
+          @if (paymentError(); as message) {
+            <div class="alert alert-error">{{ message }}</div>
+          }
+
+          <button type="button" class="btn btn-block btn-lg" [disabled]="paying() || !quantity()" (click)="pay()">
+            @if (paying()) {
+              Paying…
+            } @else if (walletCoversAll()) {
+              Pay {{ total() | inr }} from wallet
+            } @else {
+              Confirm &amp; pay {{ cardPortion() | inr }}
+            }
+          </button>
+
+          <p class="co-hint">
+            Simulated payment, no real money is charged. Cancelling more than 24 hours before the show refunds 50%.
+          </p>
         </div>
-
-        @if (paymentError(); as message) {
-          <div class="alert alert-error">{{ message }}</div>
-        }
-
-        <button
-          type="button"
-          class="btn btn-block btn-lg"
-          [disabled]="paying() || !quantity()"
-          (click)="pay()"
-        >
-          @if (paying()) {
-            Paying…
-          } @else if (walletCoversAll()) {
-            Pay {{ total() | inr }} from wallet
-          } @else {
-            Confirm &amp; pay {{ cardPortion() | inr }}
-          }
-        </button>
-
-        <p class="hint">
-          By continuing you agree to the ThiraiHub booking terms. Cancellation refunds are 50% when
-          more than 24 hours remain before the showtime.
-        </p>
-      </aside>
+      </section>
     </div>
   }
 </div>

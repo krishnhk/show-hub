@@ -12,67 +12,31 @@
   } @else if (ticket(); as current) {
     <a class="back-link text-sm" routerLink="/resale">← Back to resale marketplace</a>
 
-    <section class="show">
-      <app-film-thumb [posterUrl]="current.showtime.movie.posterUrl" [alt]="current.showtime.movie.title" />
+    <app-show-summary
+      [posterUrl]="current.showtime.movie.posterUrl"
+      [title]="current.showtime.movie.title"
+      [dateTime]="current.showtime.showDateTime"
+      [theatre]="current.showtime.theater.name"
+      [format]="current.showtime.format"
+      [language]="current.showtime.language"
+      [seatCount]="current.seatNumbers.length"
+    >
+      <span ssTags class="ss-tag" [attr.data-tone]="isAvailable() ? 'success' : 'danger'">{{ current.status }}</span>
 
-      <div class="show-info">
-        <div class="title-row">
-          <h1>{{ current.showtime.movie.title }}</h1>
-          <span class="badge" [class.badge-success]="isAvailable()" [class.badge-danger]="!isAvailable()">
-            {{ current.status }}
-          </span>
-        </div>
+      @if (current.seatNumbers.length < 2) {
+        <span ssSeatTag class="ss-tag" data-tone="info">Single seat</span>
+      } @else if (current.allowPartial) {
+        <span ssSeatTag class="ss-tag" data-tone="info">Seat by seat</span>
+      } @else {
+        <span ssSeatTag class="ss-tag" data-tone="warning">All together</span>
+      }
 
-        <dl class="fields">
-          <div>
-            <dt>Date &amp; time</dt>
-            <dd>{{ current.showtime.showDateTime | showDate }} | {{ current.showtime.showDateTime | showTime }}</dd>
-          </div>
-          <div>
-            <dt>Theatre</dt>
-            <dd>{{ current.showtime.theater.name }}</dd>
-          </div>
-          <div>
-            <dt>Format</dt>
-            <dd>{{ current.showtime.format }} · {{ current.showtime.language }}</dd>
-          </div>
-          <div>
-            <dt>Starts</dt>
-            <dd>{{ current.daysUntilShow === 0 ? 'Today' : 'In ' + current.daysUntilShow + ' day' + (current.daysUntilShow === 1 ? '' : 's') }}</dd>
-          </div>
-        </dl>
-      </div>
-    </section>
-
-    <section class="seats-card">
-      <div class="seats-head">
-        <h2 class="label">{{ canPick() ? 'Choose your seats' : 'Seats' }}</h2>
-        @if (canPick()) {
-          <button type="button" class="link" (click)="chosen.set(current.seatNumbers)">
-            Select all {{ current.seatNumbers.length }}
-          </button>
-        }
-      </div>
-
-      <div class="mode">
-        <span class="label">Buying option</span>
-        @if (current.seatNumbers.length < 2) {
-          <span class="badge badge-brand">Single seat</span>
-        } @else if (current.allowPartial) {
-          <span class="badge badge-info">Seat by seat</span>
-          <span class="mode-text">Buy any of the {{ current.seatNumbers.length }} seats</span>
-        } @else {
-          <span class="badge badge-warning">All together</span>
-          <span class="mode-text">All {{ current.seatNumbers.length }} seats are sold as one set</span>
-        }
-      </div>
-
-      <div class="seat-row" [attr.aria-label]="current.seatNumbers.length + ' seats'">
+      <div ssChips class="ss-chips" [attr.aria-label]="current.seatNumbers.length + ' seats'">
         @for (seat of current.seatNumbers; track seat) {
           @if (canPick()) {
             <button
               type="button"
-              class="seat-chip pick"
+              class="ss-chip"
               [class.off]="!chosen().includes(seat)"
               [attr.aria-pressed]="chosen().includes(seat)"
               (click)="toggleSeat(seat)"
@@ -80,26 +44,16 @@
               {{ seat }}
             </button>
           } @else {
-            <span class="seat-chip">{{ seat }}</span>
+            <span class="ss-chip">{{ seat }}</span>
           }
         }
       </div>
 
-      <div class="seats-foot">
-        <p class="hint">
-          @if (canPick()) {
-            {{ chosen().length }} of {{ current.seatNumbers.length }} chosen. Tap a seat to leave it out; the price follows.
-          } @else {
-            {{ current.seatNumbers.length }} seat{{ current.seatNumbers.length === 1 ? '' : 's' }} in this listing.
-          }
-        </p>
-
-        @if (seatMap()) {
-          <button type="button" class="btn btn-outline btn-sm map-toggle" [attr.aria-expanded]="showMap()" (click)="showMap.set(!showMap())">
-            {{ showMap() ? 'Hide seat map' : 'View seat map' }}
-          </button>
-        }
-      </div>
+      @if (seatMap()) {
+        <button ssAction type="button" class="ss-link" [attr.aria-expanded]="showMap()" (click)="showMap.set(!showMap())">
+          {{ showMap() ? 'Hide seat map' : 'View seat map' }}
+        </button>
+      }
 
       @if (seatMap(); as map) {
         @if (showMap()) {
@@ -114,7 +68,7 @@
           </div>
         }
       }
-    </section>
+    </app-show-summary>
 
     <section class="price-card">
       <div class="total">
@@ -149,21 +103,13 @@
           <p class="note">This ticket is no longer available.</p>
           <a class="btn btn-outline btn-block" routerLink="/resale">Find another ticket</a>
         } @else {
-          @if (wallet.balance() > 0) {
-            <label class="wallet-use">
-              <input type="checkbox" [checked]="useWallet()" (change)="useWallet.set(!useWallet())" />
-              <span>Pay with wallet <span class="muted">· {{ wallet.balance() | inr }} available</span></span>
-            </label>
-          }
           <button
             type="button"
             class="btn btn-block btn-lg"
-            [disabled]="buying() || chosen().length === 0"
+            [disabled]="chosen().length === 0"
             (click)="buy()"
           >
-            @if (buying()) {
-              Reserving…
-            } @else if (canPick() && !buyingAll()) {
+            @if (canPick() && !buyingAll()) {
               Buy {{ chosen().length }} seat{{ chosen().length === 1 ? '' : 's' }}
             } @else {
               Buy now

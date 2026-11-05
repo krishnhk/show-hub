@@ -1,91 +1,102 @@
-import {
-  ChangeDetectionStrategy,
-  Component,
-  DestroyRef,
-  OnInit,
-  computed,
-  inject,
-  signal,
-} from '@angular/core';
-import { ActivatedRoute, Router, RouterLink } from '@angular/router';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { timer } from 'rxjs';
+import { HttpErrorResponse } from '@angular/common/http';
+import { ChangeDetectionStrategy, Component, OnInit, computed, inject, signal } from '@angular/core';
+import { ActivatedRoute, RouterLink } from '@angular/router';
 
-import { ResaleTransaction } from '../../core/models/resale.model';
+import { resaleBuyerFee } from '../../core/data/resale-rules';
+import { BOOKING_COMMISSION_PER_TICKET } from '../../core/models/booking.model';
+import { ResaleTicketDetail } from '../../core/models/resale.model';
 import { AuthService } from '../../core/services/auth.service';
-import { WalletStore } from '../../core/services/wallet.store';
 import { ResaleService } from '../../core/services/resale.service';
-import { ToastService } from '../../core/services/toast.service';
+import { WalletStore } from '../../core/services/wallet.store';
 import { EmptyStateComponent } from '../../shared/components/empty-state/empty-state.component';
 import { LoadingSpinnerComponent } from '../../shared/components/loading-spinner/loading-spinner.component';
-import { ShowDatePipe, ShowTimePipe } from '../../shared/pipes/date.pipes';
+import { ShowSummaryComponent } from '../../shared/components/show-summary/show-summary.component';
 import { InrPipe } from '../../shared/pipes/inr.pipe';
 
+/** What the purchase came to once it went through. */
+interface PaidOrder {
+  bookingId: number | null;
+  total: number;
+  walletUsed: number;
+  amountDue: number;
+}
+
+/**
+ * Checkout for a resale ticket. Nothing is bought until "Pay": the seats and the wallet choice are settled here,
+ * the same way as for a theatre booking.
+ */
 @Component({
   selector: 'app-resale-checkout',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [
-    RouterLink,
-    LoadingSpinnerComponent,
-    EmptyStateComponent,
-    ShowDatePipe,
-    ShowTimePipe,
-    InrPipe,
-  ],
+  imports: [RouterLink, LoadingSpinnerComponent, EmptyStateComponent, ShowSummaryComponent, InrPipe],
   templateUrl: './resale-checkout.html',
   styleUrl: './resale-checkout.css',
 })
 export class ResaleCheckoutComponent implements OnInit {
   private readonly route = inject(ActivatedRoute);
-  private readonly router = inject(Router);
   private readonly resale = inject(ResaleService);
-  private readonly toast = inject(ToastService);
   private readonly auth = inject(AuthService);
   protected readonly wallet = inject(WalletStore);
-  private readonly destroyRef = inject(DestroyRef);
 
-  readonly transactionId = Number(this.route.snapshot.paramMap.get('transactionId'));
+  readonly ticketId = Number(this.route.snapshot.paramMap.get('id'));
+  readonly feePerTicket = BOOKING_COMMISSION_PER_TICKET;
 
-  readonly transaction = signal<ResaleTransaction | null>(null);
+  readonly ticket = signal<ResaleTicketDetail | null>(null);
   readonly loading = signal(true);
   readonly notFound = signal(false);
   readonly paying = signal(false);
-  readonly paid = signal(false);
+  readonly paymentError = signal<string | null>(null);
+  readonly paid = signal<PaidOrder | null>(null);
 
-  /** The buyer's new booking, carried over from the purchase; falls back to My Bookings. */
-  readonly bookingId = signal<number | null>(
-    (this.router.getCurrentNavigation()?.extras.state?.['bookingId'] as number | undefined) ??
-      (history.state?.['bookingId'] as number | undefined) ??
-      null,
-  );
-  readonly ticketsLink = computed(() => {
-    const id = this.bookingId();
-    return id ? ['/bookings', id, 'confirmation'] : ['/my-bookings'];
+  /** Seats being bought: the ones named in the link, or every seat in the listing. */
+  readonly seats = signal<string[]>([]);
+  readonly seatCount = computed(() => this.seats().length);
+  readonly buyingAll = computed(() => {
+    const ticket = this.ticket();
+    return !ticket || this.seats().length === ticket.seatNumbers.length;
   });
 
-  /** The wallet share applied when the purchase was created; the rest is paid by card/UPI. */
-  readonly walletUsed = computed(() => this.transaction()?.walletPaid ?? 0);
-  readonly amountDue = computed(() => {
-    const current = this.transaction();
-    return current ? Math.max(0, Math.round((current.totalBuyerPays - this.walletUsed()) * 100) / 100) : 0;
+  readonly price = computed(() => {
+    const ticket = this.ticket();
+    if (!ticket) {
+      return 0;
+    }
+    if (this.buyingAll()) {
+      return ticket.resalePrice;
+    }
+    const total = this.seats().reduce((sum, seat) => sum + (ticket.seatPrices[seat] ?? 0), 0);
+    return Math.round(total * 100) / 100;
   });
-  readonly walletCoversAll = computed(() => !!this.transaction() && this.amountDue() === 0);
+  readonly fee = computed(() => resaleBuyerFee(this.seatCount()));
+  readonly total = computed(() => this.price() + this.fee());
 
-  /** The API rejects buying your own listing; the page says so up front. */
+  /** The buyer's own choice; the wallet is only used when it actually holds money. */
+  readonly walletChoice = signal(true);
+  readonly useWallet = computed(() => this.walletChoice() && this.wallet.balance() > 0);
+  readonly walletPortion = computed(() => (this.useWallet() ? Math.min(this.wallet.balance(), this.total()) : 0));
+  readonly cardPortion = computed(() => Math.max(0, Math.round((this.total() - this.walletPortion()) * 100) / 100));
+  readonly walletCoversAll = computed(() => this.total() > 0 && this.cardPortion() === 0);
+
   readonly isOwnListing = computed(() => {
-    const current = this.transaction();
+    const ticket = this.ticket();
     const me = this.auth.user();
-    return !!current && !!me && current.sellerId === me.id;
+    return !!ticket && !!me && ticket.sellerId === me.id;
   });
+  readonly isAvailable = computed(() => this.ticket()?.status === 'Available');
 
   ngOnInit(): void {
     this.wallet.refresh();
-    this.resale.getTransactions().subscribe({
+    const wanted = (this.route.snapshot.queryParamMap.get('seats') ?? '')
+      .split(',')
+      .map((seat) => seat.trim())
+      .filter((seat) => seat.length > 0);
+
+    this.resale.getTicket(this.ticketId).subscribe({
       next: (response) => {
-        const found =
-          response.transactions.find((item) => item.id === this.transactionId) ?? null;
-        this.transaction.set(found);
-        this.notFound.set(!found);
+        const listing = response.ticket;
+        const valid = wanted.filter((seat) => listing.seatNumbers.includes(seat));
+        this.ticket.set(listing);
+        this.seats.set(valid.length > 0 ? valid : [...listing.seatNumbers]);
         this.loading.set(false);
       },
       error: () => {
@@ -95,28 +106,38 @@ export class ResaleCheckoutComponent implements OnInit {
     });
   }
 
+  toggleWallet(): void {
+    this.walletChoice.update((value) => !value);
+  }
+
   pay(): void {
-    const transaction = this.transaction();
-    if (!transaction || this.paying() || this.paid() || this.isOwnListing()) {
+    if (this.paying() || this.paid() || this.isOwnListing() || !this.isAvailable() || this.seatCount() === 0) {
       return;
     }
 
     this.paying.set(true);
-    timer(900)
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe(() => {
+    this.paymentError.set(null);
+    this.resale.purchase(this.ticketId, this.buyingAll() ? undefined : this.seats(), this.useWallet()).subscribe({
+      next: (response) => {
         this.paying.set(false);
-        this.paid.set(true);
         this.wallet.refresh();
-        this.toast.success(`${this.formatMoney(transaction.totalBuyerPays)} paid. Your tickets are booked`);
-      });
+        this.paid.set({
+          bookingId: response.bookingId ?? null,
+          total: response.totalBuyerPays,
+          walletUsed: response.walletUsed ?? 0,
+          amountDue: response.amountDue ?? response.totalBuyerPays,
+        });
+      },
+      error: (error: HttpErrorResponse) => {
+        this.paying.set(false);
+        const payload = error.error as { message?: string } | null;
+        this.paymentError.set(payload?.message ?? 'Payment failed. Please try again.');
+      },
+    });
   }
 
-  formatMoney(value: number): string {
-    return value.toLocaleString('en-IN', {
-      style: 'currency',
-      currency: 'INR',
-      maximumFractionDigits: 0,
-    });
+  ticketsLink(): string[] {
+    const id = this.paid()?.bookingId;
+    return id ? ['/bookings', String(id), 'confirmation'] : ['/my-bookings'];
   }
 }

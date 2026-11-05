@@ -1,161 +1,140 @@
-<div class="container page narrow">
+<div class="container page">
   @if (loading()) {
     <app-loading-spinner label="Preparing your checkout…" />
-  } @else if (notFound() || !transaction()) {
+  } @else if (paid(); as order) {
+    <div class="panel success-panel">
+      <div class="success-icon" aria-hidden="true">🎟️</div>
+      <h1>Payment successful</h1>
+      <p class="subtitle">
+        Your tickets are booked
+        @if (ticket(); as booked) {
+          for {{ booked.showtime.movie.title }}
+        }
+        and are in My Tickets now.
+      </p>
+
+      @if (order.walletUsed > 0) {
+        <p class="text-sm text-muted">{{ order.walletUsed | inr }} from your wallet · {{ order.amountDue | inr }} by card/UPI</p>
+      } @else {
+        <p class="text-sm text-muted">{{ order.total | inr }} paid by card/UPI</p>
+      }
+
+      <div class="row-wrap success-actions">
+        <a class="btn" [routerLink]="ticketsLink()">View my tickets</a>
+        <a class="btn btn-ghost" routerLink="/resale">Browse more tickets</a>
+      </div>
+    </div>
+  } @else if (notFound() || !ticket() || !isAvailable()) {
     <app-empty-state
-      icon="🔒"
-      title="Checkout session not found"
-      message="This order is not yours or the session has expired. Start again from the marketplace."
+      icon="🎟️"
+      title="Ticket no longer available"
+      message="This listing may have been sold or delisted by the seller."
     >
-      <a class="btn btn-sm" routerLink="/resale">Back to marketplace</a>
+      <a class="btn btn-sm" routerLink="/resale">Browse resale tickets</a>
     </app-empty-state>
-  } @else if (transaction(); as current) {
-    @if (!paid()) {
-      <header class="page-head">
-        <div>
-          <h1>Resale checkout</h1>
-          <p class="subtitle">
-            Pay like a normal booking. The seats appear in My Tickets right away.
-          </p>
-        </div>
-      </header>
+  } @else if (ticket(); as current) {
+    <div class="co">
+      <div>
+        <a class="back-link text-sm" [routerLink]="['/resale', ticketId]">← Back to the ticket</a>
+        <h1 class="co-title">Checkout</h1>
+      </div>
 
-      <div class="checkout-grid">
-        <section class="panel">
-          <div class="panel-title">Order summary</div>
-
-          @if (current.ticket; as ticket) {
-            <div class="order-movie">
-              <div class="order-copy">
-                <h2>{{ ticket.showtime.movie.title }}</h2>
-                <p class="text-sm text-muted">
-                  {{ ticket.showtime.theater.name }} · {{ ticket.showtime.theater.city }}
-                </p>
-                <p class="text-sm text-soft">
-                  {{ ticket.showtime.showDateTime | showDate }},
-                  {{ ticket.showtime.showDateTime | showTime }} · {{ ticket.showtime.format }}
-                </p>
-                <div class="row-wrap seats">
-                  @for (seat of ticket.seatNumbers; track seat) {
-                    <span class="chip">{{ seat }}</span>
-                  }
-                </div>
-              </div>
-              <div class="order-seats">
-                <span class="badge badge-accent">{{ ticket.showtime.format }}</span>
-                <span class="badge">Seller: {{ current.counterpart?.fullName ?? 'ThiraiHub seller' }}</span>
-              </div>
-            </div>
-          } @else {
-            <p class="text-sm text-muted">Ticket details are no longer available.</p>
+      <app-show-summary
+        [posterUrl]="current.showtime.movie.posterUrl"
+        [title]="current.showtime.movie.title"
+        [dateTime]="current.showtime.showDateTime"
+        [theatre]="current.showtime.theater.name"
+        [format]="current.showtime.format"
+        [language]="current.showtime.language"
+        [seatCount]="seatCount()"
+      >
+        <span ssTags class="ss-tag" data-tone="info">Resale ticket</span>
+        <div ssChips class="ss-chips">
+          @for (seat of seats(); track seat) {
+            <span class="ss-chip">{{ seat }}</span>
           }
+        </div>
+      </app-show-summary>
 
-          <div class="divider"></div>
-
-          <div class="price-lines">
-            <div class="kv">
-              <span class="k">Resale price</span>
-              <span class="v">{{ current.resalePrice | inr }}</span>
+      <section class="co-card">
+        <div class="co-total">
+          <h2 class="co-label">You pay</h2>
+          <span class="co-amount">{{ total() | inr }}</span>
+          <dl class="co-sum">
+            <div>
+              <dt>Resale price <span class="muted">· {{ seatCount() }} seat{{ seatCount() === 1 ? '' : 's' }}</span></dt>
+              <dd>{{ price() | inr }}</dd>
             </div>
-            <div class="kv">
-              <span class="k">ThiraiHub service fee</span>
-              <span class="v">{{ current.buyerFee | inr }}</span>
+            <div>
+              <dt>ThiraiHub fee <span class="muted">· {{ feePerTicket | inr }} × {{ seatCount() }}</span></dt>
+              <dd>{{ fee() | inr }}</dd>
             </div>
-            <div class="total-row">
-              <span>Total due now</span>
-              <span>{{ current.totalBuyerPays | inr }}</span>
-            </div>
-            @if (walletUsed() > 0) {
-              <div class="kv">
-                <span class="k">Paid from wallet</span>
-                <span class="v">− {{ walletUsed() | inr }}</span>
+            @if (useWallet()) {
+              <div class="first-split">
+                <dt>From wallet</dt>
+                <dd>−{{ walletPortion() | inr }}</dd>
               </div>
-              <div class="kv">
-                <span class="k">To pay by card/UPI</span>
-                <span class="v">{{ amountDue() | inr }}</span>
+              <div>
+                <dt>By card / UPI</dt>
+                <dd>{{ cardPortion() | inr }}</dd>
               </div>
             }
-          </div>
+          </dl>
+        </div>
 
-          <div class="alert alert-info">
-            Once you pay, the seats are added to My Tickets and the seller is paid to their wallet.
-          </div>
-        </section>
-
-        <aside class="panel surface-sticky">
-          <div class="panel-title">Payment</div>
-
-          <div class="card payment-card">
-            <div class="row" style="justify-content: space-between">
-              <span class="text-sm">ThiraiHub wallet</span>
-              @if (walletUsed() > 0) {
-                <span class="badge badge-success">Applied {{ walletUsed() | inr }}</span>
-              } @else {
-                <span class="text-xs text-muted">
-                  {{ wallet.balance() > 0 ? 'Not applied to this order' : 'Wallet is empty' }}
-                </span>
-              }
-            </div>
+        <div class="co-pay">
+          <div class="co-opt">
+            <span>
+              Pay with wallet
+              <small>
+                @if (wallet.balance() > 0) { {{ wallet.balance() | inr }} available } @else { Wallet is empty }
+              </small>
+            </span>
+            <button
+              type="button"
+              class="switch"
+              role="switch"
+              aria-label="Pay with wallet"
+              [class.on]="useWallet()"
+              [attr.aria-checked]="useWallet()"
+              [disabled]="wallet.balance() <= 0"
+              (click)="toggleWallet()"
+            >
+              <span class="knob"></span>
+            </button>
           </div>
 
           @if (!walletCoversAll()) {
-            <div class="card payment-card">
-              <div class="row" style="justify-content: space-between">
-                <span class="mono">•••• •••• •••• 4242</span>
-                <span class="text-xs text-muted">VISA</span>
-              </div>
-              <p class="text-xs text-muted">Demo card — no real charge is made in this build.</p>
+            <div class="co-opt">
+              <span class="co-left">
+                <span class="co-brand">VISA</span>
+                <span>•••• 4242 <small>Demo card, no real charge</small></span>
+              </span>
             </div>
           }
-
-          <div class="divider"></div>
 
           @if (isOwnListing()) {
             <div class="alert alert-error">You can't buy your own listing.</div>
           }
-          <button
-            type="button"
-            class="btn btn-block btn-lg"
-            [disabled]="paying() || isOwnListing()"
-            (click)="pay()"
-          >
+          @if (paymentError(); as message) {
+            <div class="alert alert-error">{{ message }}</div>
+          }
+
+          <button type="button" class="btn btn-block btn-lg" [disabled]="paying() || isOwnListing()" (click)="pay()">
             @if (paying()) {
               Processing…
             } @else if (walletCoversAll()) {
-              Pay {{ current.totalBuyerPays | inr }} from wallet
+              Pay {{ total() | inr }} from wallet
             } @else {
-              Pay {{ amountDue() | inr }}
+              Pay {{ cardPortion() | inr }}
             }
           </button>
-          <p class="hint">
-            By paying you agree to the resale terms. Resale tickets are final once booked.</p>
-        </aside>
-      </div>
-    } @else {
-      <div class="panel success-panel">
-        <div class="success-icon" aria-hidden="true">🎟️</div>
-        <h1>Payment successful</h1>
-        <p class="subtitle">
-          Your tickets are booked
-          @if (current.ticket) {
-            for {{ current.ticket.showtime.movie.title }}
-          }
-          and are in My Tickets now.
-        </p>
 
-        @if (walletUsed() > 0) {
-          <p class="text-sm text-muted">
-            {{ walletUsed() | inr }} from your wallet · {{ amountDue() | inr }} by card/UPI
+          <p class="co-hint">
+            The seats go to My Tickets right away and the seller is paid. Resale tickets are final once booked.
           </p>
-        } @else {
-          <p class="text-sm text-muted">{{ current.totalBuyerPays | inr }} paid by card/UPI</p>
-        }
-
-        <div class="row-wrap success-actions">
-          <a class="btn" [routerLink]="ticketsLink()">View my tickets</a>
-          <a class="btn btn-ghost" routerLink="/resale">Browse more tickets</a>
         </div>
-      </div>
-    }
+      </section>
+    </div>
   }
 </div>

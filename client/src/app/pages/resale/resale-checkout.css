@@ -2,56 +2,15 @@
   display: block;
 }
 
-.narrow {
-  max-width: 1040px;
+.back-link {
+  display: inline-block;
+  margin-bottom: 6px;
+  color: var(--text-muted);
 }
 
-.checkout-grid {
-  display: grid;
-  grid-template-columns: minmax(0, 1.6fr) minmax(280px, 1fr);
-  gap: 20px;
-  align-items: start;
-}
-
-.order-movie {
-  display: flex;
-  justify-content: space-between;
-  gap: 16px;
-  flex-wrap: wrap;
-}
-
-.order-copy h2 {
-  margin: 0 0 4px;
-  font-size: 1.3rem;
-}
-
-.order-copy p {
-  margin: 0;
-}
-
-.order-seats {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  gap: 8px;
-}
-
-.price-lines {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  margin-bottom: 16px;
-}
-
-.payment-card {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  background: linear-gradient(135deg, color-mix(in srgb, var(--accent) 18%, transparent), color-mix(in srgb, var(--accent) 8%, transparent));
-}
-
-.payment-card p {
-  margin: 0;
+.back-link:hover {
+  color: var(--accent);
+  text-decoration: none;
 }
 
 .success-panel {

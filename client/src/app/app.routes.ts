@@ -59,7 +59,7 @@ export const routes: Routes = [
     loadComponent: () => import('./pages/resale/resale-orders').then((m) => m.ResaleOrdersComponent),
   },
   {
-    path: 'resale/checkout/:transactionId',
+    path: 'resale/:id/checkout',
     canActivate: [authGuard],
     loadComponent: () => import('./pages/resale/resale-checkout').then((m) => m.ResaleCheckoutComponent),
   },

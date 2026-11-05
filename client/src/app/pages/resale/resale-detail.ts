@@ -9,12 +9,10 @@ import { AuthService } from '../../core/services/auth.service';
 import { CatalogService } from '../../core/services/catalog.service';
 import { ResaleService } from '../../core/services/resale.service';
 import { ToastService } from '../../core/services/toast.service';
-import { WalletStore } from '../../core/services/wallet.store';
 import { EmptyStateComponent } from '../../shared/components/empty-state/empty-state.component';
-import { FilmThumbComponent } from '../../shared/components/film-thumb/film-thumb.component';
+import { ShowSummaryComponent } from '../../shared/components/show-summary/show-summary.component';
 import { SeatMapComponent } from '../../shared/components/seat-map/seat-map.component';
 import { LoadingSpinnerComponent } from '../../shared/components/loading-spinner/loading-spinner.component';
-import { ShowDatePipe, ShowTimePipe } from '../../shared/pipes/date.pipes';
 import { InrPipe } from '../../shared/pipes/inr.pipe';
 
 @Component({
@@ -24,10 +22,8 @@ import { InrPipe } from '../../shared/pipes/inr.pipe';
     RouterLink,
     LoadingSpinnerComponent,
     EmptyStateComponent,
-    FilmThumbComponent,
+    ShowSummaryComponent,
     SeatMapComponent,
-    ShowDatePipe,
-    ShowTimePipe,
     InrPipe,
   ],
   templateUrl: './resale-detail.html',
@@ -40,16 +36,12 @@ export class ResaleDetailComponent implements OnInit {
   private readonly catalog = inject(CatalogService);
   private readonly auth = inject(AuthService);
   private readonly toast = inject(ToastService);
-  protected readonly wallet = inject(WalletStore);
 
   readonly ticketId = Number(this.route.snapshot.paramMap.get('id'));
 
   readonly ticket = signal<ResaleTicketDetail | null>(null);
   readonly loading = signal(true);
   readonly notFound = signal(false);
-  readonly buying = signal(false);
-  /** Whether the wallet balance is applied to this purchase; on by default. */
-  readonly useWallet = signal(true);
   readonly seatMap = signal<SeatMap | null>(null);
   /** Seats the buyer has chosen; starts as every seat in the listing. */
   readonly chosen = signal<string[]>([]);
@@ -116,11 +108,6 @@ export class ResaleDetailComponent implements OnInit {
   });
 
   ngOnInit(): void {
-    // The wallet balance decides whether the pay-with-wallet option shows, so load it on a direct visit too.
-    if (this.auth.isLoggedIn()) {
-      this.wallet.refresh();
-    }
-
     this.resale.getTicket(this.ticketId).subscribe({
       next: (response) => {
         this.ticket.set(response.ticket);
@@ -148,7 +135,7 @@ export class ResaleDetailComponent implements OnInit {
       this.router.navigate(['/login'], { queryParams: { returnUrl: `/resale/${this.ticketId}` } });
       return;
     }
-    if (!this.isAvailable() || this.isOwner() || this.buying()) {
+    if (!this.isAvailable() || this.isOwner()) {
       return;
     }
 
@@ -157,18 +144,8 @@ export class ResaleDetailComponent implements OnInit {
       return;
     }
 
-    this.buying.set(true);
-    this.resale.purchase(this.ticketId, this.buyingAll() ? undefined : this.chosen(), this.useWallet()).subscribe({
-      next: (response) => {
-        this.buying.set(false);
-        this.toast.success('Ticket booked. Complete the payment to finish.');
-        this.router.navigate(['/resale/checkout', response.transactionId], {
-          state: { bookingId: response.bookingId },
-        });
-      },
-      error: () => {
-        this.buying.set(false);
-      },
+    this.router.navigate(['/resale', this.ticketId, 'checkout'], {
+      queryParams: this.buyingAll() ? {} : { seats: this.chosen().join(',') },
     });
   }
 }

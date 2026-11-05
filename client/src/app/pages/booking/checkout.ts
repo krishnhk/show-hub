@@ -8,8 +8,8 @@ import { BookingService } from '../../core/services/booking.service';
 import { CatalogService } from '../../core/services/catalog.service';
 import { WalletStore } from '../../core/services/wallet.store';
 import { ToastService } from '../../core/services/toast.service';
+import { ShowSummaryComponent } from '../../shared/components/show-summary/show-summary.component';
 import { LoadingSpinnerComponent } from '../../shared/components/loading-spinner/loading-spinner.component';
-import { ShowDatePipe, ShowTimePipe } from '../../shared/pipes/date.pipes';
 import { InrPipe } from '../../shared/pipes/inr.pipe';
 
 @Component({
@@ -18,8 +18,7 @@ import { InrPipe } from '../../shared/pipes/inr.pipe';
   imports: [
     RouterLink,
     LoadingSpinnerComponent,
-    ShowDatePipe,
-    ShowTimePipe,
+    ShowSummaryComponent,
     InrPipe,
   ],
   templateUrl: './checkout.html',
@@ -55,6 +54,8 @@ export class CheckoutComponent implements OnInit {
   readonly seatSubtotal = computed(() =>
     this.selectedSeats().reduce((total, seat) => total + seat.price, 0),
   );
+
+  readonly feePerTicket = BOOKING_COMMISSION_PER_TICKET;
 
   readonly commission = computed(() => this.quantity() * BOOKING_COMMISSION_PER_TICKET);
 

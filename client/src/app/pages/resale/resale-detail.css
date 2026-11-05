@@ -23,135 +23,19 @@
   margin: 0;
 }
 
-.mode {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 6px 10px;
+/* Two boxes in the order a buyer thinks: the show with its seats, then what it costs */
+
+app-show-summary {
+  max-width: 980px;
+  margin: 0 auto 18px;
 }
 
-.mode-text {
-  font-size: 0.85rem;
-  color: var(--text-soft);
-}
-
-.seats-foot {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: space-between;
-  gap: 8px 16px;
-}
-
-.map-toggle {
-  flex: none;
-}
-
-/* Three cards in the order a buyer thinks: what is it, which seats, what does it cost */
-
-.show,
-.seats-card,
 .price-card {
   max-width: 980px;
   margin: 0 auto 18px;
   border: 1px solid var(--border-soft);
   border-radius: var(--radius);
   background: var(--surface);
-}
-
-.show {
-  display: grid;
-  grid-template-columns: auto minmax(0, 1fr);
-  gap: 26px;
-  align-items: stretch;
-  padding: 24px;
-  --thumb-w: 132px;
-  --thumb-h: 186px;
-}
-
-.show-info {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  min-width: 0;
-}
-
-.title-row {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 4px 12px;
-}
-
-h1 {
-  margin: 0;
-  font-size: 1.9rem;
-  line-height: 1.12;
-}
-
-/* Labelled fields: a small caps label over a value, the same on every ticket screen */
-
-.fields {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 14px 24px;
-  margin: 10px 0 0;
-}
-
-.fields > div {
-  display: flex;
-  flex-direction: column;
-  gap: 3px;
-  min-width: 0;
-}
-
-.fields dt {
-  margin: 0;
-  font-size: 0.7rem;
-  font-weight: 700;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  color: var(--text-muted);
-}
-
-.fields dd {
-  margin: 0;
-  font-size: 0.95rem;
-  font-weight: 500;
-}
-
-.seat-row {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
-}
-
-.seat-chip {
-  padding: 6px 18px;
-  border: 1px solid var(--border);
-  border-radius: 999px;
-  background: var(--surface-2);
-  color: var(--text);
-  font-family: inherit;
-  font-size: 0.95rem;
-  font-weight: 700;
-}
-
-.seat-chip.pick {
-  cursor: pointer;
-}
-
-.seat-chip.pick:not(.off) {
-  border-color: var(--brand);
-  background: var(--brand-soft);
-}
-
-.seat-chip.off {
-  opacity: 0.4;
-  text-decoration: line-through;
-}
-
-.price-card {
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(0, 340px);
   align-items: center;
@@ -225,36 +109,11 @@ h1 {
   border-left: 2px dashed var(--border);
 }
 
-.wallet-use {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  font-size: 0.9rem;
-  cursor: pointer;
-}
-
 .note {
   margin: 0;
   font-size: 0.8rem;
   text-align: center;
   color: var(--text-muted);
-}
-
-/* The seats */
-
-.seats-card {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  max-width: 980px;
-  padding: 20px 22px;
-}
-
-.seats-head {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
 }
 
 .label {
@@ -267,24 +126,10 @@ h1 {
 }
 
 .map {
+  align-self: stretch;
   padding: 10px 6px;
   border-radius: var(--radius);
   background: var(--surface-2);
-}
-
-.link {
-  padding: 2px 4px;
-  border: 0;
-  background: none;
-  color: var(--accent);
-  font-family: inherit;
-  font-size: 0.85rem;
-  font-weight: 600;
-  cursor: pointer;
-}
-
-.link:hover {
-  text-decoration: underline;
 }
 
 /* Tablet and phone: the price card stacks, its pieces one under the other */
@@ -302,32 +147,24 @@ h1 {
 }
 
 @media (max-width: 560px) {
-  /* Date and theatre take a full row each so neither wraps; format and start sit side by side */
-  .fields > div:nth-child(-n + 2) {
-    grid-column: 1 / -1;
-  }
-
-  .show {
-    gap: 14px;
-    padding: 16px;
-    align-items: start;
-    --thumb-w: 88px;
-    --thumb-h: 124px;
-  }
-
-  h1 {
-    font-size: 1.35rem;
-  }
-
-  .when {
-    margin-top: 2px;
-    font-size: 0.95rem;
-  }
-
-  .show,
-  .seats-card,
+  app-show-summary,
   .price-card {
     margin-bottom: 14px;
+  }
+
+  .label {
+    font-size: 0.62rem;
+  }
+
+  .sum dt,
+  .sum dd {
+    font-size: 0.8rem;
+  }
+
+  .hint,
+  .saving,
+  .muted {
+    font-size: 0.74rem;
   }
 
   .price-card {
@@ -335,10 +172,6 @@ h1 {
   }
 
   .total-now {
-    font-size: 2.1rem;
-  }
-
-  .seats-card {
-    padding: 16px;
+    font-size: 1.7rem;
   }
 }
