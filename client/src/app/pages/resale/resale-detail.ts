@@ -1,6 +1,8 @@
 import { ChangeDetectionStrategy, Component, OnInit, computed, inject, signal } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 
+import { resaleBuyerFee } from '../../core/data/resale-rules';
+import { BOOKING_COMMISSION_PER_TICKET } from '../../core/models/booking.model';
 import { SeatMap } from '../../core/models/catalog.model';
 import { ResaleTicketDetail } from '../../core/models/resale.model';
 import { AuthService } from '../../core/services/auth.service';
@@ -51,6 +53,10 @@ export class ResaleDetailComponent implements OnInit {
   readonly seatMap = signal<SeatMap | null>(null);
   /** Seats the buyer has chosen; starts as every seat in the listing. */
   readonly chosen = signal<string[]>([]);
+  /** ThiraiHub's fee for each ticket, shown next to the total so the sum can be followed. */
+  readonly feePerTicket = BOOKING_COMMISSION_PER_TICKET;
+  /** The seat map stays folded away until the buyer asks for it. */
+  readonly showMap = signal(false);
 
   readonly canPick = computed(() => {
     const ticket = this.ticket();
@@ -87,7 +93,7 @@ export class ResaleDetailComponent implements OnInit {
     if (!ticket) {
       return 0;
     }
-    return this.buyingAll() ? ticket.buyerFee : Math.round((this.selectionPrice() * 0.025 + 0.3) * 100) / 100;
+    return resaleBuyerFee(this.chosen().length);
   });
   readonly selectionSellerReceives = computed(() => Math.round(this.selectionPrice() * 95) / 100);
   readonly selectionCommission = computed(() => Math.round(this.selectionPrice() * 5) / 100);
@@ -130,6 +136,11 @@ export class ResaleDetailComponent implements OnInit {
         this.notFound.set(true);
       },
     });
+  }
+
+  /** Leaves a seat out of the purchase, or puts it back. */
+  toggleSeat(seat: string): void {
+    this.chosen.update((seats) => (seats.includes(seat) ? seats.filter((item) => item !== seat) : [...seats, seat]));
   }
 
   buy(): void {

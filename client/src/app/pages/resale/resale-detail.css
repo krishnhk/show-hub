@@ -21,43 +21,42 @@
 
 .hint {
   margin: 0;
-  text-align: center;
 }
 
-/* The ticket: the show on the left, a perforation, then the price stub with the buy button */
+.mode {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 10px;
+}
 
-.ticket {
-  --stub-w: 360px;
-  position: relative;
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) var(--stub-w);
+.mode-text {
+  font-size: 0.85rem;
+  color: var(--text-soft);
+}
+
+.seats-foot {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px 16px;
+}
+
+.map-toggle {
+  flex: none;
+}
+
+/* Three cards in the order a buyer thinks: what is it, which seats, what does it cost */
+
+.show,
+.seats-card,
+.price-card {
   max-width: 980px;
-  margin-inline: auto;
+  margin: 0 auto 18px;
   border: 1px solid var(--border-soft);
   border-radius: var(--radius);
   background: var(--surface);
-}
-
-.ticket::before,
-.ticket::after {
-  content: '';
-  position: absolute;
-  left: calc(100% - var(--stub-w) - 12px);
-  width: 24px;
-  height: 24px;
-  border: 1px solid var(--border-soft);
-  border-radius: 50%;
-  background: var(--bg);
-}
-
-.ticket::before {
-  top: -12px;
-  clip-path: inset(50% 0 0 0);
-}
-
-.ticket::after {
-  bottom: -12px;
-  clip-path: inset(0 0 50% 0);
 }
 
 .show {
@@ -66,8 +65,8 @@
   gap: 26px;
   align-items: stretch;
   padding: 24px;
-  --thumb-w: 184px;
-  --thumb-h: 262px;
+  --thumb-w: 132px;
+  --thumb-h: 186px;
 }
 
 .show-info {
@@ -90,24 +89,35 @@ h1 {
   line-height: 1.12;
 }
 
-.when {
-  margin: 6px 0 0;
-  font-size: 1.05rem;
-  font-weight: 500;
+/* Labelled fields: a small caps label over a value, the same on every ticket screen */
+
+.fields {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px 24px;
+  margin: 10px 0 0;
 }
 
-.where {
+.fields > div {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+}
+
+.fields dt {
   margin: 0;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
   color: var(--text-muted);
 }
 
-.show-meta {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 8px 14px;
-  margin-top: auto;
-  padding-top: 14px;
+.fields dd {
+  margin: 0;
+  font-size: 0.95rem;
+  font-weight: 500;
 }
 
 .seat-row {
@@ -117,13 +127,23 @@ h1 {
 }
 
 .seat-chip {
-  padding: 3px 12px;
+  padding: 6px 18px;
   border: 1px solid var(--border);
   border-radius: 999px;
   background: var(--surface-2);
   color: var(--text);
-  font-size: 0.82rem;
+  font-family: inherit;
+  font-size: 0.95rem;
   font-weight: 700;
+}
+
+.seat-chip.pick {
+  cursor: pointer;
+}
+
+.seat-chip.pick:not(.off) {
+  border-color: var(--brand);
+  background: var(--brand-soft);
 }
 
 .seat-chip.off {
@@ -131,83 +151,78 @@ h1 {
   text-decoration: line-through;
 }
 
-.soon {
-  font-size: 0.82rem;
-  color: var(--text-muted);
+.price-card {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 340px);
+  align-items: center;
+  gap: 18px 32px;
+  padding: 22px 24px;
 }
 
-.stub {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  gap: 12px;
-  padding: 20px 24px;
-  border-left: 2px dashed var(--border);
-}
+/* The amount to pay leads: one big number, how it adds up and what is saved */
 
-/* Price */
-
-.price-hero {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: baseline;
-  gap: 4px 10px;
-}
-
-.price-now {
-  font-size: 2.2rem;
-  font-weight: 800;
-  letter-spacing: -0.03em;
-  line-height: 1.1;
-}
-
-.price-original {
-  color: var(--text-muted);
-  text-decoration: line-through;
-}
-
-.receipt {
+.total {
   display: flex;
   flex-direction: column;
   gap: 6px;
-  margin: 0;
-  padding: 12px 14px;
-  border-radius: var(--radius);
-  background: var(--surface-2);
+  min-width: 0;
 }
 
-.receipt > div {
+.total-now {
+  font-size: 2.6rem;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  line-height: 1.05;
+}
+
+.sum {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  max-width: 380px;
+  margin: 2px 0 0;
+  padding-top: 8px;
+  border-top: 1px solid var(--border-soft);
+}
+
+.sum > div {
   display: flex;
   align-items: baseline;
   justify-content: space-between;
-  gap: 12px;
+  gap: 16px;
 }
 
-.receipt dt {
+.sum dt {
   font-size: 0.9rem;
-  color: var(--text-muted);
+  color: var(--text-soft);
 }
 
-.receipt dd {
+.sum dd {
   margin: 0;
   font-weight: 500;
   font-variant-numeric: tabular-nums;
 }
 
-.receipt .total {
-  margin-top: 2px;
-  padding-top: 8px;
-  border-top: 1px solid var(--border);
+.saving {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 10px;
+  margin: 6px 0 0;
+  font-size: 0.85rem;
+  color: var(--text-soft);
 }
 
-.receipt .total dt {
-  font-weight: 600;
-  color: var(--text);
+.saving strong {
+  color: var(--success);
 }
 
-.receipt .total dd {
-  font-size: 1.3rem;
-  font-weight: 700;
+.pay {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding-left: 32px;
+  border-left: 2px dashed var(--border);
 }
 
 .wallet-use {
@@ -232,11 +247,7 @@ h1 {
   flex-direction: column;
   gap: 12px;
   max-width: 980px;
-  margin: 18px auto 0;
   padding: 20px 22px;
-  border: 1px solid var(--border-soft);
-  border-radius: var(--radius);
-  background: var(--surface);
 }
 
 .seats-head {
@@ -276,25 +287,26 @@ h1 {
   text-decoration: underline;
 }
 
-/* Tablet and phone: the show on top, the stub under a dashed line, then the seats */
+/* Tablet and phone: the price card stacks, its pieces one under the other */
 
 @media (max-width: 820px) {
-  .ticket {
+  .price-card {
     grid-template-columns: minmax(0, 1fr);
   }
 
-  .ticket::before,
-  .ticket::after {
-    display: none;
-  }
-
-  .stub {
+  .pay {
+    padding: 16px 0 0;
     border-left: 0;
     border-top: 2px dashed var(--border);
   }
 }
 
 @media (max-width: 560px) {
+  /* Date and theatre take a full row each so neither wraps; format and start sit side by side */
+  .fields > div:nth-child(-n + 2) {
+    grid-column: 1 / -1;
+  }
+
   .show {
     gap: 14px;
     padding: 16px;
@@ -312,16 +324,21 @@ h1 {
     font-size: 0.95rem;
   }
 
-  .stub {
+  .show,
+  .seats-card,
+  .price-card {
+    margin-bottom: 14px;
+  }
+
+  .price-card {
     padding: 16px;
   }
 
-  .price-now {
-    font-size: 1.8rem;
+  .total-now {
+    font-size: 2.1rem;
   }
 
   .seats-card {
-    margin-top: 14px;
     padding: 16px;
   }
 }
