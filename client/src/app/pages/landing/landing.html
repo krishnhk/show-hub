@@ -96,40 +96,7 @@
       </div>
       <div class="spare-grid">
         @for (ticket of spareTop(); track ticket.id) {
-          <a class="spare" [routerLink]="['/resale', ticket.id]">
-            <span class="spare-top">
-              <strong class="spare-movie">{{ ticket.showtime.movie.title }}</strong>
-              @if (ticket.discountPercent > 0) {
-                <span class="spare-off">{{ ticket.discountPercent }}% off</span>
-              }
-            </span>
-
-            <span class="spare-when">
-              {{ ticket.showtime.showDateTime | showDate }} · {{ ticket.showtime.showDateTime | showTime }}
-            </span>
-            <span class="spare-where">{{ ticket.showtime.theater.name }}</span>
-            <span class="spare-fmt">{{ ticket.showtime.language }} · {{ ticket.showtime.format }}</span>
-
-            <span class="spare-seats">
-              @for (seat of ticket.seatNumbers; track seat) {
-                <span class="spare-seat">{{ seat }}</span>
-              }
-            </span>
-
-            <span class="spare-foot">
-              <span class="spare-mode">
-                @if (ticket.seatNumbers.length > 1) {
-                  {{ ticket.allowPartial ? 'Seat by seat' : 'All together' }}
-                }
-              </span>
-              <span class="spare-price">
-                @if (ticket.originalPrice > ticket.resalePrice) {
-                  <s>{{ ticket.originalPrice | inr }}</s>
-                }
-                <strong>{{ ticket.resalePrice | inr }}</strong>
-              </span>
-            </span>
-          </a>
+          <app-resale-card [ticket]="ticket" />
         }
       </div>
     </section>

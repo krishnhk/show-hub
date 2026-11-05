@@ -933,6 +933,32 @@ export function buildBookings(): Booking[] {
     }
   }
 
+  // A big group booking from another seller, so the marketplace has a listing with eight seats. It is not the demo
+  // user's, so it becomes a marketplace listing; being appended after the loop bookings it takes the next listing id.
+  {
+    const showtime = upcomingShow('Modha Rathiri');
+    if (showtime) {
+      const seats = ['E1', 'E2', 'E3', 'E4', 'E5', 'E6', 'E7', 'E8'];
+      const bookingPrice = seats.reduce((total, seat) => total + seatUnitPrice(showtime, seat).price, 0);
+      bookings.push({
+        id: id++,
+        showtimeId: showtime.id,
+        userId: 3,
+        quantity: seats.length,
+        seatNumbers: seats,
+        bookingPrice,
+        commissionFee: BOOKING_COMMISSION_PER_TICKET * seats.length,
+        totalAmount: bookingPrice + BOOKING_COMMISSION_PER_TICKET * seats.length,
+        paymentId: `pi_mock_${id}`,
+        status: 'Completed',
+        qrCode: `THIRAIHUB:SH-${1000 + id}`,
+        confirmationCode: `SH${1000 + id}`,
+        bookedAt: isoDaysAgo(2),
+        cancelledAt: null,
+      });
+    }
+  }
+
   // Two demo-user bookings behind a live listing and a delisted one in "Your listings".
   for (const [showtime, seats] of [
     [upcomingShow('Dorothy'), ['E2', 'E3']],

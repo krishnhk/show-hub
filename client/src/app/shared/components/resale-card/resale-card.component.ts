@@ -2,110 +2,165 @@ import { ChangeDetectionStrategy, Component, input } from '@angular/core';
 import { RouterLink } from '@angular/router';
 
 import { ResaleTicketDetail } from '../../../core/models/resale.model';
-import { InrPipe } from '../../pipes/inr.pipe';
 import { ShowDatePipe, ShowTimePipe } from '../../pipes/date.pipes';
+import { InrPipe } from '../../pipes/inr.pipe';
+import { FilmThumbComponent } from '../film-thumb/film-thumb.component';
 
-/** One spare ticket on the resale marketplace: the show, the seats, who sells it and what it costs. */
+/** Seats shown on a card; the rest collapse into a "+n" chip so every card keeps one size. */
+const MAX_SEAT_CHIPS = 5;
+
+/**
+ * One spare ticket on the marketplace, on the home page and in the resale list: the poster and the show on top, the
+ * seats, the buying option and the price underneath. Every card has the same size whatever it holds.
+ */
 @Component({
   selector: 'app-resale-card',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [RouterLink, InrPipe, ShowDatePipe, ShowTimePipe],
+  imports: [RouterLink, FilmThumbComponent, ShowDatePipe, ShowTimePipe, InrPipe],
   template: `
-    <article class="ticket">
-      <a class="main" [routerLink]="['/resale', ticket().id]" [attr.aria-label]="ticket().showtime.movie.title">
-        <div class="info">
+    <a class="tile" [routerLink]="['/resale', ticket().id]">
+      <span class="head">
+        <app-film-thumb [posterUrl]="ticket().showtime.movie.posterUrl" [alt]="ticket().showtime.movie.title" />
 
-          <p class="venue">{{ ticket().showtime.theater.name }} <span>· {{ ticket().showtime.theater.city }}</span></p>
-
-          <p class="when">
-            <b>{{ ticket().showtime.showDateTime | showDate }}</b>
-            <span>{{ ticket().showtime.showDateTime | showTime }}</span>
-            <span class="dot" aria-hidden="true">·</span>
-            <span>{{ ticket().showtime.language }}</span>
-            <span class="dot" aria-hidden="true">·</span>
-            <span>{{ ticket().showtime.format }}</span>
-          </p>
-
-          <div class="seats">
-            @for (seat of ticket().seatNumbers; track seat) {
-              <span class="seat">{{ seat }}</span>
+        <span class="info">
+          <span class="title">
+            <strong class="movie">{{ ticket().showtime.movie.title }}</strong>
+            @if (ticket().discountPercent > 0) {
+              <span class="off">{{ ticket().discountPercent }}% off</span>
             }
-            @if (ticket().seatNumbers.length > 1) {
-              @if (ticket().allowPartial) {
-                <span class="partial">Buy seat by seat</span>
-              } @else {
-                <span class="together">Buy all together</span>
-              }
-            }
-          </div>
-        </div>
-      </a>
+          </span>
+          <span class="when">
+            {{ ticket().showtime.showDateTime | showDate }} · {{ ticket().showtime.showDateTime | showTime }}
+          </span>
+          <span class="where">{{ ticket().showtime.theater.name }}</span>
+          <span class="fmt">{{ ticket().showtime.format }} · {{ ticket().showtime.language }}</span>
+        </span>
+      </span>
 
-      <footer class="stub">
-        @if (ticket().discountPercent > 0) {
-          <span class="off">{{ ticket().discountPercent }}% off</span>
-        }
-        <div class="amount">
-          @if (ticket().originalPrice > ticket().resalePrice) {
-            <span class="strike">{{ ticket().originalPrice | inr }}</span>
+      <span class="foot">
+        <span class="seats">
+          @for (seat of ticket().seatNumbers.slice(0, maxChips); track seat) {
+            <span class="seat">{{ seat }}</span>
           }
-          <strong>{{ ticket().resalePrice | inr }}</strong>
-        </div>
-      </footer>
-    </article>
+          @if (ticket().seatNumbers.length > maxChips) {
+            <span class="seat more">+{{ ticket().seatNumbers.length - maxChips }}</span>
+          }
+        </span>
+
+        <span class="bottom">
+          <span class="mode" [attr.data-mode]="mode()">{{ modeLabel() }}</span>
+          <span class="price">
+            @if (ticket().originalPrice > ticket().resalePrice) {
+              <s>{{ ticket().originalPrice | inr }}</s>
+            }
+            <strong>{{ ticket().resalePrice | inr }}</strong>
+          </span>
+        </span>
+      </span>
+    </a>
   `,
   styles: `
     :host { display: block; }
 
-    .ticket {
-      display: grid;
-      grid-template-columns: minmax(0, 1fr) 132px;
+    .tile {
+      display: flex;
+      flex-direction: column;
+      height: 100%;
       border: 1px solid var(--border);
       border-radius: var(--radius);
       background: var(--surface);
-      transition: border-color 120ms;
+      color: var(--text);
+      text-decoration: none;
+      overflow: hidden;
+      transition: border-color 120ms, box-shadow 120ms;
     }
 
-    .ticket:hover { border-color: var(--text-muted); }
-
-    .main {
-      display: block;
-      padding: 18px 20px;
-      color: inherit;
+    .tile:hover {
+      border-color: var(--text-muted);
+      box-shadow: var(--shadow);
       text-decoration: none;
     }
 
-    .main:hover { text-decoration: none; }
+    .tile:focus-visible {
+      outline: 2px solid var(--accent);
+      outline-offset: 2px;
+    }
 
-    .info { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
-    .info p { margin: 0; }
+    .head {
+      flex: 1;
+      display: grid;
+      grid-template-columns: auto minmax(0, 1fr);
+      gap: 14px;
+      align-items: start;
+      padding: 14px 16px;
+      --thumb-w: 68px;
+      --thumb-h: 96px;
+    }
+
+    .info {
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+      min-width: 0;
+    }
+
+    .title {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      min-width: 0;
+    }
+
+    .movie {
+      min-width: 0;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      font-size: 1.05rem;
+      line-height: 1.3;
+    }
 
     .off {
-      padding: 2px 10px;
+      flex: none;
+      padding: 2px 9px;
       border-radius: 999px;
       background: var(--success-soft);
       color: var(--success);
-      font-size: 0.74rem;
+      font-size: 0.7rem;
       font-weight: 700;
       white-space: nowrap;
     }
 
-    .venue { font-size: 1.05rem; font-weight: 700; color: var(--text); }
-    .venue span { font-weight: 500; color: var(--text-muted); }
-
     .when {
-      display: flex;
-      flex-wrap: wrap;
-      align-items: baseline;
-      gap: 2px 6px;
-      font-size: 0.88rem;
-      color: var(--text-soft);
+      margin-top: 4px;
+      font-size: 0.9rem;
+      font-weight: 600;
     }
 
-    .when b { font-weight: 700; color: var(--text); }
-    .dot { color: var(--text-muted); }
+    .where,
+    .fmt {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
 
-    .seats { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin-top: 2px; }
+    .where { color: var(--text-soft); font-size: 0.85rem; }
+    .fmt { color: var(--text-muted); font-size: 0.8rem; }
+
+    .foot {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      padding: 12px 16px 14px;
+      border-top: 1px solid var(--border-soft);
+    }
+
+    .seats {
+      display: flex;
+      flex-wrap: nowrap;
+      gap: 5px;
+      overflow: hidden;
+    }
 
     .seat {
       padding: 2px 10px;
@@ -115,58 +170,57 @@ import { ShowDatePipe, ShowTimePipe } from '../../pipes/date.pipes';
       color: var(--text-soft);
       font-size: 0.78rem;
       font-weight: 700;
+      line-height: 1.4;
+      white-space: nowrap;
     }
 
-    .partial {
-      padding: 2px 10px;
-      border-radius: 999px;
-      background: var(--info-soft);
-      color: var(--info);
-      font-size: 0.72rem;
-      font-weight: 700;
+    .seat.more {
+      background: var(--surface-3);
+      color: var(--text-muted);
     }
 
-    .together {
+    .bottom {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .mode {
       padding: 2px 10px;
       border-radius: 999px;
       background: var(--surface-3);
       color: var(--text-soft);
       font-size: 0.72rem;
       font-weight: 700;
+      line-height: 1.4;
+      white-space: nowrap;
     }
 
-    .stub {
+    .mode[data-mode='single'] { background: var(--brand-soft); color: var(--text); }
+    .mode[data-mode='partial'] { background: var(--info-soft); color: var(--info); }
+    .mode[data-mode='whole'] { background: var(--warning-soft); color: var(--warning); }
+
+    .price {
       display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      gap: 10px;
-      padding: 14px 10px;
-      border-left: 2px dashed var(--border);
-      text-align: center;
+      align-items: baseline;
+      gap: 8px;
     }
 
-    .amount { display: flex; flex-direction: column; align-items: center; gap: 2px; }
-    .stub strong { font-family: var(--font); font-size: 1.4rem; font-weight: 700; line-height: 1.1; }
-    .strike { font-size: 0.85rem; color: var(--text-muted); text-decoration: line-through; }
-
-    @media (max-width: 560px) {
-      .ticket { grid-template-columns: minmax(0, 1fr) 92px; }
-      .main { padding: 10px 12px; }
-      .info { gap: 3px; }
-      .venue { font-size: 0.92rem; line-height: 1.25; }
-      .when { font-size: 0.8rem; }
-      .seats { gap: 4px; margin-top: 0; }
-      .seat { padding: 1px 8px; font-size: 0.72rem; }
-      .partial, .together { padding: 1px 8px; font-size: 0.68rem; }
-      .stub { gap: 6px; padding: 8px 6px; }
-      .stub strong { font-size: 1.15rem; }
-      .strike { font-size: 0.75rem; }
-      .off { padding: 1px 8px; font-size: 0.68rem; }
-    }
+    .price s { color: var(--text-muted); font-size: 0.82rem; }
+    .price strong { font-size: 1.35rem; line-height: 1.1; }
   `,
 })
 export class ResaleCardComponent {
   readonly ticket = input.required<ResaleTicketDetail>();
+  protected readonly maxChips = MAX_SEAT_CHIPS;
 
+  protected mode(): 'single' | 'partial' | 'whole' {
+    const ticket = this.ticket();
+    return ticket.seatNumbers.length < 2 ? 'single' : ticket.allowPartial ? 'partial' : 'whole';
+  }
+
+  protected modeLabel(): string {
+    return { single: 'Single seat', partial: 'Seat by seat', whole: 'All together' }[this.mode()];
+  }
 }

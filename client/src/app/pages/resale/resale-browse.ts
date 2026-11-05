@@ -132,16 +132,6 @@ export class ResaleBrowseComponent {
       );
   });
 
-  /** The tickets under each movie, movies in order of their soonest show. */
-  readonly groups = computed(() => {
-    const byMovie = new Map<string, ResaleTicketDetail[]>();
-    for (const ticket of this.tickets()) {
-      const title = ticket.showtime.movie.title;
-      byMovie.set(title, [...(byMovie.get(title) ?? []), ticket]);
-    }
-    return [...byMovie].map(([title, tickets]) => ({ title, tickets }));
-  });
-
   constructor() {
     // Reload whenever the city in the top bar changes.
     effect(() => {

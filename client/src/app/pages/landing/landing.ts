@@ -20,11 +20,11 @@ import { CatalogService } from '../../core/services/catalog.service';
 import { LocationService } from '../../core/services/location.service';
 import { ResaleService } from '../../core/services/resale.service';
 import { EmptyStateComponent } from '../../shared/components/empty-state/empty-state.component';
+import { ResaleCardComponent } from '../../shared/components/resale-card/resale-card.component';
 import { LanguageChooserComponent } from '../../shared/components/language-chooser/language-chooser.component';
 import { LoadingSpinnerComponent } from '../../shared/components/loading-spinner/loading-spinner.component';
 import { MovieCardComponent } from '../../shared/components/movie-card/movie-card.component';
 import { ShowDatePipe, ShowTimePipe } from '../../shared/pipes/date.pipes';
-import { InrPipe } from '../../shared/pipes/inr.pipe';
 
 /** How many films can take the featured spot, how many more posters follow, and how many spare tickets. */
 const FEATURED_COUNT = 4;
@@ -44,9 +44,9 @@ const UPCOMING_SHOWN = 3;
     RouterLink,
     ShowDatePipe,
     ShowTimePipe,
-    InrPipe,
     LanguageChooserComponent,
     MovieCardComponent,
+    ResaleCardComponent,
     LoadingSpinnerComponent,
     EmptyStateComponent,
   ],

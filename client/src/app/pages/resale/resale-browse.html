@@ -6,6 +6,9 @@
         Spare seats from other bookers{{ city() ? ' in ' + city() : '' }}, below the original price.
       </p>
     </div>
+    @if (!loading() && tickets().length > 0) {
+      <span class="count">{{ tickets().length }} {{ tickets().length === 1 ? 'ticket' : 'tickets' }}</span>
+    }
   </header>
 
   <div class="bar">
@@ -87,19 +90,11 @@
       }
     </app-empty-state>
   } @else {
-    @for (group of groups(); track group.title) {
-      <section class="movie-group" [attr.aria-label]="group.title">
-        <h2 class="group-title">
-          {{ group.title }}
-          <span class="group-count">{{ group.tickets.length }} {{ group.tickets.length === 1 ? 'listing' : 'listings' }}</span>
-        </h2>
-        <div class="grid-cards">
-          @for (ticket of group.tickets; track ticket.id) {
-            <app-resale-card [ticket]="ticket" />
-          }
-        </div>
-      </section>
-    }
+    <div class="grid-cards">
+      @for (ticket of tickets(); track ticket.id) {
+        <app-resale-card [ticket]="ticket" />
+      }
+    </div>
   }
 
 </div>
