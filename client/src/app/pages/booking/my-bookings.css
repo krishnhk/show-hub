@@ -65,10 +65,10 @@
   display: grid;
   grid-template-columns: auto minmax(0, 1fr);
   gap: 20px;
-  align-items: start;
-  padding: 18px 22px;
-  --thumb-w: 92px;
-  --thumb-h: 128px;
+  align-items: center;
+  padding: 14px 22px;
+  --thumb-w: 76px;
+  --thumb-h: 108px;
 }
 
 .content {
@@ -105,11 +105,6 @@
   flex-wrap: nowrap;
 }
 
-.tag.done {
-  background: var(--surface-3);
-  color: var(--text-muted);
-}
-
 h3 {
   margin: 0;
   min-width: 0;
@@ -118,9 +113,8 @@ h3 {
 }
 
 .time {
-  margin-top: 2px;
   font-size: 0.95rem;
-  font-weight: 400;
+  font-weight: 500;
   line-height: 1.2;
 }
 
@@ -128,30 +122,23 @@ h3 {
   color: var(--text-muted);
 }
 
+/* Three columns across the card, each a small label over its value, so every ticket lines up */
 .row {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: flex-end;
-  gap: 14px 32px;
+  display: grid;
+  grid-template-columns: minmax(0, 1.2fr) minmax(0, 1.4fr) minmax(0, 1fr);
+  align-items: start;
+  gap: 8px 24px;
 }
 
-/* A fixed first column so the venue starts at the same place on every ticket */
-.row > div:first-child {
-  min-width: 150px;
+.when {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
 }
 
 .details {
-  display: grid;
-  grid-template-columns: 210px 150px;
-  gap: 8px 32px;
-}
-
-@media (max-width: 860px) {
-  .details {
-    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-    gap: 8px 24px;
-    width: 100%;
-  }
+  display: contents;
 }
 
 .details > div {
@@ -162,10 +149,20 @@ h3 {
 }
 
 .details b {
-  font-family: var(--font-display);
-  font-weight: 600;
+  font-family: inherit;
+  font-weight: 500;
   font-size: 0.95rem;
   overflow-wrap: anywhere;
+}
+
+@media (max-width: 860px) {
+  .row {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  }
+
+  .when {
+    grid-column: 1 / -1;
+  }
 }
 
 .tag {
@@ -175,9 +172,24 @@ h3 {
   font-weight: 700;
 }
 
-.tag.listed {
+.tag[data-state='upcoming'] {
+  background: var(--success-soft);
+  color: var(--success);
+}
+
+.tag[data-state='listed'] {
   background: var(--info-soft);
   color: var(--info);
+}
+
+.tag[data-state='past'] {
+  background: var(--surface-3);
+  color: var(--text-muted);
+}
+
+.tag[data-state='cancelled'] {
+  background: var(--danger-soft);
+  color: var(--danger);
 }
 
 .tag.resale {
@@ -220,10 +232,9 @@ h3 {
 
   .content { gap: 4px; }
   h3 { font-size: 1.1rem; }
-  .row { gap: 6px 16px; }
-  .row > div:first-child { min-width: 0; }
-  .time { margin-top: 0; font-size: 0.85rem; }
+  .row { gap: 4px 14px; }
+  .when .k { display: none; }
+  .time { font-size: 0.85rem; }
   .tag { padding: 1px 8px; font-size: 0.66rem; white-space: nowrap; }
-  .details { grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr); gap: 6px 14px; }
   .details b { font-size: 0.82rem; }
 }

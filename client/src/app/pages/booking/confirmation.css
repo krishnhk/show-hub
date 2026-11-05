@@ -165,10 +165,25 @@
   font-weight: 700;
 }
 
-/* The status is written out, not colour-coded */
+/* One colour per status: confirmed green, listed blue, completed grey, cancelled red */
 .chip.status {
+  background: var(--success-soft);
+  color: var(--success);
+}
+
+.chip.status[data-state='listed'] {
+  background: var(--info-soft);
+  color: var(--info);
+}
+
+.chip.status[data-state='past'] {
   background: var(--surface-3);
-  color: var(--text);
+  color: var(--text-muted);
+}
+
+.chip.status[data-state='cancelled'] {
+  background: var(--danger-soft);
+  color: var(--danger);
 }
 
 .chip.resale {

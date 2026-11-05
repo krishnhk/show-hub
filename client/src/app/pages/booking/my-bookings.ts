@@ -67,7 +67,7 @@ export class MyBookingsComponent implements OnInit {
     this.load();
   }
 
-  /** What the card's colored edge stands for. */
+  /** Where the ticket stands: drives the card's colored edge and the status tag. */
   state(booking: BookingDetail): TicketState {
     if (booking.status === 'Cancelled') {
       return 'cancelled';
@@ -78,15 +78,17 @@ export class MyBookingsComponent implements OnInit {
     return booking.isListed ? 'listed' : 'upcoming';
   }
 
-  /** What to say before the date when the ticket is not simply upcoming. */
-  heading(booking: BookingDetail): string {
+  /** The status written on the card's tag. */
+  statusLabel(booking: BookingDetail): string {
     switch (this.state(booking)) {
       case 'cancelled':
         return 'Cancelled';
       case 'past':
         return 'Completed';
+      case 'listed':
+        return 'Listed for sale';
       default:
-        return '';
+        return 'Confirmed';
     }
   }
 
