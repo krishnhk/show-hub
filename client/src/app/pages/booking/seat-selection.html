@@ -5,103 +5,47 @@
     <div class="alert alert-error">{{ message }}</div>
     <a class="btn btn-outline btn-sm" routerLink="/movies">Back to movies</a>
   } @else {
-    <header class="page-head">
-      <div>
-        @if (showtime(); as current) {
-          <a class="back-link text-sm" [routerLink]="['/movies', current.movie.id]">
-            ← Back to {{ current.movie.title }}
-          </a>
-          <h1>Select your seats</h1>
-          <p class="subtitle">
-            {{ current.movie.title }} · {{ current.theater.name }} ·
-            {{ current.showDateTime | showDate }}, {{ current.showDateTime | showTime }}
-          </p>
+    <div class="flow">
+      @if (showtime(); as current) {
+        <a class="back-link text-sm" [routerLink]="['/movies', current.movie.id]">← Back to {{ current.movie.title }}</a>
+
+        <app-show-summary
+          [posterUrl]="current.movie.posterUrl"
+          [title]="current.movie.title"
+          [dateTime]="current.showDateTime"
+          [theatre]="current.theater.name"
+          [format]="current.format"
+          [language]="current.language"
+          [showSeats]="false"
+        />
+      }
+
+      <section class="map-card">
+        <h2 class="label">Choose up to {{ maxTickets }} seats</h2>
+
+        @if (seatMap(); as map) {
+          <div class="seat-map-wrapper" (click)="onSeatMapClick($event)">
+            <app-seat-map
+              [seatMap]="map"
+              [(selected)]="selected"
+              [maxSelection]="maxTickets"
+              (selectionChange)="onSelectionChange($event)"
+            />
+          </div>
         } @else {
-          <h1>Select your seats</h1>
+          <app-empty-state icon="💺" title="Seat map unavailable" message="Please refresh the page." />
         }
-      </div>
-    </header>
-
-    <div class="split">
-      <section class="stack">
-        <div class="panel seat-panel">
-          <div class="panel-title">Choose up to {{ maxTickets }} seats</div>
-
-          @if (seatMap(); as map) {
-            <div class="seat-map-wrapper" (click)="onSeatMapClick($event)">
-              <app-seat-map
-                [seatMap]="map"
-                [(selected)]="selected"
-                [maxSelection]="maxTickets"
-                (selectionChange)="onSelectionChange($event)"
-              />
-            </div>
-          } @else {
-            <app-empty-state icon="💺" title="Seat map unavailable" message="Please refresh the page." />
-          }
-        </div>
       </section>
 
-      <aside class="panel surface-sticky summary">
-        <div class="panel-title">Booking summary</div>
-
-        @if (showtime(); as current) {
-          <div class="stack-sm show-info">
-            <h3>{{ current.movie.title }}</h3>
-            <p class="text-sm text-muted">{{ current.theater.name }}</p>
-            <p class="text-sm text-muted selectable">{{ current.theater.address }}</p>
-            <div class="row-wrap">
-              <span class="badge">{{ current.showDateTime | showDate }}</span>
-              <span class="badge">{{ current.showDateTime | showTime }}</span>
-              <span class="badge badge-brand">{{ current.format }}</span>
-            </div>
-          </div>
-        }
-
-        <div class="divider"></div>
-
-        <div class="stack-sm">
-          <div class="row">
-            <span class="label">Seats</span>
-            <span class="spacer"></span>
-            <span class="text-sm text-muted">{{ quantity() }} of {{ maxTickets }}</span>
-          </div>
-
-          @if (selected().length > 0) {
-            <p class="chosen">{{ selected().join(', ') }}</p>
+      <section class="bar">
+        <button type="button" class="btn btn-block btn-lg" [disabled]="!quantity()" (click)="proceed()">
+          @if (quantity() > 0) {
+            Proceed to checkout · {{ quantity() }} seat{{ quantity() === 1 ? '' : 's' }}
           } @else {
-            <p class="hint">Tap a seat on the map to select it.</p>
+            Select seats to continue
           }
-        </div>
-
-        <div class="divider"></div>
-
-        <div class="price-lines">
-          <div class="kv">
-            <span class="k">Seat price</span>
-            <span class="v">{{ seatSubtotal() | inr }}</span>
-          </div>
-          <div class="kv">
-            <span class="k">ThiraiHub service fee</span>
-            <span class="v">{{ commission() | inr }}</span>
-          </div>
-          <div class="total-row">
-            <span>Total</span>
-            <span>{{ total() | inr }}</span>
-          </div>
-        </div>
-
-        <button
-          type="button"
-          class="btn btn-block btn-lg"
-          [disabled]="!quantity()"
-          (click)="proceed()"
-        >
-          Proceed to checkout
         </button>
-
-        <p class="hint">Maximum {{ maxTickets }} tickets per booking.</p>
-      </aside>
+      </section>
     </div>
   }
 </div>
