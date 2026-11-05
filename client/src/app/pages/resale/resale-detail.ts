@@ -9,10 +9,10 @@ import { ResaleService } from '../../core/services/resale.service';
 import { ToastService } from '../../core/services/toast.service';
 import { WalletStore } from '../../core/services/wallet.store';
 import { EmptyStateComponent } from '../../shared/components/empty-state/empty-state.component';
+import { FilmThumbComponent } from '../../shared/components/film-thumb/film-thumb.component';
 import { SeatMapComponent } from '../../shared/components/seat-map/seat-map.component';
 import { LoadingSpinnerComponent } from '../../shared/components/loading-spinner/loading-spinner.component';
-import { StarRatingComponent } from '../../shared/components/star-rating/star-rating.component';
-import { ShowDatePipe, ShowTimePipe, TimeAgoPipe } from '../../shared/pipes/date.pipes';
+import { ShowDatePipe, ShowTimePipe } from '../../shared/pipes/date.pipes';
 import { InrPipe } from '../../shared/pipes/inr.pipe';
 
 @Component({
@@ -22,11 +22,10 @@ import { InrPipe } from '../../shared/pipes/inr.pipe';
     RouterLink,
     LoadingSpinnerComponent,
     EmptyStateComponent,
-    StarRatingComponent,
+    FilmThumbComponent,
     SeatMapComponent,
     ShowDatePipe,
     ShowTimePipe,
-    TimeAgoPipe,
     InrPipe,
   ],
   templateUrl: './resale-detail.html',
@@ -111,6 +110,11 @@ export class ResaleDetailComponent implements OnInit {
   });
 
   ngOnInit(): void {
+    // The wallet balance decides whether the pay-with-wallet option shows, so load it on a direct visit too.
+    if (this.auth.isLoggedIn()) {
+      this.wallet.refresh();
+    }
+
     this.resale.getTicket(this.ticketId).subscribe({
       next: (response) => {
         this.ticket.set(response.ticket);
@@ -155,9 +159,5 @@ export class ResaleDetailComponent implements OnInit {
         this.buying.set(false);
       },
     });
-  }
-
-  primaryRating(ticket: ResaleTicketDetail): number {
-    return ticket.seller.sellerRating;
   }
 }

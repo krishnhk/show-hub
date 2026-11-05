@@ -10,187 +10,78 @@
       <a class="btn btn-sm" routerLink="/resale">Browse resale tickets</a>
     </app-empty-state>
   } @else if (ticket(); as current) {
-    <header class="page-head">
-      <div>
-        <a class="back-link text-sm" routerLink="/resale">← Back to resale marketplace</a>
-        <h1>{{ current.showtime.movie.title }}</h1>
-        <p class="subtitle">
-          {{ current.showtime.theater.name }} · {{ current.showtime.theater.city }} ·
-          {{ current.showtime.showDateTime | showDate }}, {{ current.showtime.showDateTime | showTime }}
-        </p>
-      </div>
-      <span class="badge" [class.badge-success]="isAvailable()" [class.badge-danger]="!isAvailable()">
-        {{ current.status }}
-      </span>
-    </header>
+    <a class="back-link text-sm" routerLink="/resale">← Back to resale marketplace</a>
 
-    <div class="split">
-      <section class="stack">
-        <article class="panel">
-          <div class="panel-title">The seats</div>
+    <article class="ticket">
+      <div class="show">
+        <app-film-thumb [posterUrl]="current.showtime.movie.posterUrl" [alt]="current.showtime.movie.title" />
 
-          <div class="seat-preview">
-            @if (seatMap(); as map) {
-              <app-seat-map
-                [seatMap]="map"
-                [readonly]="true"
-                [highlighted]="current.seatNumbers"
-                [pickable]="canPick()"
-                [(selected)]="chosen"
-              />
-            } @else {
-              <div class="screen">All eyes this way</div>
-            }
-            @if (canPick()) {
-              <p class="pick-hint">
-                The seller lets you buy seats separately. Tap a seat to leave it out; the price follows your choice.
-              </p>
-              <div class="pick-actions">
-                <button type="button" class="btn btn-outline btn-sm" (click)="chosen.set(current.seatNumbers)">
-                  Buy all {{ current.seatNumbers.length }}
-                </button>
-              </div>
-            } @else if (current.seatNumbers.length > 1 && isAvailable()) {
-              <p class="pick-hint">The seller is selling these {{ current.seatNumbers.length }} seats together.</p>
-            }
-            <div class="seat-row">
+        <div class="show-info">
+          <div class="title-row">
+            <h1>{{ current.showtime.movie.title }}</h1>
+            <span class="badge" [class.badge-success]="isAvailable()" [class.badge-danger]="!isAvailable()">
+              {{ current.status }}
+            </span>
+          </div>
+
+          <p class="when">{{ current.showtime.showDateTime | showDate }} · {{ current.showtime.showDateTime | showTime }}</p>
+          <p class="where">
+            {{ current.showtime.theater.name }} · {{ current.showtime.format }} · {{ current.showtime.language }}
+          </p>
+
+          <div class="show-meta">
+            <div class="seat-row" [attr.aria-label]="current.seatNumbers.length + ' seats'">
               @for (seat of current.seatNumbers; track seat) {
                 <span class="seat-chip" [class.off]="canPick() && !chosen().includes(seat)">{{ seat }}</span>
               }
             </div>
-            <p class="hint">
-              @if (canPick()) {
-                {{ chosen().length }} of {{ current.seatNumbers.length }} seats chosen ·
-              } @else {
-                {{ current.seatNumbers.length }} seat{{ current.seatNumbers.length === 1 ? '' : 's' }} ·
-              }
-              {{ current.showtime.format }} · {{ current.showtime.theater.name }}
-            </p>
+            <span class="soon">
+              {{ current.daysUntilShow === 0 ? 'Today' : current.daysUntilShow + ' day' + (current.daysUntilShow === 1 ? '' : 's') + ' to go' }}
+            </span>
           </div>
+        </div>
+      </div>
 
-          <div class="grid grid-auto detail-grid">
-            <div class="kv">
-              <span class="k">Theatre</span>
-              <span class="v">{{ current.showtime.theater.name }}</span>
-            </div>
-            <div class="kv">
-              <span class="k">Address</span>
-              <span class="v selectable">{{ current.showtime.theater.address }}</span>
-            </div>
-            <div class="kv">
-              <span class="k">Showtime</span>
-              <span class="v">
-                {{ current.showtime.showDateTime | showDate }},
-                {{ current.showtime.showDateTime | showTime }}
-              </span>
-            </div>
-            <div class="kv">
-              <span class="k">Time until show</span>
-              <span class="v">{{ current.daysUntilShow }} day{{ current.daysUntilShow === 1 ? '' : 's' }}</span>
-            </div>
-          </div>
-        </article>
-
-        <article class="panel">
-          <div class="panel-title">Seller</div>
-          <div class="seller-row">
-            <span class="avatar avatar-lg">{{ current.seller.fullName.charAt(0) }}</span>
-            <div class="seller-copy">
-              <div class="row-wrap">
-                <a class="link-plain seller-name" [routerLink]="['/profile', current.seller.id]">
-                  <strong>{{ current.seller.fullName }}</strong>
-                </a>
-                @if (current.seller.sellerReviewCount >= 5 && current.seller.sellerRating >= 4) {
-                  <span class="badge badge-success">Verified seller</span>
-                }
-              </div>
-              <div class="row">
-                <app-star-rating [value]="primaryRating(current)" size="sm" [showValue]="true" />
-                <span class="text-xs text-muted">· {{ current.seller.sellerReviewCount }} seller reviews</span>
-              </div>
-              <p class="text-xs text-muted">
-                {{ current.seller.city }} · member since
-                {{ current.seller.createdAt | showDate }}
-              </p>
-            </div>
-            <div class="seller-actions">
-              <a class="btn btn-ghost btn-sm" [routerLink]="['/profile', current.seller.id]">View profile</a>
-            </div>
-          </div>
-
-          @if (current.reviews.length > 0) {
-            <div class="divider"></div>
-            <div class="stack-sm">
-              @for (review of current.reviews; track review.id) {
-                <div class="review">
-                  <div class="row-wrap">
-                    <app-star-rating [value]="review.rating" size="sm" />
-                    <span class="text-sm">{{ review.reviewerName ?? 'ThiraiHub buyer' }}</span>
-                    <span class="text-xs text-muted">· {{ review.createdAt | timeAgo }}</span>
-                  </div>
-                  @if (review.comment) {
-                    <p class="text-sm text-soft">{{ review.comment }}</p>
-                  }
-                </div>
-              }
-            </div>
-          }
-        </article>
-
-        <article class="panel">
-          <div class="panel-title">How it works</div>
-          <ol class="steps">
-            <li><strong>Pay like a normal booking.</strong> Card or wallet, same checkout.</li>
-            <li><strong>Tickets appear in My Tickets.</strong> The seats are yours right away.</li>
-            <li><strong>Seller is paid.</strong> Their share is credited to their wallet.</li>
-          </ol>
-        </article>
-      </section>
-
-      <aside class="panel surface-sticky price-panel">
-        <div class="panel-title">Price</div>
-
+      <div class="stub">
         <div class="price-hero">
           <span class="price-now">{{ selectionPrice() | inr }}</span>
           <span class="price-original">{{ selectionOriginal() | inr }}</span>
           @if (current.discountPercent > 0) {
-            <span class="badge badge-success">{{ current.discountPercent }}% below original</span>
+            <span class="badge badge-success">{{ current.discountPercent }}% off</span>
           }
         </div>
 
-        <div class="divider"></div>
-
-        <div class="price-lines">
-          <div class="kv">
-            <span class="k">
+        <dl class="receipt">
+          <div>
+            <dt>
               Resale price
               @if (canPick()) {
-                ({{ chosen().length }} seat{{ chosen().length === 1 ? '' : 's' }})
+                <span class="muted">· {{ chosen().length }} seat{{ chosen().length === 1 ? '' : 's' }}</span>
               }
-            </span>
-            <span class="v">{{ selectionPrice() | inr }}</span>
+            </dt>
+            <dd>{{ selectionPrice() | inr }}</dd>
           </div>
-          <div class="kv">
-            <span class="k">Buyer fee (2.5% + ₹0.30)</span>
-            <span class="v">{{ selectionFee() | inr }}</span>
+          <div>
+            <dt>Buyer fee <span class="muted">· 2.5% + ₹0.30</span></dt>
+            <dd>{{ selectionFee() | inr }}</dd>
           </div>
-          <div class="total-row">
-            <span>You pay</span>
-            <span>{{ selectionTotal() | inr }}</span>
+          <div class="total">
+            <dt>You pay</dt>
+            <dd>{{ selectionTotal() | inr }}</dd>
           </div>
-        </div>
+        </dl>
 
         @if (isOwner()) {
-          <div class="alert alert-info">This is your listing.</div>
+          <p class="note">This is your listing.</p>
           <a class="btn btn-block" routerLink="/sell/listings">Manage my listings</a>
         } @else if (!isAvailable()) {
-          <p class="hint">This ticket is no longer available.</p>
+          <p class="note">This ticket is no longer available.</p>
           <a class="btn btn-outline btn-block" routerLink="/resale">Find another ticket</a>
         } @else {
           @if (wallet.balance() > 0) {
             <label class="wallet-use">
               <input type="checkbox" [checked]="useWallet()" (change)="useWallet.set(!useWallet())" />
-              <span>Pay with wallet <span class="text-muted">· {{ wallet.balance() | inr }} available</span></span>
+              <span>Pay with wallet <span class="muted">· {{ wallet.balance() | inr }} available</span></span>
             </label>
           }
           <button
@@ -207,22 +98,41 @@
               Buy now
             }
           </button>
-          <p class="hint">
-            Instant checkout. The seats appear in My Tickets right away.
-          </p>
         }
+      </div>
+    </article>
 
-        <div class="divider"></div>
+    <section class="seats-card">
+      <div class="seats-head">
+        <h2 class="label">{{ canPick() ? 'Choose your seats' : 'Seats' }}</h2>
+        @if (canPick()) {
+          <button type="button" class="link" (click)="chosen.set(current.seatNumbers)">
+            Select all {{ current.seatNumbers.length }}
+          </button>
+        }
+      </div>
 
-        <div class="kv">
-          <span class="k">Seller receives</span>
-          <span class="v">{{ selectionSellerReceives() | inr }}</span>
+      @if (seatMap(); as map) {
+        <div class="map">
+          <app-seat-map
+            [seatMap]="map"
+            [readonly]="true"
+            [highlighted]="current.seatNumbers"
+            [pickable]="canPick()"
+            [(selected)]="chosen"
+          />
         </div>
-        <div class="kv">
-          <span class="k">Seller fee (5%)</span>
-          <span class="v">{{ selectionCommission() | inr }}</span>
-        </div>
-      </aside>
-    </div>
+      }
+
+      <p class="hint">
+        @if (canPick()) {
+          {{ chosen().length }} of {{ current.seatNumbers.length }} seats chosen. Tap a seat to leave it out; the price follows.
+        } @else if (current.seatNumbers.length > 1 && isAvailable()) {
+          The seller is selling these {{ current.seatNumbers.length }} seats together.
+        } @else {
+          {{ current.seatNumbers.length }} seat{{ current.seatNumbers.length === 1 ? '' : 's' }} in this listing.
+        }
+      </p>
+    </section>
   }
 </div>

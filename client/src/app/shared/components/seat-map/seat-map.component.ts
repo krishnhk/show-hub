@@ -90,11 +90,12 @@ const ROW_LABEL_SPACE_PX = 2 * (20 + 10);
 
     .seat-map { display: flex; flex-direction: column; gap: 18px; }
 
-    /* The cinema screen: a curved bar above the rows, drawn in theme colours so it shows on light themes too. */
+    /* The cinema screen: a curved bar above the rows. It glows amber, the one colour on the map, so it reads
+       as the screen on every theme. */
     .screen {
       height: 46px;
       border-radius: 50% / 100% 100% 0 0;
-      background: linear-gradient(180deg, var(--surface-3), transparent);
+      background: linear-gradient(180deg, color-mix(in srgb, var(--warning) 22%, transparent), transparent);
       display: flex;
       align-items: flex-start;
       justify-content: center;
@@ -103,8 +104,8 @@ const ROW_LABEL_SPACE_PX = 2 * (20 + 10);
       font-weight: 700;
       letter-spacing: 0.18em;
       text-transform: uppercase;
-      color: var(--text-soft);
-      border-bottom: 3px solid var(--text-muted);
+      color: var(--warning);
+      border-bottom: 3px solid var(--warning);
     }
 
     .rows { display: flex; flex-direction: column; gap: 7px; overflow-x: auto; padding-bottom: 4px; }
