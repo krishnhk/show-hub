@@ -889,6 +889,32 @@ export function buildBookings(): Booking[] {
     });
   });
 
+  // One cancelled booking for the demo user, so My tickets and the confirmation page show that status too.
+  // It sits before the listing bookings below: the demo listings are picked from the end of this list.
+  {
+    const showtime = upcomingShow('Karuppu');
+    if (showtime) {
+      const seats = ['C5', 'C6'];
+      const bookingPrice = seats.reduce((total, seat) => total + seatUnitPrice(showtime, seat).price, 0);
+      bookings.push({
+        id: id++,
+        showtimeId: showtime.id,
+        userId: 1,
+        quantity: seats.length,
+        seatNumbers: seats,
+        bookingPrice,
+        commissionFee: BOOKING_COMMISSION_PER_TICKET * seats.length,
+        totalAmount: bookingPrice + BOOKING_COMMISSION_PER_TICKET * seats.length,
+        paymentId: `pi_mock_${id}`,
+        status: 'Cancelled',
+        qrCode: `THIRAIHUB:SH-${1000 + id}`,
+        confirmationCode: `SH${1000 + id}`,
+        bookedAt: isoDaysAgo(2),
+        cancelledAt: isoDaysAgo(1),
+      });
+    }
+  }
+
   // Two demo-user bookings behind a live listing and a delisted one in "Your listings".
   for (const [showtime, seats] of [
     [upcomingShow('Dorothy'), ['E2', 'E3']],
