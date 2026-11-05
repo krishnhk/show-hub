@@ -1,5 +1,7 @@
 import { ChangeDetectionStrategy, Component, ElementRef, HostListener, computed, inject, signal } from '@angular/core';
-import { Router, RouterLink, RouterLinkActive } from '@angular/router';
+import { toSignal } from '@angular/core/rxjs-interop';
+import { NavigationEnd, Router, RouterLink, RouterLinkActive } from '@angular/router';
+import { filter, map, startWith } from 'rxjs';
 
 import { AuthService } from '../../../core/services/auth.service';
 import { LocationService } from '../../../core/services/location.service';
@@ -19,7 +21,7 @@ import { LogoMarkComponent } from '../logo-mark/logo-mark.component';
           <span class="brand-text">ThiraiHub</span>
         </a>
 
-        <nav class="links" aria-label="Main">
+        <nav class="links" [class.sub-page]="!isTopLevel()" aria-label="Main">
           <a routerLink="/movies" routerLinkActive="active" (click)="closeAll()">Movies</a>
           <a routerLink="/resale" routerLinkActive="active" (click)="closeAll()">Resale</a>
           @if (auth.isLoggedIn()) {
@@ -273,6 +275,8 @@ import { LogoMarkComponent } from '../logo-mark/logo-mark.component';
         font-size: 0.82rem;
       }
       .links a.active { background: var(--brand); border-color: var(--brand); color: var(--on-primary); }
+      /* Only the main tabs show the button row; any page opened from one of them hides it. */
+      .links.sub-page { display: none; }
     }
 
     @media (max-width: 520px) {
@@ -299,6 +303,21 @@ export class NavbarComponent {
 
   readonly notificationsOpen = signal(false);
   readonly accountOpen = signal(false);
+
+  private readonly url = toSignal(
+    this.router.events.pipe(
+      filter((event): event is NavigationEnd => event instanceof NavigationEnd),
+      map((event) => event.urlAfterRedirects),
+      startWith(this.router.url),
+    ),
+    { initialValue: this.router.url },
+  );
+
+  /** True on the home page and the four main tabs themselves, not on pages opened from them. */
+  readonly isTopLevel = computed(() => {
+    const path = this.url().split(/[?#]/)[0].replace(/\/+$/, '') || '/';
+    return ['/', '/movies', '/resale', '/my-bookings', '/sell', '/sell/new', '/sell/listings'].includes(path);
+  });
 
   constructor() {
     if (this.auth.isLoggedIn()) {
