@@ -19,7 +19,7 @@ import { LogoMarkComponent } from '../logo-mark/logo-mark.component';
           <span class="brand-text">ThiraiHub</span>
         </a>
 
-        <nav class="links" [class.open]="mobileOpen()">
+        <nav class="links" aria-label="Main">
           <a routerLink="/movies" routerLinkActive="active" (click)="closeAll()">Movies</a>
           <a routerLink="/resale" routerLinkActive="active" (click)="closeAll()">Resale</a>
           @if (auth.isLoggedIn()) {
@@ -76,14 +76,6 @@ import { LogoMarkComponent } from '../logo-mark/logo-mark.component';
             <a class="btn btn-sm" routerLink="/login" (click)="closeAll()">Sign in</a>
           }
 
-          <button
-            type="button"
-            class="icon-btn burger"
-            aria-label="Toggle navigation"
-            (click)="mobileOpen.set(!mobileOpen())"
-          >
-            ☰
-          </button>
         </div>
       </div>
 
@@ -259,25 +251,28 @@ import { LogoMarkComponent } from '../logo-mark/logo-mark.component';
     .notification { display: flex; flex-direction: column; gap: 2px; }
     .notification.unread { background: color-mix(in srgb, var(--accent) 8%, transparent); }
 
-    .burger { display: none; }
-
+    /* On a phone the links drop below the bar as a row of buttons, so nothing hides behind a menu. */
     @media (max-width: 900px) {
+      .inner { height: auto; min-height: var(--nav-height); flex-wrap: wrap; row-gap: 0; }
+      .brand { min-height: var(--nav-height); }
       .links {
-        position: absolute;
-        top: var(--nav-height);
-        left: 0;
-        right: 0;
-        flex-direction: column;
-        align-items: stretch;
-        background: var(--bg-elevated);
-        border-bottom: 1px solid var(--border);
-        padding: 10px 14px 16px;
-        display: none;
+        order: 3;
+        flex: 0 0 100%;
+        gap: 6px;
+        padding: 0 0 10px;
+        overflow-x: auto;
+        scrollbar-width: none;
       }
-
-      .links.open { display: flex; }
-
-      .burger { display: inline-flex; }
+      .links::-webkit-scrollbar { display: none; }
+      .links a {
+        flex: 1 0 auto;
+        justify-content: center;
+        padding: 8px 10px;
+        border: 1px solid var(--border);
+        background: var(--surface);
+        font-size: 0.82rem;
+      }
+      .links a.active { background: var(--brand); border-color: var(--brand); color: var(--on-primary); }
     }
 
     @media (max-width: 520px) {
@@ -286,6 +281,12 @@ import { LogoMarkComponent } from '../logo-mark/logo-mark.component';
       .brand-text { font-size: 1rem; }
       .city-name { display: none; }
       .city-btn { padding: 0 10px; }
+    }
+
+    /* Very narrow phones: the city is a single value, so its pin steps aside to keep the icons on one row. */
+    @media (max-width: 360px) {
+      .city-btn { display: none; }
+      .links a { padding: 8px 8px; font-size: 0.78rem; }
     }
   `,
 })
@@ -296,7 +297,6 @@ export class NavbarComponent {
   private readonly router = inject(Router);
   private readonly host = inject(ElementRef<HTMLElement>);
 
-  readonly mobileOpen = signal(false);
   readonly notificationsOpen = signal(false);
   readonly accountOpen = signal(false);
 
@@ -322,7 +322,6 @@ export class NavbarComponent {
   }
 
   closeAll(): void {
-    this.mobileOpen.set(false);
     this.notificationsOpen.set(false);
     this.accountOpen.set(false);
   }
