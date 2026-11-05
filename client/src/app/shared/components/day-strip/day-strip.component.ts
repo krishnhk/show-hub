@@ -80,9 +80,12 @@ export function buildStripDays(withItems: Set<string>): StripDay[] {
     </div>
   `,
   styles: `
+    /* The 2px of padding keeps the focus ring from being clipped; the negative margin puts the first day
+       exactly on the page's left edge. */
     .days {
       display: flex;
       gap: 8px;
+      margin-inline: -2px;
       padding: 2px 2px 8px;
       overflow-x: auto;
       scrollbar-width: none;

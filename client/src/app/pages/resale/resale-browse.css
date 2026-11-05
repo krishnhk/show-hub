@@ -7,21 +7,21 @@
   max-width: 700px;
 }
 
-/* One search box, by movie name */
+/* One toolbar row: the search takes the free width, the filters sit at its right, all the same height */
 
 .bar {
-  display: flex;
-  flex-wrap: wrap;
+  --ctl: 44px;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  grid-auto-flow: column;
+  grid-auto-columns: auto;
   align-items: center;
   gap: 10px;
-  max-width: 1000px;
   margin-bottom: 20px;
 }
 
 .search {
   position: relative;
-  flex: 0 0 380px;
-  max-width: 100%;
   min-width: 0;
 }
 
@@ -41,6 +41,8 @@
 
 .search-input {
   width: 100%;
+  height: var(--ctl);
+  padding-block: 0;
   padding-left: 42px;
   padding-right: 40px;
 }
@@ -83,6 +85,8 @@
 
 .filter-btn {
   gap: 8px;
+  height: var(--ctl);
+  padding-block: 0;
 }
 
 .filter-btn.on {
@@ -137,7 +141,8 @@
 }
 
 .reset {
-  padding: 8px 4px;
+  height: var(--ctl);
+  padding: 0 6px;
   border: 0;
   background: transparent;
   color: var(--accent);
@@ -196,13 +201,13 @@ app-day-strip {
   .page-head h1 { font-size: 1.4rem; }
   .page-head .subtitle { display: none; }
 
-  .bar { gap: 8px; margin-bottom: 12px; }
-  .search { flex: 1 1 100%; }
-  .search-input { min-height: 40px; padding-block: 8px; }
+  .bar { --ctl: 40px; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); grid-auto-flow: row; grid-auto-columns: auto; gap: 8px; margin-bottom: 12px; }
+  .search { grid-column: 1 / -1; }
 
-  .filter { flex: 1 1 0; min-width: 0; }
-  .filter-btn { width: 100%; justify-content: space-between; min-height: 38px; padding: 6px 12px; font-size: 0.85rem; }
+  .filter { min-width: 0; }
+  .filter-btn { width: 100%; justify-content: space-between; padding-inline: 12px; font-size: 0.85rem; }
   .filter:nth-of-type(2) .menu { left: auto; right: 0; }
+  .reset { grid-column: 1 / -1; justify-self: end; height: auto; padding: 2px 4px; }
 
   app-day-strip { margin-bottom: 12px; }
   .group-title { font-size: 1.05rem; margin-bottom: 8px; padding-bottom: 6px; }
