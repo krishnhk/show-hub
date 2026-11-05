@@ -93,26 +93,12 @@
 /* The ticket: the show on the left, the QR code on a stub to the right of the perforation */
 
 .ticket {
-  --edge: var(--success);
   position: relative;
   display: grid;
   grid-template-columns: minmax(0, 1fr) 230px;
   border: 1px solid var(--border);
-  border-left: 8px solid var(--edge);
   border-radius: 14px;
   background: var(--surface);
-}
-
-.ticket[data-state='listed'] {
-  --edge: var(--info);
-}
-
-.ticket[data-state='past'] {
-  --edge: var(--text-muted);
-}
-
-.ticket[data-state='cancelled'] {
-  --edge: var(--danger);
 }
 
 .ticket::before,
@@ -154,11 +140,21 @@
   min-width: 0;
 }
 
+.title-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
 .chips {
   display: flex;
-  flex-wrap: wrap;
+  flex: none;
+  flex-wrap: nowrap;
   gap: 6px;
 }
+
+.chip { white-space: nowrap; }
 
 .chip {
   padding: 2px 10px;
@@ -169,24 +165,10 @@
   font-weight: 700;
 }
 
+/* The status is written out, not colour-coded */
 .chip.status {
-  background: var(--success-soft);
-  color: var(--success);
-}
-
-.chip.status[data-state='listed'] {
-  background: var(--info-soft);
-  color: var(--info);
-}
-
-.chip.status[data-state='past'] {
   background: var(--surface-3);
-  color: var(--text-muted);
-}
-
-.chip.status[data-state='cancelled'] {
-  background: var(--danger-soft);
-  color: var(--danger);
+  color: var(--text);
 }
 
 .chip.resale {
@@ -206,32 +188,19 @@ h1 {
   gap: 12px 40px;
 }
 
-.facts b {
-  font-family: var(--font-display);
-  font-weight: 600;
-  font-size: 1.05rem;
-}
-
-.facts .big {
-  font-size: 1.7rem;
-  line-height: 1.05;
+/* Every value on the ticket is the same size and weight; the small caps label above says what it is */
+.facts b,
+.where b {
+  display: block;
+  font-family: inherit;
+  font-weight: 500;
+  font-size: 0.95rem;
 }
 
 .place {
   display: flex;
   flex-wrap: wrap;
   gap: 14px 56px;
-}
-
-.where b {
-  display: block;
-  font-family: var(--font-display);
-  font-weight: 600;
-}
-
-.address {
-  font-size: 0.85rem;
-  color: var(--text-muted);
 }
 
 .seats {
@@ -463,12 +432,21 @@ h1 {
     display: none;
   }
 
+  /* Phones: a small portrait poster beside the details, so the whole poster shows */
   .main {
-    grid-template-columns: 1fr;
-    padding: 18px;
-    --thumb-w: 100%;
-    --thumb-h: 110px;
+    grid-template-columns: auto minmax(0, 1fr);
+    gap: 14px;
+    align-items: start;
+    padding: 14px;
+    --thumb-w: 84px;
+    --thumb-h: 120px;
   }
+
+  .info { gap: 10px; }
+  /* One left edge: date and time on its own row, language and format side by side, then venue and seats */
+  .facts { display: grid; grid-template-columns: 1fr 1fr; gap: 10px 16px; }
+  .facts > div:first-child { grid-column: 1 / -1; }
+  .place { display: grid; grid-template-columns: 1fr; gap: 10px; }
 
   .stub {
     border-left: 0;

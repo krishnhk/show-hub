@@ -38,24 +38,27 @@
             <app-film-thumb [posterUrl]="booking.showtime.movie.posterUrl" [alt]="booking.showtime.movie.title" />
 
             <div class="content">
-              @if (booking.isListed || booking.fromResale) {
-                <span class="tags">
-                  @if (booking.isListed) {
-                    <span class="tag listed">Listed for sale</span>
-                  }
-                  @if (booking.fromResale) {
-                    <span class="tag resale">Resale ticket</span>
-                  }
-                </span>
-              }
-
-              <h3>{{ booking.showtime.movie.title }}</h3>
+              <div class="title-row">
+                <h3>{{ booking.showtime.movie.title }}</h3>
+                @if (booking.isListed || booking.fromResale || heading(booking)) {
+                  <span class="tags">
+                    @if (booking.isListed) {
+                      <span class="tag listed">Listed for sale</span>
+                    }
+                    @if (booking.fromResale) {
+                      <span class="tag resale">Resale ticket</span>
+                    }
+                    @if (heading(booking)) {
+                      <span class="tag done">{{ heading(booking) }}</span>
+                    }
+                  </span>
+                }
+              </div>
 
               <div class="row">
                 <div>
-                  <div class="k">{{ heading(booking) }}{{ booking.showtime.showDateTime | showDate }}</div>
                   <div class="time" [class.done]="state(booking) === 'past' || state(booking) === 'cancelled'">
-                    {{ booking.showtime.showDateTime | showTime }}
+                    {{ booking.showtime.showDateTime | showDate }} | {{ booking.showtime.showDateTime | showTime }}
                   </div>
                 </div>
 

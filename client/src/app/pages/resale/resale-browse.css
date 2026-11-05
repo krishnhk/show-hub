@@ -189,3 +189,21 @@ app-day-strip {
   display: block;
   margin-bottom: 20px;
 }
+
+/* Phones: keep the top short so the listings start high on the screen */
+@media (max-width: 560px) {
+  .page-head { margin-bottom: 10px; }
+  .page-head h1 { font-size: 1.4rem; }
+  .page-head .subtitle { display: none; }
+
+  .bar { gap: 8px; margin-bottom: 12px; }
+  .search { flex: 1 1 100%; }
+  .search-input { min-height: 40px; padding-block: 8px; }
+
+  .filter { flex: 1 1 0; min-width: 0; }
+  .filter-btn { width: 100%; justify-content: space-between; min-height: 38px; padding: 6px 12px; font-size: 0.85rem; }
+  .filter:nth-of-type(2) .menu { left: auto; right: 0; }
+
+  app-day-strip { margin-bottom: 12px; }
+  .group-title { font-size: 1.05rem; margin-bottom: 8px; padding-bottom: 6px; }
+}

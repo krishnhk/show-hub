@@ -11,7 +11,7 @@
     </app-empty-state>
   } @else if (booking(); as current) {
     <div class="column">
-    <a class="back" routerLink="/my-bookings">← My tickets</a>
+    <a class="back back-link" routerLink="/my-bookings">← My tickets</a>
 
     @if (justBooked()) {
       <div class="banner success" role="status">
@@ -37,23 +37,20 @@
           <app-film-thumb [posterUrl]="current.showtime.movie.posterUrl" [alt]="current.showtime.movie.title" />
 
           <div class="info">
-            <div class="chips">
-              <span class="chip status" [attr.data-state]="state()">{{ statusLabel() }}</span>
-              @if (current.fromResale) {
-                <span class="chip resale">Resale ticket</span>
-              }
+            <div class="title-row">
+              <h1>{{ current.showtime.movie.title }}</h1>
+              <div class="chips">
+                <span class="chip status" [attr.data-state]="state()">{{ statusLabel() }}</span>
+                @if (current.fromResale) {
+                  <span class="chip resale">Resale ticket</span>
+                }
+              </div>
             </div>
-
-            <h1>{{ current.showtime.movie.title }}</h1>
 
             <div class="facts">
               <div>
-                <span class="k">Date</span>
-                <b>{{ current.showtime.showDateTime | showDate }}</b>
-              </div>
-              <div>
-                <span class="k">Time</span>
-                <b class="big">{{ current.showtime.showDateTime | showTime }}</b>
+                <span class="k">Date &amp; time</span>
+                <b class="when">{{ current.showtime.showDateTime | showDate }} | {{ current.showtime.showDateTime | showTime }}</b>
               </div>
               <div>
                 <span class="k">Language</span>
@@ -69,7 +66,6 @@
             <div class="where">
               <span class="k">Venue</span>
               <b>{{ current.showtime.theater.name }}</b>
-              <span class="address">{{ current.showtime.theater.address }}</span>
             </div>
 
             <div class="seat-block">
@@ -159,7 +155,7 @@
               <p class="policy">Taking the tickets off the market makes the QR code valid again.</p>
             }
             @if (canSell()) {
-              <a class="btn btn-outline btn-block" routerLink="/sell/new" [queryParams]="{ bookingId: current.id }">
+              <a class="btn btn-outline btn-block" [routerLink]="['/sell/new', current.id]">
                 Sell these tickets
               </a>
             }

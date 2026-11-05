@@ -85,7 +85,10 @@ export function buildStripDays(withItems: Set<string>): StripDay[] {
       gap: 8px;
       padding: 2px 2px 8px;
       overflow-x: auto;
+      scrollbar-width: none;
     }
+
+    .days::-webkit-scrollbar { display: none; }
 
     .day {
       flex: 0 0 auto;

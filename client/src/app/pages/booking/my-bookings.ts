@@ -82,9 +82,9 @@ export class MyBookingsComponent implements OnInit {
   heading(booking: BookingDetail): string {
     switch (this.state(booking)) {
       case 'cancelled':
-        return 'Cancelled · ';
+        return 'Cancelled';
       case 'past':
-        return 'Show over · ';
+        return 'Completed';
       default:
         return '';
     }

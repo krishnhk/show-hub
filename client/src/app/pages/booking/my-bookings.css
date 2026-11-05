@@ -93,18 +93,35 @@
   color: var(--text-muted);
 }
 
+.title-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.title-row .tags {
+  flex: none;
+  flex-wrap: nowrap;
+}
+
+.tag.done {
+  background: var(--surface-3);
+  color: var(--text-muted);
+}
+
 h3 {
   margin: 0;
+  min-width: 0;
   font-size: 1.4rem;
   line-height: 1.15;
 }
 
 .time {
   margin-top: 2px;
-  font-family: var(--font-display);
-  font-size: 1.5rem;
-  font-weight: 600;
-  line-height: 1.05;
+  font-size: 0.95rem;
+  font-weight: 400;
+  line-height: 1.2;
 }
 
 .time.done {
@@ -189,15 +206,24 @@ h3 {
 }
 
 @media (max-width: 560px) {
+  .tickets { gap: 10px; }
+
+  /* Phones: a small portrait poster beside the details, so the whole poster shows and the card stays short */
   .in {
-    grid-template-columns: 1fr;
-    gap: 14px;
-    padding: 16px;
-    --thumb-w: 100%;
-    --thumb-h: 110px;
+    grid-template-columns: auto minmax(0, 1fr);
+    gap: 12px;
+    padding: 10px 12px;
+    align-items: center;
+    --thumb-w: 70px;
+    --thumb-h: 100px;
   }
 
-  .time {
-    font-size: 1.35rem;
-  }
+  .content { gap: 4px; }
+  h3 { font-size: 1.1rem; }
+  .row { gap: 6px 16px; }
+  .row > div:first-child { min-width: 0; }
+  .time { margin-top: 0; font-size: 0.85rem; }
+  .tag { padding: 1px 8px; font-size: 0.66rem; white-space: nowrap; }
+  .details { grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr); gap: 6px 14px; }
+  .details b { font-size: 0.82rem; }
 }

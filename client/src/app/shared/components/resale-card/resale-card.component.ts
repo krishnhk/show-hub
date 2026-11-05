@@ -150,9 +150,19 @@ import { ShowDatePipe, ShowTimePipe } from '../../pipes/date.pipes';
     .stub strong { font-family: var(--font); font-size: 1.4rem; font-weight: 700; line-height: 1.1; }
     .strike { font-size: 0.85rem; color: var(--text-muted); text-decoration: line-through; }
 
-    @media (max-width: 420px) {
-      .ticket { grid-template-columns: minmax(0, 1fr) 108px; }
-      .main { padding: 14px; }
+    @media (max-width: 560px) {
+      .ticket { grid-template-columns: minmax(0, 1fr) 92px; }
+      .main { padding: 10px 12px; }
+      .info { gap: 3px; }
+      .venue { font-size: 0.92rem; line-height: 1.25; }
+      .when { font-size: 0.8rem; }
+      .seats { gap: 4px; margin-top: 0; }
+      .seat { padding: 1px 8px; font-size: 0.72rem; }
+      .partial, .together { padding: 1px 8px; font-size: 0.68rem; }
+      .stub { gap: 6px; padding: 8px 6px; }
+      .stub strong { font-size: 1.15rem; }
+      .strike { font-size: 0.75rem; }
+      .off { padding: 1px 8px; font-size: 0.68rem; }
     }
   `,
 })
