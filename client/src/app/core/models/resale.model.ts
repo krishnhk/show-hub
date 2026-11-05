@@ -121,5 +121,3 @@ export interface CreateTransactionResponse {
 }
 
 export const SELLER_COMMISSION_RATE = 0.05;
-export const BUYER_FEE_RATE = 0.025;
-export const BUYER_FEE_FIXED = 0.3;

@@ -61,7 +61,7 @@ import {
   TransactionListResponse,
 } from '../models/resale.model';
 import { BOOKING_CANCEL_HOURS } from './booking-rules';
-import { LISTING_CUTOFF_MINUTES, MIN_PRICE_SHARE, SELLER_KEEPS } from './resale-rules';
+import { LISTING_CUTOFF_MINUTES, MIN_PRICE_SHARE, SELLER_KEEPS, resaleBuyerFee } from './resale-rules';
 import {
   AppNotification,
   CreateReviewRequest,
@@ -865,7 +865,7 @@ export class MockStore {
       originalPrice,
       resalePrice,
       sellerCommission: round2(resalePrice * (1 - SELLER_KEEPS)),
-      buyerFee: round2(resalePrice * 0.025 + 0.3),
+      buyerFee: resaleBuyerFee(seats.length),
       sellerReceives: round2(resalePrice * SELLER_KEEPS),
       status: 'Available',
       listedAt: isoNow(),
@@ -1078,7 +1078,7 @@ export class MockStore {
     ticket.resalePrice = total;
     ticket.sellerCommission = round2(total * (1 - SELLER_KEEPS));
     ticket.sellerReceives = round2(total * SELLER_KEEPS);
-    ticket.buyerFee = round2(total * 0.025 + 0.3);
+    ticket.buyerFee = resaleBuyerFee(ticket.seatNumbers.length);
 
     return { success: true, ticket: clone(this.toResaleDetail(ticket)!) };
   }
@@ -1362,7 +1362,7 @@ export class MockStore {
       originalPrice: original,
       resalePrice: price,
       sellerCommission: round2(price * (1 - SELLER_KEEPS)),
-      buyerFee: round2(price * 0.025 + 0.3),
+      buyerFee: resaleBuyerFee(seats.length),
       sellerReceives: round2(price * SELLER_KEEPS),
     };
 
@@ -1378,7 +1378,7 @@ export class MockStore {
     listing.originalPrice = round2(rest.reduce((total, seat) => total + info[seat].paid, 0));
     listing.resalePrice = left;
     listing.sellerCommission = round2(left * (1 - SELLER_KEEPS));
-    listing.buyerFee = round2(left * 0.025 + 0.3);
+    listing.buyerFee = resaleBuyerFee(rest.length);
     listing.sellerReceives = round2(left * SELLER_KEEPS);
 
     this.resaleTickets.unshift(taken);

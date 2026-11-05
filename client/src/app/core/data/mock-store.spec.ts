@@ -110,6 +110,8 @@ describe('MockStore demo flows', () => {
     const balanceBefore = s.getUser(1).walletBalance;
     const purchase = s.createTransaction(2, listing.resaleTicketId);
     expect(purchase.totalBuyerPays).toBeCloseTo(listed.resalePrice + listed.buyerFee, 2);
+    // The ThiraiHub fee is the same per ticket as for a theatre booking.
+    expect(listed.buyerFee).toBe(listed.seatNumbers.length * BOOKING_COMMISSION_PER_TICKET);
     const stored = s.resaleTransactions.find((t) => t.id === purchase.transactionId)!;
     expect(stored.status).toBe('Completed');
     expect(stored.completedAt).toBeTruthy();
