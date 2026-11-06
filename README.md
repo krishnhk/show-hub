@@ -14,6 +14,8 @@ backend to set up. Data resets when the page reloads.
   fixed service fee.
 - **My tickets:** active, completed and resale-listed tickets in one place.
 - **Resale:** list some or all of a booking, browse spare tickets by day, and buy them.
+- **Sharing:** give some seats of a booking to someone else by their mobile number; the seats
+  move to their account at once as a ticket of their own.
 - **Profile and settings:** name, birthday and photo; phone and email changes are verified
   with an OTP; themes (Ice Grey, Plain Grey, Plain Burgundy) live in Settings.
 - **Wallet:** balance, history, earnings from resale.
@@ -22,6 +24,17 @@ backend to set up. Data resets when the page reloads.
 
 Sign in with the demo user **Mad Monkey**, phone `+919876543210`. Any OTP flow accepts
 `123456`.
+
+To try buying, selling or sharing between people, sign out (account menu) and sign in as
+someone else. Stay inside the app, because a full page reload resets the demo data.
+
+| Name | Phone | Notes |
+| --- | --- | --- |
+| Mad Monkey | `9876543210` | the demo user, with wallet money and many tickets |
+| Priya Nair | `9810001111` | a 4-seat ticket for Karuppu to share, plenty of wallet money |
+| Karthik Subramanian | `9810006666` | a 3-seat ticket for Scene to share |
+| Rahul Verma, Sneha Iyer, Imran Khan, Divya Menon | `9810002222`, `9810003333`, `9810004444`, `9810005555` | sellers with tickets on the marketplace |
+| Ananya Rao | `9810007777` | an account with no tickets, handy as a receiver |
 
 ## Run locally
 
