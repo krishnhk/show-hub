@@ -5,6 +5,8 @@ import { Observable } from 'rxjs';
 import {
   BookingListResponse,
   CancelBookingResponse,
+  ShareSeatsRequest,
+  ShareSeatsResponse,
   CreateBookingRequest,
   CreateBookingResponse,
 } from '../models/booking.model';
@@ -37,6 +39,11 @@ export class BookingService {
     return this.http.get<{ booking: import('../models/booking.model').BookingDetail }>(
       `${API_BASE}/bookings/${bookingId}`,
     );
+  }
+
+  /** Moves some of the booking's seats to another account, found by mobile number. */
+  shareSeats(bookingId: number, request: ShareSeatsRequest): Observable<ShareSeatsResponse> {
+    return this.http.post<ShareSeatsResponse>(`${API_BASE}/bookings/${bookingId}/share`, request);
   }
 
   cancelBooking(bookingId: number): Observable<CancelBookingResult> {

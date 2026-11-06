@@ -763,6 +763,9 @@ function upcomingShowAt(title: string, theaterId: number | undefined): Showtime 
   );
 }
 
+/** Bookings of other people that are kept, so they are not turned into marketplace listings. */
+const NOT_FOR_SALE = new Set<number>();
+
 export function buildBookings(): Booking[] {
   const bookings: Booking[] = [];
   let id = 500;
@@ -933,6 +936,63 @@ export function buildBookings(): Booking[] {
     }
   }
 
+  // Two seats a friend shared with the demo user: their own ticket, not paid for by them, so it cannot be cancelled.
+  // It sits before the listing bookings below for the same reason as the cancelled one above.
+  {
+    const showtime = upcomingShow('Couple Friendly');
+    if (showtime) {
+      const seats = ['G5', 'G6'];
+      const bookingPrice = seats.reduce((total, seat) => total + seatUnitPrice(showtime, seat).price, 0);
+      bookings.push({
+        id: id++,
+        showtimeId: showtime.id,
+        userId: 1,
+        quantity: seats.length,
+        seatNumbers: seats,
+        bookingPrice,
+        commissionFee: BOOKING_COMMISSION_PER_TICKET * seats.length,
+        totalAmount: bookingPrice + BOOKING_COMMISSION_PER_TICKET * seats.length,
+        paymentId: `pi_mock_${id}`,
+        status: 'Completed',
+        qrCode: `THIRAIHUB:SH-${1000 + id}`,
+        confirmationCode: `SH${1000 + id}`,
+        bookedAt: isoDaysAgo(1),
+        cancelledAt: null,
+        sharedBy: 'Priya Nair',
+      });
+    }
+  }
+
+  // Two other accounts with a ticket of several seats that is not on the marketplace, so sharing seats can be tried
+  // from their side too: sign in as Priya (9810001111) or Karthik (9810006666), OTP 123456.
+  for (const [owner, title, seats] of [
+    [2, 'Karuppu', ['D8', 'D9', 'D10', 'D11']],
+    [7, 'Scene', ['C9', 'C10', 'C11']],
+  ] as const) {
+    const showtime = upcomingShow(title);
+    if (!showtime) {
+      continue;
+    }
+    const bookingPrice = seats.reduce((total, seat) => total + seatUnitPrice(showtime, seat).price, 0);
+    NOT_FOR_SALE.add(id);
+    bookings.push({
+      id: id++,
+      showtimeId: showtime.id,
+      userId: owner,
+      quantity: seats.length,
+      seatNumbers: [...seats],
+      bookingPrice,
+      commissionFee: BOOKING_COMMISSION_PER_TICKET * seats.length,
+      totalAmount: bookingPrice + BOOKING_COMMISSION_PER_TICKET * seats.length,
+      paymentId: `pi_mock_${id}`,
+      status: 'Completed',
+      qrCode: `THIRAIHUB:SH-${1000 + id}`,
+      confirmationCode: `SH${1000 + id}`,
+      bookedAt: isoDaysAgo(2),
+      cancelledAt: null,
+    });
+  }
+
   // A big group booking from another seller, so the marketplace has a listing with eight seats. It is not the demo
   // user's, so it becomes a marketplace listing; being appended after the loop bookings it takes the next listing id.
   {
@@ -1023,7 +1083,7 @@ function buildResaleTickets(): ResaleTicket[] {
   let id = 900;
 
   for (const booking of BOOKINGS) {
-    if (booking.userId === 1 || booking.status !== 'Completed') {
+    if (booking.userId === 1 || booking.status !== 'Completed' || NOT_FOR_SALE.has(booking.id)) {
       continue;
     }
     const ticket: ResaleTicket = {

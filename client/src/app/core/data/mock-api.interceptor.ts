@@ -134,6 +134,11 @@ function handle(store: MockStore, req: Parameters<HttpInterceptorFn>[0], userId:
     requireAuth(userId);
     return store.getBookings(userId, query);
   }
+  if (segments[0] === 'bookings' && segments[2] === 'share' && method === 'POST') {
+    requireAuth(userId);
+    const body = payload as { seatNumbers?: string[]; phoneNumber?: string };
+    return store.shareSeats(userId, Number(segments[1]), body.seatNumbers ?? [], body.phoneNumber ?? '');
+  }
   if (segments[0] === 'bookings' && segments[2] === 'cancel' && method === 'POST') {
     requireAuth(userId);
     return store.cancelBooking(userId, Number(segments[1]));

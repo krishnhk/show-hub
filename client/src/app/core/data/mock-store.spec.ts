@@ -659,4 +659,80 @@ describe('MockStore demo flows', () => {
       true,
     );
   });
+
+  describe('sharing seats', () => {
+    /** The demo user's upcoming booking with the most seats, which has room to give some away. */
+    function bigBooking(s: MockStore) {
+      return s
+        .getBookings(1, {})
+        .bookings.filter((b) => b.status === 'Completed' && b.unlistedSeats.length >= 3)
+        .sort((a, b) => b.seatNumbers.length - a.seatNumbers.length)[0];
+    }
+    const PRIYA = '9810001111';
+    const r2 = (n: number) => Math.round(n * 100) / 100;
+
+    it('moves the seats and their price into a new booking on the other account', () => {
+      const s = store();
+      const booking = bigBooking(s);
+      const give = booking.unlistedSeats.slice(0, 2);
+      const paid = booking.totalAmount;
+      const priya = s.users.find((u) => u.phoneNumber === '+91' + PRIYA)!;
+
+      const res = s.shareSeats(1, booking.id, give, PRIYA);
+      expect(res.success).toBe(true);
+      expect(res.seatNumbers).toEqual(give);
+
+      const mine = s.bookings.find((b) => b.id === booking.id)!;
+      const theirs = s.bookings.find((b) => b.userId === priya.id && b.sharedBy === 'Mad Monkey' && b.seatNumbers.join() === give.join())!;
+      expect(theirs).toBeTruthy();
+      expect(theirs.status).toBe('Completed');
+      expect(theirs.quantity).toBe(2);
+      expect(mine.seatNumbers).toEqual(booking.seatNumbers.filter((seat) => !give.includes(seat)));
+      expect(mine.quantity).toBe(mine.seatNumbers.length);
+      // What was paid is split between the two bookings, nothing is lost or made up.
+      expect(r2(mine.totalAmount + theirs.totalAmount)).toBe(paid);
+      expect(theirs.confirmationCode).toBeTruthy();
+      expect(theirs.confirmationCode).not.toBe(mine.confirmationCode);
+    });
+
+    it('refuses the cases that would break a booking', () => {
+      const s = store();
+      const booking = bigBooking(s);
+      const seats = booking.seatNumbers;
+      expect(() => s.shareSeats(1, booking.id, [], PRIYA)).toThrow(/at least one seat/);
+      expect(() => s.shareSeats(1, booking.id, seats, PRIYA)).toThrow(/Keep at least one seat/);
+      expect(() => s.shareSeats(1, booking.id, ['Z99'], PRIYA)).toThrow(/still yours/);
+      expect(() => s.shareSeats(1, booking.id, [seats[0]], '98765')).toThrow(/10-digit/);
+      expect(() => s.shareSeats(1, booking.id, [seats[0]], '9000000000')).toThrow(/No ThiraiHub account/);
+      expect(() => s.shareSeats(1, booking.id, [seats[0]], '9876543210')).toThrow(/your own number/);
+      expect(() => s.shareSeats(2, booking.id, [seats[0]], PRIYA)).toThrow(/not found/);
+    });
+
+    it('lets other demo accounts share too, back to the demo user', () => {
+      const s = store();
+      const priya = s.getBookings(2, {}).bookings.find((b) => b.unlistedSeats.length >= 3)!;
+      expect(priya).toBeTruthy();
+      const res = s.shareSeats(2, priya.id, [priya.unlistedSeats[0]], '9876543210');
+      expect(res.recipientName).toBe('Mad Monkey');
+      const received = s.getBookings(1, {}).bookings.find((b) => b.sharedBy === 'Priya Nair' && b.seatNumbers[0] === res.seatNumbers[0]);
+      expect(received).toBeTruthy();
+    });
+
+    it('cannot share seats that are on the resale market', () => {
+      const s = store();
+      const listed = s.getBookings(1, {}).bookings.find((b) => b.isListed && b.seatNumbers.length >= 2)!;
+      const onSale = listed.seatNumbers.filter((seat) => !listed.unlistedSeats.includes(seat));
+      expect(onSale.length).toBeGreaterThan(0);
+      expect(() => s.shareSeats(1, listed.id, [onSale[0]], PRIYA)).toThrow(/still yours/);
+    });
+
+    it('cannot cancel seats that were shared with you', () => {
+      const s = store();
+      const booking = bigBooking(s);
+      s.shareSeats(1, booking.id, [booking.unlistedSeats[0]], PRIYA);
+      const priya = s.users.find((u) => u.phoneNumber === '+91' + PRIYA)!;
+      const received = s.bookings.find((b) => b.userId === priya.id && b.sharedBy)!;
+      expect(() => s.cancelBooking(priya.id, received.id)).toThrow(/cannot be cancelled/);
+    });
+  });
 });

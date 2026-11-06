@@ -34,6 +34,7 @@ import {
   Booking,
   BookingDetail,
   CancelBookingResponse,
+  ShareSeatsResponse,
 } from '../models/booking.model';
 import {
   Movie,
@@ -752,6 +753,100 @@ export class MockStore {
     return clone(this.toBookingDetail(booking));
   }
 
+  /**
+   * Gives some seats of a booking to someone else: they move into a new booking on the other person's account, and the
+   * price paid for them moves with them. The owner keeps at least one seat. Seats on the resale market cannot be shared.
+   */
+  shareSeats(userId: number, bookingId: number, seatNumbers: string[], phoneNumber: string): ShareSeatsResponse {
+    const booking = this.bookings.find((candidate) => candidate.id === bookingId);
+    if (!booking || booking.userId !== userId) {
+      throw new MockApiError('Booking not found.', 404);
+    }
+    if (booking.status !== 'Completed') {
+      throw new MockApiError('Only confirmed bookings can be shared.', 400);
+    }
+    const showtime = this.showtimes.find((candidate) => candidate.id === booking.showtimeId)!;
+    if (new Date(showtime.showDateTime).getTime() <= Date.now()) {
+      throw new MockApiError('This show has already started.', 409);
+    }
+
+    const seats = [...new Set(seatNumbers)];
+    if (seats.length === 0) {
+      throw new MockApiError('Pick at least one seat to share.', 400);
+    }
+    const mine = this.unlistedSeatsOf(booking);
+    if (!seats.every((seat) => mine.includes(seat))) {
+      throw new MockApiError('Pick seats that are still yours and not listed for sale.', 400);
+    }
+    if (seats.length >= booking.seatNumbers.length) {
+      throw new MockApiError('Keep at least one seat in this booking.', 400);
+    }
+
+    const phone = this.cleanContact('phone', phoneNumber);
+    const recipient = this.users.find((candidate) => candidate.phoneNumber === phone);
+    if (!recipient) {
+      throw new MockApiError('No ThiraiHub account uses this number yet.', 404);
+    }
+    if (recipient.id === userId) {
+      throw new MockApiError('That is your own number.', 400);
+    }
+    const sender = this.users.find((candidate) => candidate.id === userId);
+
+    // The price paid is split evenly per seat; the seats that leave take their share with them.
+    const total = booking.seatNumbers.length;
+    const share = seats.length / total;
+    const moved = {
+      bookingPrice: round2(booking.bookingPrice * share),
+      commissionFee: round2(booking.commissionFee * share),
+    };
+
+    const received: Booking = {
+      id: this.nextBookingId++,
+      showtimeId: booking.showtimeId,
+      userId: recipient.id,
+      quantity: seats.length,
+      seatNumbers: seats,
+      bookingPrice: moved.bookingPrice,
+      commissionFee: moved.commissionFee,
+      totalAmount: round2(moved.bookingPrice + moved.commissionFee),
+      paymentId: booking.paymentId,
+      status: 'Completed',
+      qrCode: '',
+      confirmationCode: randomConfirmationCode('SH'),
+      bookedAt: isoNow(),
+      cancelledAt: null,
+      fromResale: booking.fromResale,
+      sharedBy: sender?.fullName || 'A friend',
+    };
+    received.qrCode = `THIRAIHUB:${received.confirmationCode}`;
+    this.bookings.unshift(received);
+
+    booking.seatNumbers = booking.seatNumbers.filter((seat) => !seats.includes(seat));
+    booking.quantity = booking.seatNumbers.length;
+    booking.bookingPrice = round2(booking.bookingPrice - moved.bookingPrice);
+    booking.commissionFee = round2(booking.commissionFee - moved.commissionFee);
+    booking.totalAmount = round2(booking.bookingPrice + booking.commissionFee);
+    if (booking.walletPaid) {
+      booking.walletPaid = round2(booking.walletPaid * (1 - share));
+    }
+
+    const movieTitle = this.withRefs(showtime)!.movie.title;
+    const name = recipient.fullName || 'your friend';
+    this.pushNotification({
+      type: 'booking',
+      title: 'Seats shared',
+      body: `${seats.join(', ')} for ${movieTitle} are now in ${name}'s account.`,
+      link: `/bookings/${booking.id}/confirmation`,
+    });
+
+    return {
+      success: true,
+      recipientName: name,
+      seatNumbers: seats,
+      message: `${seats.length === 1 ? 'Seat' : 'Seats'} ${seats.join(', ')} shared with ${name}.`,
+    };
+  }
+
   cancelBooking(userId: number, bookingId: number): CancelBookingResponse {
     const booking = this.bookings.find((candidate) => candidate.id === bookingId);
     if (!booking || booking.userId !== userId) {
@@ -759,6 +854,9 @@ export class MockStore {
     }
     if (booking.status === 'Cancelled') {
       throw new MockApiError('This booking is already cancelled.', 400);
+    }
+    if (booking.sharedBy) {
+      throw new MockApiError('Seats shared with you cannot be cancelled. You can sell them instead.', 400);
     }
     if (this.resaleTickets.some((ticket) => ticket.bookingId === booking.id && ticket.status === 'Available')) {
       throw new MockApiError('Delist these tickets from resale before cancelling.', 400);

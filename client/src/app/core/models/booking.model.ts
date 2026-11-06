@@ -21,6 +21,8 @@ export interface Booking {
   walletPaid?: number;
   /** True when this booking was bought on the resale market. */
   fromResale?: boolean;
+  /** Name of the person who shared these seats with the owner. Such seats were not paid for by the owner. */
+  sharedBy?: string | null;
 }
 
 /** A seat of a booking that is not yet listed, with its category and what the buyer paid for it. */
@@ -65,6 +67,19 @@ export interface CreateBookingResponse {
   walletUsed: number;
   /** totalAmount - walletUsed: the card portion. */
   amountDue: number;
+}
+
+export interface ShareSeatsRequest {
+  seatNumbers: string[];
+  /** Mobile number of the person who gets the seats, who must already have an account. */
+  phoneNumber: string;
+}
+
+export interface ShareSeatsResponse {
+  success: boolean;
+  recipientName: string;
+  seatNumbers: string[];
+  message: string;
 }
 
 export interface CancelBookingResponse {
