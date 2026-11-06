@@ -43,6 +43,11 @@ export const routes: Routes = [
     loadComponent: () => import('./pages/booking/confirmation').then((m) => m.ConfirmationComponent),
   },
   {
+    path: 'bookings/:id/share',
+    canActivate: [authGuard],
+    loadComponent: () => import('./pages/booking/share-seats').then((m) => m.ShareSeatsComponent),
+  },
+  {
     path: 'my-bookings',
     canActivate: [authGuard],
     loadComponent: () => import('./pages/booking/my-bookings').then((m) => m.MyBookingsComponent),

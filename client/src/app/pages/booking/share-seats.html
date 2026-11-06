@@ -1,0 +1,110 @@
+<div class="container page">
+  @if (loading()) {
+    <app-loading-spinner label="Loading your ticket…" />
+  } @else if (result(); as done) {
+    <div class="panel done">
+      <div class="done-icon" aria-hidden="true">✓</div>
+      <h1>Seats shared</h1>
+      <p class="subtitle">
+        {{ done.seatNumbers.join(', ') }} {{ done.seatNumbers.length === 1 ? 'is' : 'are' }} now in
+        {{ done.recipientName }}'s account, as a ticket of their own.
+      </p>
+      <div class="row-wrap actions">
+        <a class="btn" [routerLink]="['/bookings', bookingId, 'confirmation']">Back to my ticket</a>
+        <a class="btn btn-ghost" routerLink="/my-bookings">My tickets</a>
+      </div>
+    </div>
+  } @else if (notFound() || !booking()) {
+    <app-empty-state icon="🎟️" title="Booking not found" message="We could not find this booking. It may belong to another account.">
+      <a class="btn btn-outline btn-sm" routerLink="/my-bookings">View my tickets</a>
+    </app-empty-state>
+  } @else if (!canShare()) {
+    <app-empty-state
+      icon="🎟️"
+      title="These seats cannot be shared"
+      message="You can share seats of a confirmed booking before the show starts, as long as you keep one seat and the seats are not listed for sale."
+    >
+      <a class="btn btn-outline btn-sm" [routerLink]="['/bookings', bookingId, 'confirmation']">Back to my ticket</a>
+    </app-empty-state>
+  } @else if (booking(); as current) {
+    <div class="co">
+      <div>
+        <a class="back-link text-sm" [routerLink]="['/bookings', bookingId, 'confirmation']">← Back to my ticket</a>
+        <h1 class="co-title">Share seats</h1>
+      </div>
+
+      <app-show-summary
+        [posterUrl]="current.showtime.movie.posterUrl"
+        [title]="current.showtime.movie.title"
+        [dateTime]="current.showtime.showDateTime"
+        [theatre]="current.showtime.theater.name"
+        [format]="current.showtime.format"
+        [language]="current.showtime.language"
+        [seatCount]="current.seatNumbers.length"
+      >
+        <span ssSeatTag class="ss-tag">{{ chosen().length }} selected</span>
+        <div ssChips class="ss-chips">
+          @for (seat of current.seatNumbers; track seat) {
+            @if (shareable().includes(seat)) {
+              <button
+                type="button"
+                class="ss-chip pick"
+                [class.on]="chosen().includes(seat)"
+                [attr.aria-pressed]="chosen().includes(seat)"
+                (click)="toggle(seat)"
+              >
+                {{ seat }}
+              </button>
+            } @else {
+              <span class="ss-chip gone" title="Listed for sale or sold">{{ seat }}</span>
+            }
+          }
+        </div>
+        <p class="ss-note">Tap the seats to give away. You keep the rest.</p>
+      </app-show-summary>
+
+      <section class="co-card single">
+        <div class="co-total">
+          <h2 class="co-label">Share with</h2>
+
+          <label class="phone" [class.bad]="error()">
+            <span class="prefix">+91</span>
+            <input
+              type="tel"
+              inputmode="numeric"
+              autocomplete="off"
+              placeholder="Mobile number"
+              aria-label="Mobile number of the person to share with"
+              [value]="phone()"
+              (input)="setPhone($any($event.target).value)"
+              (keydown.enter)="share()"
+            />
+          </label>
+
+          @if (error(); as message) {
+            <p class="msg error" role="alert">{{ message }}</p>
+          } @else if (hint(); as message) {
+            <p class="msg">{{ message }}</p>
+          } @else {
+            <p class="msg">
+              {{ chosen().join(', ') }} will move to their account at once as their own ticket. This cannot be undone.
+            </p>
+          }
+        </div>
+
+        <div class="co-pay">
+          <button type="button" class="btn btn-block btn-lg" [disabled]="!ready()" (click)="share()">
+            @if (sharing()) {
+              Sharing…
+            } @else if (chosen().length > 0) {
+              Share {{ chosen().length }} seat{{ chosen().length === 1 ? '' : 's' }}
+            } @else {
+              Share seats
+            }
+          </button>
+          <p class="co-hint">They need a ThiraiHub account with this number. The price paid for the seats goes with them.</p>
+        </div>
+      </section>
+    </div>
+  }
+</div>

@@ -48,6 +48,9 @@
             @if (current.fromResale) {
               <span class="ss-tag" data-tone="info">Resale ticket</span>
             }
+            @if (current.sharedBy) {
+              <span class="ss-tag" data-tone="info">Shared by {{ current.sharedBy }}</span>
+            }
           </div>
           <div ssChips class="ss-chips" [attr.aria-label]="current.seatNumbers.length + (current.seatNumbers.length === 1 ? ' seat' : ' seats')">
             @for (seat of current.seatNumbers; track seat) {
@@ -94,36 +97,47 @@
       </article>
 
       <aside class="side">
-        <section class="card">
-          <h2>Payment</h2>
-          <div class="kv">
-            <span class="k">Seat price ({{ current.quantity }} ×)</span>
-            <span class="v">{{ current.bookingPrice | inr }}</span>
-          </div>
-          <div class="kv">
-            <span class="k">ThiraiHub service fee</span>
-            <span class="v">{{ current.commissionFee | inr }}</span>
-          </div>
-          <div class="total">
-            <span>Total paid</span>
-            <span>{{ current.totalAmount | inr }}</span>
-          </div>
-          @if (walletUsed() > 0) {
-            <div class="split">
-              <div>
-                <span class="k">From wallet</span>
-                <b>{{ walletUsed() | inr }}</b>
-              </div>
-              <div>
-                <span class="k">By card / UPI</span>
-                <b>{{ cardPaid() | inr }}</b>
-              </div>
+        @if (current.sharedBy) {
+          <section class="card">
+            <h2>Shared with you</h2>
+            <p class="policy">
+              {{ current.sharedBy }} paid for these seats and shared them with you, so there is nothing to pay. You can
+              sell them or share some on, but they cannot be cancelled for a refund.
+            </p>
+            <p class="booked">Received {{ current.bookedAt | timeAgo }}</p>
+          </section>
+        } @else {
+          <section class="card">
+            <h2>Payment</h2>
+            <div class="kv">
+              <span class="k">Seat price ({{ current.quantity }} ×)</span>
+              <span class="v">{{ current.bookingPrice | inr }}</span>
             </div>
-          }
-          <p class="booked">Booked {{ current.bookedAt | timeAgo }}</p>
-        </section>
+            <div class="kv">
+              <span class="k">ThiraiHub service fee</span>
+              <span class="v">{{ current.commissionFee | inr }}</span>
+            </div>
+            <div class="total">
+              <span>Total paid</span>
+              <span>{{ current.totalAmount | inr }}</span>
+            </div>
+            @if (walletUsed() > 0) {
+              <div class="split">
+                <div>
+                  <span class="k">From wallet</span>
+                  <b>{{ walletUsed() | inr }}</b>
+                </div>
+                <div>
+                  <span class="k">By card / UPI</span>
+                  <b>{{ cardPaid() | inr }}</b>
+                </div>
+              </div>
+            }
+            <p class="booked">Booked {{ current.bookedAt | timeAgo }}</p>
+          </section>
+        }
 
-        @if (canSell() || cancellable() || canDelist()) {
+        @if (canSell() || canShare() || cancellable() || canDelist()) {
           <section class="card manage">
             <h2>Manage</h2>
             @if (canDelist()) {
@@ -133,6 +147,11 @@
             @if (canSell()) {
               <a class="btn btn-outline btn-block" [routerLink]="['/sell/new', current.id]">
                 Sell these tickets
+              </a>
+            }
+            @if (canShare()) {
+              <a class="btn btn-outline btn-block" [routerLink]="['/bookings', current.id, 'share']">
+                Share seats
               </a>
             }
             @if (cancellable()) {

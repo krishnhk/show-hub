@@ -106,7 +106,20 @@ export class ConfirmationComponent implements OnInit {
     );
   });
 
-  readonly cancellable = computed(() => this.booking()?.status === 'Completed' && !this.started());
+  /** Seats someone else shared with the owner were not paid for by them, so they cannot be cancelled for a refund. */
+  readonly cancellable = computed(() => this.booking()?.status === 'Completed' && !this.started() && !this.booking()?.sharedBy);
+
+  /** Some seats can go to someone else while at least one stays; seats on resale cannot. */
+  readonly canShare = computed(() => {
+    const current = this.booking();
+    return (
+      !!current &&
+      current.status === 'Completed' &&
+      !this.started() &&
+      current.unlistedSeats.length > 0 &&
+      current.seatNumbers.length >= 2
+    );
+  });
 
   /** What the ticket is right now, which sets its colour, its status chip and what the QR code says. */
   readonly state = computed<'upcoming' | 'listed' | 'past' | 'cancelled'>(() => {
