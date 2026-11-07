@@ -43,8 +43,8 @@ interface FooterLink {
               <a [routerLink]="link.path">{{ link.label }}</a>
             }
           } @else {
-            <a routerLink="/login">Sign in</a>
-            <a routerLink="/login">Create an account</a>
+            <a routerLink="/sign-in">Sign in</a>
+            <a routerLink="/sign-in">Create an account</a>
           }
         </nav>
       </div>
@@ -149,7 +149,7 @@ export class FooterComponent {
   ];
 
   readonly account: FooterLink[] = [
-    { label: 'My tickets', path: '/my-bookings' },
+    { label: 'My bookings', path: '/my-bookings' },
     { label: 'Wallet', path: '/wallet' },
     { label: 'Notifications', path: '/notifications' },
     { label: 'Settings', path: '/settings' },

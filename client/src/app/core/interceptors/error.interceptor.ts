@@ -24,7 +24,7 @@ export const errorInterceptor: HttpInterceptorFn = (req, next) => {
       if (status === 401) {
         auth.logout();
         toast.info('Please sign in to continue.');
-        router.navigate(['/login'], { queryParams: { returnUrl: router.url } });
+        router.navigate(['/sign-in'], { queryParams: { returnUrl: router.url } });
         return throwError(() => error);
       }
 

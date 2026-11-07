@@ -18,7 +18,7 @@ const MAX_SEAT_CHIPS = 5;
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [RouterLink, FilmThumbComponent, ShowDatePipe, ShowTimePipe, InrPipe],
   template: `
-    <a class="tile" [routerLink]="['/resale', ticket().id]">
+    <a class="tile" [routerLink]="['/resale/listings', ticket().id]">
       <span class="head">
         <app-film-thumb [posterUrl]="ticket().showtime.movie.posterUrl" [alt]="ticket().showtime.movie.title" />
 

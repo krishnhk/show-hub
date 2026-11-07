@@ -9,7 +9,7 @@ export const verifiedGuard: CanActivateFn = (route, state) => {
   const router = inject(Router);
 
   if (!auth.isLoggedIn()) {
-    return router.createUrlTree(['/login'], { queryParams: { returnUrl: state.url } });
+    return router.createUrlTree(['/sign-in'], { queryParams: { returnUrl: state.url } });
   }
 
   const user = auth.user();
