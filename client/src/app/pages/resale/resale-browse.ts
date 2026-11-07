@@ -17,6 +17,7 @@ import { EmptyStateComponent } from '../../shared/components/empty-state/empty-s
 import { buildStripDays, DayStripComponent, dayKey } from '../../shared/components/day-strip/day-strip.component';
 import { LoadingSpinnerComponent } from '../../shared/components/loading-spinner/loading-spinner.component';
 import { ResaleCardComponent } from '../../shared/components/resale-card/resale-card.component';
+import { ResaleTabsComponent } from '../../shared/components/resale-tabs/resale-tabs.component';
 
 type FilterKey = 'need' | 'language';
 
@@ -37,7 +38,7 @@ interface Dropdown {
 @Component({
   selector: 'app-resale-browse',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [DayStripComponent, ResaleCardComponent, LoadingSpinnerComponent, EmptyStateComponent],
+  imports: [DayStripComponent, ResaleCardComponent, LoadingSpinnerComponent, EmptyStateComponent, ResaleTabsComponent],
   templateUrl: './resale-browse.html',
   styleUrl: './resale-browse.css',
 })

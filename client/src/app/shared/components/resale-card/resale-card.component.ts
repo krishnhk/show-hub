@@ -30,7 +30,7 @@ const MAX_SEAT_CHIPS = 5;
             }
           </span>
           <span class="when">
-            {{ ticket().showtime.showDateTime | showDate }} · {{ ticket().showtime.showDateTime | showTime }}
+            {{ ticket().showtime.showDateTime | showDate }} | {{ ticket().showtime.showDateTime | showTime }}
           </span>
           <span class="where">{{ ticket().showtime.theater.name }}</span>
           <span class="fmt">{{ ticket().showtime.format }} · {{ ticket().showtime.language }}</span>

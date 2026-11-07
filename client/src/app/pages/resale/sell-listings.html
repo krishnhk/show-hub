@@ -44,7 +44,7 @@
         title="Nothing listed yet"
         message="Pick an upcoming booking to create your first resale listing."
       >
-        <a class="btn btn-sm" routerLink="/sell">Sell tickets</a>
+        <a class="btn btn-sm" routerLink="/resale/sell">Sell tickets</a>
       </app-empty-state>
     } @else if (visible().length === 0) {
       <app-empty-state icon="🔎" title="No listings here" message="Try another filter to see the rest.">
@@ -71,25 +71,17 @@
                 </span>
               </span>
               <span class="l-meta">
-                {{ listing.showtime.theater.name }} · {{ listing.showtime.showDateTime | showDate }},
-                {{ listing.showtime.showDateTime | showTime }}
+                <span class="venue">{{ listing.showtime.theater.name }}</span>
+                <span class="when">· {{ listing.showtime.showDateTime | showDate }} | {{ listing.showtime.showDateTime | showTime }}</span>
               </span>
               <span class="l-seats" [attr.aria-label]="listing.seatNumbers.length + ' seats'">
                 @for (seat of listing.seatNumbers; track seat) {
                   <span class="mini-seat">{{ seat }}</span>
                 }
               </span>
-              <span class="l-note">
-                @if (listing.status === 'Delisted') {
-                  You removed this listing · {{ listing.listedAt | timeAgo }}
-                } @else if (listing.status === 'Expired') {
-                  Show started · back in My bookings
-                } @else {
-                  Listed {{ listing.listedAt | timeAgo }}
-                }
-              </span>
             </div>
 
+            <div class="l-aside">
             <div class="l-price">
               <span class="l-label">{{ listing.status === 'Sold' ? 'Sold for' : listing.status === 'Available' ? 'Listed at' : listing.status === 'Delisted' ? 'Delisted' : 'Unsold' }}</span>
               <strong>{{ listing.resalePrice | inr }}</strong>
@@ -103,9 +95,10 @@
             </div>
 
             <div class="l-action">
-              <a class="btn btn-sm" [routerLink]="['/sell/listings', listing.id]">
+              <a class="btn btn-sm" [routerLink]="['/resale/sell/listings', listing.id]">
                 {{ listing.status === 'Available' ? 'Edit' : 'View' }}
               </a>
+            </div>
             </div>
           </li>
         }

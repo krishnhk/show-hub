@@ -176,7 +176,7 @@ export class SellListingDetailComponent {
   }
 
   back(): void {
-    void this.router.navigate(['/sell/listings']);
+    void this.router.navigate(['/resale/sell/listings']);
   }
 
   setPrice(category: SeatCategory, raw: string): void {

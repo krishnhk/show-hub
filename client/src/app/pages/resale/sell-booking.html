@@ -1,5 +1,5 @@
 <div class="container page">
-  <a class="back-link text-sm" routerLink="/sell">← Ready to sell</a>
+  <a class="back-link text-sm" routerLink="/resale/sell">← Ready to sell</a>
 
   @if (loading()) {
     <app-loading-spinner label="Loading booking…" />
@@ -8,8 +8,8 @@
       <header class="sell-head">
         <h1 class="sell-title">{{ chosen.showtime.movie.title }}</h1>
         <p class="sell-meta">
-          {{ chosen.showtime.theater.name }} · {{ chosen.showtime.showDateTime | showDate }},
-          {{ chosen.showtime.showDateTime | showTime }}
+          <span class="sell-meta-line">{{ chosen.showtime.theater.name }} · {{ chosen.showtime.showDateTime | showDate }} | {{ chosen.showtime.showDateTime | showTime }}</span>
+          <span class="sell-meta-line">{{ chosen.showtime.format }} · {{ chosen.showtime.language }}</span>
         </p>
       </header>
 
@@ -184,7 +184,7 @@
     </section>
   } @else {
     <app-empty-state icon="🎫" title="Can't sell this booking" [message]="unavailable() ?? ''">
-      <a class="btn btn-sm" routerLink="/sell">Back to Ready to sell</a>
+      <a class="btn btn-sm" routerLink="/resale/sell">Back to Ready to sell</a>
     </app-empty-state>
   }
 </div>

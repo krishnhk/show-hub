@@ -27,7 +27,6 @@ import { LogoMarkComponent } from '../logo-mark/logo-mark.component';
           @if (auth.isLoggedIn()) {
             <a routerLink="/my-bookings" routerLinkActive="active" (click)="closeAll()">My Bookings</a>
           }
-          <a routerLink="/sell" routerLinkActive="active" (click)="closeAll()">Sell Tickets</a>
         </nav>
 
         <div class="actions">
@@ -316,7 +315,7 @@ export class NavbarComponent {
   /** True on the home page and the four main tabs themselves, not on pages opened from them. */
   readonly isTopLevel = computed(() => {
     const path = this.url().split(/[?#]/)[0].replace(/\/+$/, '') || '/';
-    return ['/', '/movies', '/resale', '/my-bookings', '/my-bookings/theatres', '/sell', '/sell/listings'].includes(path);
+    return ['/', '/movies', '/resale', '/my-bookings', '/my-bookings/theatres', '/resale/sell', '/resale/sell/listings'].includes(path);
   });
 
   constructor() {

@@ -6,7 +6,7 @@ import { ResaleTicketDetail } from '../../core/models/resale.model';
 import { ListingFilter, MyListingsStore } from '../../core/services/my-listings.store';
 import { EmptyStateComponent } from '../../shared/components/empty-state/empty-state.component';
 import { FilmThumbComponent } from '../../shared/components/film-thumb/film-thumb.component';
-import { ShowDatePipe, ShowTimePipe, TimeAgoPipe } from '../../shared/pipes/date.pipes';
+import { ShowDatePipe, ShowTimePipe } from '../../shared/pipes/date.pipes';
 import { InrPipe } from '../../shared/pipes/inr.pipe';
 
 /**
@@ -16,7 +16,7 @@ import { InrPipe } from '../../shared/pipes/inr.pipe';
 @Component({
   selector: 'app-sell-listings',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [RouterLink, EmptyStateComponent, FilmThumbComponent, ShowDatePipe, ShowTimePipe, TimeAgoPipe, InrPipe],
+  imports: [RouterLink, EmptyStateComponent, FilmThumbComponent, ShowDatePipe, ShowTimePipe, InrPipe],
   templateUrl: './sell-listings.html',
   styleUrl: './sell-listings.css',
 })

@@ -173,6 +173,25 @@
   --font-display: 'Fredoka', 'DM Sans', system-ui, sans-serif;
 }
 
+/* List rows (sell, bookings, listings) share one size: the same poster, padding and minimum height on every screen */
+:root {
+  --row-pad: 12px 14px;
+  --row-gap: 14px;
+  --row-min-h: 96px;
+  --row-poster-w: 52px;
+  --row-poster-h: 76px;
+}
+
+@media (max-width: 560px) {
+  :root {
+    --row-pad: 10px 12px;
+    --row-gap: 12px;
+    --row-min-h: 100px;
+    --row-poster-w: 46px;
+    --row-poster-h: 66px;
+  }
+}
+
 * {
   box-sizing: border-box;
   /* Scrollbars stay hidden everywhere in the app; pages and panels still scroll by wheel, trackpad and touch */

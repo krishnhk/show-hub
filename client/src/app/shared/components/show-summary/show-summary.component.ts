@@ -31,7 +31,7 @@ import { FilmThumbComponent } from '../film-thumb/film-thumb.component';
             <h1>{{ title() }}</h1>
             <ng-content select="[ssTags]" />
           </div>
-          <p class="ss-when">{{ dateTime() | showDate }} · {{ dateTime() | showTime }}</p>
+          <p class="ss-when">{{ dateTime() | showDate }} | {{ dateTime() | showTime }}</p>
           <p class="ss-venue">{{ theatre() }}</p>
           <p class="ss-meta">{{ format() }} · {{ language() }}</p>
         </div>

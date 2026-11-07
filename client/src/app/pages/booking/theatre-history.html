@@ -160,7 +160,7 @@
         <span class="tag up">Upcoming</span>
       }
     </div>
-    <div class="when">{{ visit.showDateTime | showDate }} · {{ visit.showDateTime | showTime }}</div>
+    <div class="when">{{ visit.showDateTime | showDate }} | {{ visit.showDateTime | showTime }}</div>
     <div class="fm-bot">
       <div class="with">
         @for (id of visit.seats; track id) {

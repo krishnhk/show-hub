@@ -145,7 +145,7 @@ export class FooterComponent {
   readonly explore: FooterLink[] = [
     { label: 'Movies', path: '/movies' },
     { label: 'Resale marketplace', path: '/resale' },
-    { label: 'Sell tickets', path: '/sell' },
+    { label: 'Sell tickets', path: '/resale/sell' },
   ];
 
   readonly account: FooterLink[] = [

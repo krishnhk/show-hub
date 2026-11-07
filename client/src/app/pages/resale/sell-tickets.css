@@ -17,11 +17,14 @@
 
 .booking-option {
   display: grid;
-  grid-template-columns: 60px minmax(0, 1fr) auto;
+  grid-template-columns: var(--row-poster-w) minmax(0, 1fr) auto;
   align-items: center;
-  gap: 16px;
+  gap: var(--row-gap);
   width: 100%;
-  padding: 14px 16px;
+  min-height: var(--row-min-h);
+  padding: var(--row-pad);
+  --thumb-w: var(--row-poster-w);
+  --thumb-h: var(--row-poster-h);
   text-align: left;
   border-radius: var(--radius);
   border: 1.5px solid var(--border-soft);
@@ -58,13 +61,26 @@
   line-height: 1.2;
 }
 
+/* The venue shortens if it must; the date and time always show in full */
 .option-meta {
+  display: flex;
   max-width: 100%;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  min-width: 0;
   white-space: nowrap;
   font-size: 0.82rem;
   color: var(--text-muted);
+}
+
+.option-meta .venue {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.option-meta .meta-when {
+  flex: none;
+  white-space: nowrap;
 }
 
 .option-seats {
@@ -145,18 +161,16 @@
 
 @media (max-width: 560px) {
   .booking-option {
-    grid-template-columns: 44px minmax(0, 1fr) auto;
-    gap: 10px;
-    padding: 8px 10px;
-    --thumb-w: 44px;
-    --thumb-h: 64px;
+    grid-template-columns: var(--row-poster-w) minmax(0, 1fr) auto;
+    gap: var(--row-gap);
+    padding: var(--row-pad);
   }
 
   .option-copy { gap: 2px; }
   .option-head { flex-wrap: wrap; gap: 2px 8px; }
   .option-title { white-space: normal; font-size: 0.95rem; }
   .when { padding: 1px 7px; font-size: 0.66rem; }
-  .option-meta { font-size: 0.74rem; white-space: normal; }
+  .option-meta { font-size: 0.74rem; }
   .option-seats { gap: 4px; margin-top: 2px; }
   .mini-seat { padding: 1px 7px; font-size: 0.7rem; }
 

@@ -39,6 +39,11 @@
   color: var(--text-soft);
 }
 
+/* Theatre, date and time on one line; format and language on the next */
+.sell-meta-line {
+  display: block;
+}
+
 .sell-body {
   display: grid;
   grid-template-columns: minmax(0, 1fr);

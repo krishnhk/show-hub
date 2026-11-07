@@ -292,7 +292,7 @@ export class SellBookingComponent implements OnInit {
           this.submitting.set(false);
           this.toast.success('Your seats are live on the resale market.');
           this.store.refresh();
-          void this.router.navigate(['/sell/listings']);
+          void this.router.navigate(['/resale/sell/listings']);
         },
         error: () => {
           this.submitting.set(false);

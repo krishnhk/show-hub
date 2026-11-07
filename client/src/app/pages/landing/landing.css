@@ -295,6 +295,29 @@
   }
 }
 
+/* Phone: a compact card, so the next show takes a corner of the screen rather than a block of it */
+@media (max-width: 560px) {
+  .dock {
+    right: 12px;
+    bottom: max(12px, env(safe-area-inset-bottom, 0px));
+    width: min(260px, calc(100vw - 24px));
+  }
+
+  .ticket { border-radius: 14px; }
+
+  .ticket-head { padding: 8px 8px 0 12px; }
+  .ticket-badge { font-size: 0.58rem; padding: 3px 8px; }
+  .ticket-close { width: 22px; height: 22px; font-size: 0.9rem; }
+
+  .ticket-main { gap: 10px; padding: 6px 12px 8px; }
+  .ticket-poster { width: 38px; height: 54px; border-radius: 6px; }
+  .ticket-title { font-size: 0.92rem; }
+  .ticket-when { font-size: 0.78rem; }
+  .ticket-where { font-size: 0.7rem; }
+
+  .ticket-cta { margin: 0 8px 8px; padding: 7px 12px; border-radius: 10px; font-size: 0.8rem; }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .feature-copy, .ticket { animation: none !important; }
 }

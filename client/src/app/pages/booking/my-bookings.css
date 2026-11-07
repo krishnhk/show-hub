@@ -63,11 +63,12 @@
 .in {
   display: grid;
   grid-template-columns: auto minmax(0, 1fr);
-  gap: 20px;
   align-items: center;
-  padding: 14px 22px;
-  --thumb-w: 76px;
-  --thumb-h: 108px;
+  gap: var(--row-gap);
+  min-height: var(--row-min-h);
+  padding: var(--row-pad);
+  --thumb-w: var(--row-poster-w);
+  --thumb-h: var(--row-poster-h);
 }
 
 .content {
@@ -223,10 +224,8 @@ h3 {
   .in {
     grid-template-columns: auto minmax(0, 1fr);
     gap: 12px;
-    padding: 10px 12px;
+    padding: var(--row-pad);
     align-items: center;
-    --thumb-w: 70px;
-    --thumb-h: 100px;
   }
 
   .content { gap: 4px; }

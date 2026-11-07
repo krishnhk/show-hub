@@ -98,7 +98,7 @@
       <div class="pay">
         @if (isOwner()) {
           <p class="note">This is your listing.</p>
-          <a class="btn btn-block" routerLink="/sell/listings">Manage my listings</a>
+          <a class="btn btn-block" routerLink="/resale/sell/listings">Manage my listings</a>
         } @else if (!isAvailable()) {
           <p class="note">This ticket is no longer available.</p>
           <a class="btn btn-outline btn-block" routerLink="/resale">Find another ticket</a>

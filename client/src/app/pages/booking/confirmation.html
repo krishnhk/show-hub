@@ -58,7 +58,7 @@
             }
           </div>
           @if (elsewhere().length > 0) {
-            <a ssAction class="ss-link" [routerLink]="current.resaleListingId ? ['/sell/listings', current.resaleListingId] : '/sell/listings'">
+            <a ssAction class="ss-link" [routerLink]="current.resaleListingId ? ['/resale/sell/listings', current.resaleListingId] : '/resale/sell/listings'">
               {{ current.resaleListingId ? 'View listing' : 'Your listings' }}
             </a>
           }
@@ -145,7 +145,7 @@
               <p class="policy">Taking the tickets off the market makes the QR code valid again.</p>
             }
             @if (canSell()) {
-              <a class="btn btn-outline btn-block" [routerLink]="['/sell/booking', current.id]">
+              <a class="btn btn-outline btn-block" [routerLink]="['/resale/sell/booking', current.id]">
                 Sell these tickets
               </a>
             }

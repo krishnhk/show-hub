@@ -54,12 +54,20 @@ export const routes: Routes = [
     path: 'my-bookings',
     title: 'My Bookings',
     canActivate: [authGuard],
+    data: {
+      heading: 'My tickets',
+      lede: 'Upcoming and past shows you have booked, with the seats and their status.',
+    },
     loadComponent: () => import('./pages/booking/my-bookings').then((m) => m.MyBookingsComponent),
   },
   {
     path: 'my-bookings/theatres',
     title: 'My theatres',
     canActivate: [authGuard],
+    data: {
+      heading: 'My theatres',
+      lede: 'Every cinema you have booked at, with your visits and the seats you used there.',
+    },
     loadComponent: () => import('./pages/booking/my-theatres').then((m) => m.MyTheatresComponent),
   },
   {
@@ -104,20 +112,21 @@ export const routes: Routes = [
     canActivate: [authGuard],
     loadComponent: () => import('./pages/resale/resale-checkout').then((m) => m.ResaleCheckoutComponent),
   },
+  // Selling lives under the resale section: /resale/sell (Ready to sell) and /resale/sell/listings (Your listings)
   {
-    path: 'sell/booking/:bookingId',
+    path: 'resale/sell/booking/:bookingId',
     title: 'List for resale',
     canActivate: [authGuard],
     loadComponent: () => import('./pages/resale/sell-booking').then((m) => m.SellBookingComponent),
   },
   {
-    path: 'sell/listings/:listingId',
+    path: 'resale/sell/listings/:listingId',
     title: 'Your listing',
     canActivate: [authGuard],
     loadComponent: () => import('./pages/resale/sell-listing-detail').then((m) => m.SellListingDetailComponent),
   },
   {
-    path: 'sell',
+    path: 'resale/sell',
     canActivate: [authGuard],
     loadComponent: () => import('./pages/resale/sell').then((m) => m.SellComponent),
     children: [
@@ -125,11 +134,19 @@ export const routes: Routes = [
         path: '',
         pathMatch: 'full',
         title: 'Ready to sell',
+        data: {
+          heading: 'Ready to sell',
+          lede: 'Life happens. List seats you cannot use and recover up to 95% of the price — ThiraiHub keeps a 5% seller fee.',
+        },
         loadComponent: () => import('./pages/resale/sell-tickets').then((m) => m.SellTicketsComponent),
       },
       {
         path: 'listings',
         title: 'Your listings',
+        data: {
+          heading: 'Your listings',
+          lede: 'Edit, view or take down the seats you have listed for resale.',
+        },
         loadComponent: () => import('./pages/resale/sell-listings').then((m) => m.SellListingsComponent),
       },
     ],
@@ -170,8 +187,12 @@ export const routes: Routes = [
 
   // ------------------------------------------------- old URLs still work
   { path: 'login', pathMatch: 'full', redirectTo: moveTo(() => ['/sign-in']) },
-  { path: 'sell/new', pathMatch: 'full', redirectTo: moveTo(() => ['/sell']) },
-  { path: 'sell/new/:bookingId', redirectTo: moveTo((p) => ['/sell/booking', p['bookingId']]) },
+  { path: 'sell', pathMatch: 'full', redirectTo: moveTo(() => ['/resale/sell']) },
+  { path: 'sell/listings', pathMatch: 'full', redirectTo: moveTo(() => ['/resale/sell/listings']) },
+  { path: 'sell/listings/:listingId', redirectTo: moveTo((p) => ['/resale/sell/listings', p['listingId']]) },
+  { path: 'sell/booking/:bookingId', redirectTo: moveTo((p) => ['/resale/sell/booking', p['bookingId']]) },
+  { path: 'sell/new', pathMatch: 'full', redirectTo: moveTo(() => ['/resale/sell']) },
+  { path: 'sell/new/:bookingId', redirectTo: moveTo((p) => ['/resale/sell/booking', p['bookingId']]) },
   { path: 'bookings/:bookingId/confirmation', redirectTo: moveTo((p) => ['/my-bookings', p['bookingId']]) },
   { path: 'bookings/:bookingId/share', redirectTo: moveTo((p) => ['/my-bookings', p['bookingId'], 'share']) },
   { path: 'resale/orders', pathMatch: 'full', redirectTo: moveTo(() => ['/resale/history']) },

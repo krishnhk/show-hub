@@ -31,8 +31,8 @@
                     <span class="when" [class.soon]="isSoon(booking)">{{ startsIn(booking) }}</span>
                   </span>
                   <span class="option-meta">
-                    {{ booking.showtime.theater.name }} · {{ booking.showtime.showDateTime | showDate }},
-                    {{ booking.showtime.showDateTime | showTime }}
+                    <span class="venue">{{ booking.showtime.theater.name }}</span>
+                    <span class="meta-when">· {{ booking.showtime.showDateTime | showDate }} | {{ booking.showtime.showDateTime | showTime }}</span>
                   </span>
                   <span class="option-seats" [attr.aria-label]="booking.unlistedSeats.length + ' seats'">
                     @for (seat of booking.unlistedSeats; track seat) {

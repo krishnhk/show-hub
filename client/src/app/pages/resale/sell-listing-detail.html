@@ -1,5 +1,5 @@
 <div class="container page">
-  <a class="back-link text-sm" routerLink="/sell/listings">← Your listings</a>
+  <a class="back-link text-sm" routerLink="/resale/sell/listings">← Your listings</a>
 
   @if (store.loading() && !ticket()) {
     <app-loading-spinner label="Loading listing…" />
@@ -157,12 +157,12 @@
             <ol class="timeline">
               <li>
                 <span class="k">Listed at</span>
-                <span class="v">{{ sold.listedAt | showDate }}, {{ sold.listedAt | showTime }}</span>
+                <span class="v">{{ sold.listedAt | showDate }} | {{ sold.listedAt | showTime }}</span>
               </li>
               @if (sold.status === 'Sold') {
                 <li>
                   <span class="k">Sold on</span>
-                  <span class="v">@if (sold.soldAt) { {{ sold.soldAt | showDate }}, {{ sold.soldAt | showTime }} }</span>
+                  <span class="v">@if (sold.soldAt) { {{ sold.soldAt | showDate }} | {{ sold.soldAt | showTime }} }</span>
                 </li>
               } @else {
                 <li>
@@ -177,7 +177,7 @@
     </div>
   } @else {
     <app-empty-state icon="🏷️" title="Listing not found" message="It may have been removed.">
-      <a class="btn btn-sm" routerLink="/sell/listings">Your listings</a>
+      <a class="btn btn-sm" routerLink="/resale/sell/listings">Your listings</a>
     </app-empty-state>
   }
 
