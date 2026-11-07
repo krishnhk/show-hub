@@ -1,85 +1,121 @@
-<div class="container page">
-  <header class="page-head">
-    <div>
-      <h1>Search</h1>
-      <p class="subtitle">Movies and theatres in {{ location.city() }}</p>
-    </div>
+<div class="container page search-page">
+  <header class="search-head">
+    <p class="eyebrow">{{ location.city() }}</p>
+    <h1>Find a film or a theatre</h1>
   </header>
 
-  <section class="panel search-bar">
-    <div class="field">
-      <label for="site-search">Search movies or theatres</label>
-      <div class="search-input">
-        <input
-          id="site-search"
-          class="input"
-          type="search"
-          [formControl]="queryControl"
-          placeholder="Movie, genre, language or theatre"
-          autocomplete="off"
-        />
-        @if (queryControl.value) {
-          <button type="button" class="btn btn-ghost btn-sm" (click)="clear()">Clear</button>
-        }
-      </div>
-    </div>
-  </section>
+  <div class="search-box" role="search">
+    <svg class="search-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+      <circle cx="11" cy="11" r="6.5" />
+      <path d="M16 16l4.5 4.5" />
+    </svg>
+    <input
+      id="site-search"
+      class="search-field"
+      type="search"
+      [formControl]="queryControl"
+      placeholder="Movie, language, genre or theatre"
+      aria-label="Search movies or theatres"
+      autocomplete="off"
+      autofocus
+    />
+    @if (queryControl.value) {
+      <button type="button" class="search-clear" aria-label="Clear search" (click)="clear()">×</button>
+    }
+  </div>
 
   @if (error(); as message) {
     <div class="alert alert-error">{{ message }}</div>
   }
 
   @if (loading()) {
-    <div class="loading-block"><div class="spinner spinner-lg"></div><span>Searching…</span></div>
+    <div class="skeleton-list" aria-label="Searching">
+      @for (row of [1, 2, 3, 4]; track row) {
+        <div class="skeleton-row"></div>
+      }
+    </div>
   } @else if (noResults()) {
     <app-empty-state
       icon="🔎"
       title="Nothing found"
-      [message]="'No movies or theatres in ' + location.city() + ' match that search. Try a different word.'"
+      [message]="'No movies or theatres in ' + location.city() + ' match “' + term() + '”. Try a language, a genre or a shorter word.'"
     >
       <button type="button" class="btn btn-outline btn-sm" (click)="clear()">Clear search</button>
     </app-empty-state>
   } @else {
-    @if (theaters().length > 0) {
-      <section class="results">
-        <div class="section-title">
-          <h2>{{ searching() ? 'Theatres' : 'Theatres in ' + location.city() }}</h2>
-          <span class="text-sm text-muted">{{ theaters().length }}</span>
+    @if (searching()) {
+    <div class="results-bar">
+      <p class="results-summary">
+        <strong>{{ total() }}</strong> {{ total() === 1 ? 'result' : 'results' }} for “{{ term() }}”
+      </p>
+      @if (searching() && movies().length > 0 && theaters().length > 0) {
+        <div class="scope" role="tablist" aria-label="Show results">
+          <button type="button" role="tab" class="scope-tab" [attr.aria-selected]="scope() === 'all'" [class.on]="scope() === 'all'" (click)="scope.set('all')">
+            All <span>{{ total() }}</span>
+          </button>
+          <button type="button" role="tab" class="scope-tab" [attr.aria-selected]="scope() === 'movies'" [class.on]="scope() === 'movies'" (click)="scope.set('movies')">
+            Movies <span>{{ movies().length }}</span>
+          </button>
+          <button type="button" role="tab" class="scope-tab" [attr.aria-selected]="scope() === 'theaters'" [class.on]="scope() === 'theaters'" (click)="scope.set('theaters')">
+            Theatres <span>{{ theaters().length }}</span>
+          </button>
         </div>
-        <div class="grid grid-auto-lg">
-          @for (theater of theaters(); track theater.id) {
-            <article class="card theatre">
-              <div>
-                <h3>{{ theater.name }}</h3>
-                <p class="text-xs text-muted selectable">{{ theater.address }}</p>
-              </div>
-              @if (theater.movies.length > 0) {
-                <div class="stack-sm">
-                  <span class="label">Now showing</span>
-                  <div class="chip-row">
-                    @for (movie of theater.movies; track movie.id) {
-                      <a class="chip" [routerLink]="['/movies', movie.id]">{{ movie.title }}</a>
-                    }
-                  </div>
-                </div>
-              } @else {
-                <p class="text-xs text-muted">No shows listed right now.</p>
-              }
-            </article>
-          }
-        </div>
-      </section>
+      }
+    </div>
     }
 
-    @if (movies().length > 0) {
+    @if (showMovies() && movies().length > 0) {
       <section class="results">
         <div class="section-title">
           <h2>{{ searching() ? 'Movies' : 'Now showing' }}</h2>
-          <span class="text-sm text-muted">{{ movies().length }}</span>
         </div>
-        <div class="grid grid-auto">
+        <ul class="movie-list">
           @for (movie of movies(); track movie.id) {
-            <app-movie-card [movie]="movie" [price]="null" />
+            <li>
+              <a class="movie-row" [routerLink]="['/movies', movie.id]">
+                <span class="thumb">
+                  @if (movie.posterUrl) {
+                    <img [src]="movie.posterUrl" alt="" loading="lazy" />
+                  }
+                </span>
+                <span class="row-main">
+                  <strong class="row-title">{{ movie.title }}</strong>
+                  <span class="row-meta">{{ languagesOf(movie).join(', ') }} · {{ movie.genre }}</span>
+                  <span class="row-meta">{{ movie.durationMinutes }} min · {{ movie.certificate }}</span>
+                </span>
+                <span class="rating" [attr.aria-label]="'Rated ' + movie.tmdbRating.toFixed(1)">★ {{ movie.tmdbRating.toFixed(1) }}</span>
+              </a>
+            </li>
+          }
+        </ul>
+      </section>
+    }
+
+    @if (showTheaters() && theaters().length > 0) {
+      <section class="results">
+        <div class="section-title">
+          <h2>{{ searching() ? 'Theatres' : 'Theatres in ' + location.city() }}</h2>
+        </div>
+        <div class="theatre-grid">
+          @for (theater of theaters(); track theater.id) {
+            <article class="theatre-card">
+              <div class="theatre-top">
+                <h3>{{ theater.name }}</h3>
+                <p class="theatre-address selectable">{{ theater.address }}</p>
+              </div>
+              @if (theater.movies.length > 0) {
+                <div class="theatre-films">
+                  @for (movie of theater.movies.slice(0, 4); track movie.id) {
+                    <a class="film-chip" [routerLink]="['/movies', movie.id]">{{ movie.title }}</a>
+                  }
+                  @if (theater.movies.length > 4) {
+                    <span class="film-more">+{{ theater.movies.length - 4 }} more</span>
+                  }
+                </div>
+              } @else {
+                <p class="theatre-empty">No shows listed right now.</p>
+              }
+            </article>
           }
         </div>
       </section>

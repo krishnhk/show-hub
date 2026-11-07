@@ -1,35 +1,366 @@
+/* Search: one large field, quick words to try, then results that scan as lists */
+
 :host {
   display: block;
 }
 
-.search-bar {
-  margin-bottom: 8px;
+.search-page {
+  padding-top: 28px;
 }
 
-.search-input {
+.search-head {
+  margin-bottom: 18px;
+}
+
+.eyebrow {
+  margin: 0 0 4px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+
+.search-head h1 {
+  margin: 0;
+  font-size: clamp(1.8rem, 4vw, 2.5rem);
+}
+
+/* The field is the page: tall, soft, and it lifts when focused */
+.search-box {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 12px;
+  height: 60px;
+  padding: 0 14px 0 18px;
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  background: var(--bg-elevated, #fff);
+  box-shadow: 0 10px 30px color-mix(in srgb, var(--text) 8%, transparent);
+  transition: border-color 140ms ease, box-shadow 140ms ease;
 }
 
-.search-input .input {
+.search-box:focus-within {
+  border-color: var(--brand);
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--brand) 18%, transparent), 0 10px 30px color-mix(in srgb, var(--text) 8%, transparent);
+}
+
+.search-icon {
+  flex: none;
+  width: 22px;
+  height: 22px;
+  fill: none;
+  stroke: var(--text-muted);
+  stroke-width: 2;
+  stroke-linecap: round;
+}
+
+.search-field {
   flex: 1;
+  min-width: 0;
+  height: 100%;
+  border: 0;
+  outline: none;
+  background: transparent;
+  color: var(--text);
+  font: inherit;
+  font-size: 1.1rem;
+}
+
+.search-field::placeholder {
+  color: var(--text-muted);
+}
+
+/* The field draws its own clear button */
+.search-field::-webkit-search-cancel-button {
+  -webkit-appearance: none;
+  display: none;
+}
+
+.search-clear {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: var(--surface-2, transparent);
+  color: var(--text-soft);
+  font-size: 1.1rem;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.search-clear:hover {
+  color: var(--text);
+}
+
+.search-clear:focus-visible,
+.scope-tab:focus-visible,
+.movie-row:focus-visible,
+.film-chip:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+
+/* Summary on the left, the Movies / Theatres switch on the right */
+.results-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 18px;
+  margin-bottom: 4px;
+}
+
+.results-summary {
+  margin: 0;
+  font-size: 0.92rem;
+  color: var(--text-soft);
+}
+
+.results-summary strong {
+  color: var(--text);
+}
+
+.scope {
+  display: inline-flex;
+  gap: 2px;
+  padding: 4px;
+  border-radius: 999px;
+  background: var(--surface-2, transparent);
+}
+
+.scope-tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 14px;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--text-soft);
+  font: inherit;
+  font-size: 0.86rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.scope-tab span {
+  font-size: 0.74rem;
+  color: var(--text-muted);
+}
+
+.scope-tab.on {
+  background: var(--bg-elevated, #fff);
+  color: var(--text);
+  box-shadow: 0 2px 8px color-mix(in srgb, var(--text) 12%, transparent);
 }
 
 .results {
-  margin-top: 8px;
+  margin-top: 18px;
 }
 
-.theatre {
+.results .section-title {
+  margin-bottom: 10px;
+}
+
+.movie-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 380px), 1fr));
+  gap: 10px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.movie-row {
+  display: grid;
+  grid-template-columns: 56px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 14px;
+  padding: 10px 14px 10px 10px;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  background: var(--bg-elevated, #fff);
+  color: var(--text);
+  text-decoration: none;
+  transition: transform 140ms ease, box-shadow 140ms ease, border-color 140ms ease;
+}
+
+.movie-row:hover {
+  text-decoration: none;
+  transform: translateY(-1px);
+  border-color: color-mix(in srgb, var(--brand) 40%, var(--border));
+  box-shadow: 0 10px 24px color-mix(in srgb, var(--text) 10%, transparent);
+}
+
+.thumb {
+  width: 56px;
+  height: 80px;
+  border-radius: 8px;
+  overflow: hidden;
+  background: linear-gradient(135deg, var(--brand), var(--brand-strong));
+}
+
+.thumb img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.row-main {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+}
+
+.row-title {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-family: var(--font-display);
+  font-size: 1.02rem;
+  font-weight: 600;
+}
+
+.row-meta {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+.rating {
+  align-self: start;
+  padding: 4px 8px;
+  border-radius: 999px;
+  background: var(--surface-2, transparent);
+  font-size: 0.8rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.theatre-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 320px), 1fr));
+  gap: 12px;
+}
+
+.theatre-card {
   display: flex;
   flex-direction: column;
   gap: 14px;
+  padding: 16px 18px;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  background: var(--bg-elevated, #fff);
 }
 
-.theatre h3 {
-  margin: 0 0 2px;
-}
-
-.theatre p {
+.theatre-card h3 {
   margin: 0;
+  font-size: 1.05rem;
+}
+
+.theatre-address {
+  margin: 4px 0 0;
+  font-size: 0.84rem;
+  color: var(--text-muted);
+}
+
+.theatre-films {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+}
+
+.film-chip {
+  padding: 4px 10px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  color: var(--text-soft);
+  font-size: 0.8rem;
+  text-decoration: none;
+}
+
+.film-chip:hover {
+  border-color: var(--brand);
+  color: var(--text);
+  text-decoration: none;
+}
+
+.film-more {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+
+.theatre-empty {
+  margin: 0;
+  font-size: 0.84rem;
+  color: var(--text-muted);
+}
+
+/* While searching, rows of soft placeholders keep the layout still */
+.skeleton-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 380px), 1fr));
+  gap: 10px;
+}
+
+.skeleton-row {
+  height: 100px;
+  border-radius: 14px;
+  background: linear-gradient(90deg, var(--surface-2) 25%, var(--surface-3, var(--surface-2)) 50%, var(--surface-2) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.2s linear infinite;
+}
+
+@keyframes shimmer {
+  from { background-position: 200% 0; }
+  to { background-position: -200% 0; }
+}
+
+@media (max-width: 560px) {
+  .search-page {
+    padding-top: 18px;
+  }
+
+  .search-box {
+    height: 54px;
+    border-radius: 16px;
+  }
+
+  .search-field {
+    font-size: 1rem;
+  }
+
+  .scope-tab {
+    padding: 6px 10px;
+  }
+
+  .movie-row {
+    grid-template-columns: 48px minmax(0, 1fr) auto;
+    gap: 12px;
+  }
+
+  .thumb {
+    width: 48px;
+    height: 68px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .skeleton-row,
+  .movie-row {
+    animation: none !important;
+    transition: none !important;
+  }
 }

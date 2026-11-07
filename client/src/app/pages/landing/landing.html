@@ -6,6 +6,7 @@
         aria-label="Featured movie"
         (touchstart)="swipeStart($event)"
         (touchend)="swipeEnd($event)"
+        (wheel)="swipeWheel($event)"
       >
         @for (shown of [movie]; track shown.id) {
         <div class="feature-copy" [class.from-left]="swipeDirection() < 0" [class.from-right]="swipeDirection() >= 0">
@@ -102,62 +103,27 @@
     </section>
   }
 
-  @if (nextShow(); as next) {
-    <div class="dock">
-      @if (dockOpen()) {
-        <div class="slides-panel" role="region" aria-label="Your upcoming shows">
-          <div class="slides" #track (scroll)="onSlides(track)" tabindex="0">
-            @for (show of upcoming(); track show.id; let i = $index) {
-              <a class="stub" [routerLink]="['/bookings', show.id, 'confirmation']">
-                <span class="stub-label">{{ i === 0 ? 'Your next show' : 'Then' }}</span>
-                <strong class="stub-title">{{ show.showtime.movie.title }}</strong>
-                <span class="stub-when">
-                  {{ show.showtime.showDateTime | showDate }} · {{ show.showtime.showDateTime | showTime }}
-                </span>
-                <span class="stub-go">View ticket →</span>
-              </a>
-            }
-          </div>
-
-          @if (upcoming().length > 1) {
-            <div class="slides-nav">
-              <button type="button" class="arr" aria-label="Previous show" [disabled]="slide() === 0" (click)="step(track, -1)">‹</button>
-              <span class="slide-dots" aria-hidden="true">
-                @for (show of upcoming(); track show.id; let i = $index) {
-                  <i [class.on]="i === slide()"></i>
-                }
-              </span>
-              <span class="slide-count">{{ slide() + 1 }} of {{ upcoming().length }}</span>
-              <button type="button" class="arr" aria-label="Next show" [disabled]="slide() === upcoming().length - 1" (click)="step(track, 1)">›</button>
-            </div>
-          }
+  @if (showNextCard(); as next) {
+    <aside class="dock" aria-label="Your next show">
+      <div class="ticket">
+        <div class="ticket-head">
+          <span class="ticket-eyebrow">Next show</span>
+          <button type="button" class="ticket-close" aria-label="Hide next show" (click)="dismissNextShow(next.id)">×</button>
         </div>
-      }
-
-      @if (!dockOpen()) {
-        <button
-          type="button"
-          class="pill"
-          [attr.aria-expanded]="dockOpen()"
-          (click)="toggleDock()"
-        >
-          <span class="pill-badge" aria-hidden="true">
-            <svg viewBox="0 0 24 24" focusable="false">
-              <path d="M5 7h14a1 1 0 0 1 1 1v2.2a1.8 1.8 0 0 0 0 3.6V16a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1v-2.2a1.8 1.8 0 0 0 0-3.6V8a1 1 0 0 1 1-1z" />
-              <path d="M14 8.5v7" stroke-dasharray="1.6 1.6" />
-            </svg>
+        <a class="ticket-main" [routerLink]="['/my-bookings', next.id]">
+          <span class="ticket-poster">
+            @if (next.showtime.movie.posterUrl) {
+              <img [src]="next.showtime.movie.posterUrl" alt="" />
+            }
           </span>
-          <span class="pill-text">
-            <strong>{{ next.showtime.movie.title }}</strong>
-            <span class="pill-when">{{ next.showtime.showDateTime | showDate }} · {{ next.showtime.showDateTime | showTime }}</span>
+          <span class="ticket-copy">
+            <strong class="ticket-title">{{ next.showtime.movie.title }}</strong>
+            <span class="ticket-when">{{ next.showtime.showDateTime | showDate }} · {{ next.showtime.showDateTime | showTime }}</span>
+            <span class="ticket-where">{{ next.showtime.theater.name }} · {{ next.showtime.format }}</span>
           </span>
-          <span class="pill-open" aria-hidden="true">
-            <svg viewBox="0 0 24 24" focusable="false">
-              <path d="M6 15l6-6 6 6" />
-            </svg>
-          </span>
-        </button>
-      }
-    </div>
+        </a>
+        <a class="ticket-cta" [routerLink]="['/my-bookings', next.id]">View ticket →</a>
+      </div>
+    </aside>
   }
 </div>

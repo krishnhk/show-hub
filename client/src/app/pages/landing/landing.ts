@@ -3,7 +3,6 @@ import {
   ChangeDetectionStrategy,
   Component,
   DestroyRef,
-  HostListener,
   computed,
   effect,
   inject,
@@ -30,7 +29,18 @@ import { ShowDatePipe, ShowTimePipe } from '../../shared/pipes/date.pipes';
 const FEATURED_COUNT = 4;
 const MOVIES_SHOWN = 6;
 const SPARE_SHOWN = 4;
-const UPCOMING_SHOWN = 3;
+/** A trackpad swipe counts as one gesture until the wheel has been quiet this long. */
+const WHEEL_GESTURE_GAP_MS = 200;
+const DISMISSED_KEY = 'thiraihub.nextShow.dismissed';
+
+function readDismissedId(): number | null {
+  try {
+    const value = Number(sessionStorage.getItem(DISMISSED_KEY));
+    return value > 0 ? value : null;
+  } catch {
+    return null;
+  }
+}
 
 /**
  * The home page. A signed-in visitor first sees their next show, then one featured film like a
@@ -95,13 +105,15 @@ export class LandingComponent {
       .slice(0, MOVIES_SHOWN);
   });
 
-  /** The signed-in visitor's next few shows that have not started, leaving out seats listed for resale. */
-  readonly upcoming = signal<BookingDetail[]>([]);
-  readonly nextShow = computed(() => this.upcoming()[0] ?? null);
+  /** The signed-in visitor's soonest show that has not started, leaving out seats listed for resale. */
+  readonly nextShow = signal<BookingDetail | null>(null);
 
-  /** Whether the pill has opened into the slides of stubs, and which slide is showing. */
-  readonly dockOpen = signal(false);
-  readonly slide = signal(0);
+  /** The booking whose card the visitor closed this session; a later show gets its own card. */
+  private readonly dismissedId = signal<number | null>(readDismissedId());
+  readonly showNextCard = computed(() => {
+    const next = this.nextShow();
+    return next && next.id !== this.dismissedId() ? next : null;
+  });
 
   private readonly spare = signal<ResaleTicketDetail[]>([]);
 
@@ -143,76 +155,50 @@ export class LandingComponent {
       });
     });
 
-    // The floating pill sits over the bottom of the page, so leave room under the footer for it.
+    // The next-show card sits over the bottom corner of the page, so leave room under the footer for it.
     effect(() => {
-      this.document.body.classList.toggle('has-dock', this.nextShow() !== null);
+      this.document.body.classList.toggle('has-dock', this.showNextCard() !== null);
     });
     this.destroyRef.onDestroy(() => this.document.body.classList.remove('has-dock'));
+    this.destroyRef.onDestroy(() => clearTimeout(this.wheelTimer));
 
     effect(() => {
       if (!this.auth.isLoggedIn()) {
-        this.upcoming.set([]);
+        this.nextShow.set(null);
         return;
       }
       this.bookings.getBookings('Completed').subscribe({
         next: (response) => {
           const now = Date.now();
-          const upcoming = response.bookings
+          const soonest = response.bookings
             .filter((booking) => !booking.isListed && new Date(booking.showtime.showDateTime).getTime() > now)
             .sort(
               (a, b) =>
                 new Date(a.showtime.showDateTime).getTime() - new Date(b.showtime.showDateTime).getTime(),
-            );
-          this.upcoming.set(upcoming.slice(0, UPCOMING_SHOWN));
+            )[0];
+          this.nextShow.set(soonest ?? null);
         },
-        error: () => this.upcoming.set([]),
+        error: () => this.nextShow.set(null),
       });
     });
   }
 
-  toggleDock(): void {
-    this.dockOpen.update((open) => !open);
-    this.slide.set(0);
-  }
-
-  /** Closes the slides, and brings the pill back, when the click lands outside the dock. */
-  @HostListener('document:click', ['$event'])
-  closeDockOnOutsideClick(event: MouseEvent): void {
-    const target = event.target as HTMLElement;
-    // The pill leaves the page as it opens, so a click that landed on it is not an outside click.
-    if (this.dockOpen() && target.isConnected && !target.closest('.dock')) {
-      this.dockOpen.set(false);
+  /** Hides the next-show card for the rest of this session. */
+  dismissNextShow(bookingId: number): void {
+    this.dismissedId.set(bookingId);
+    try {
+      sessionStorage.setItem(DISMISSED_KEY, String(bookingId));
+    } catch {
+      // storage can be blocked; the card then comes back on reload
     }
-  }
-
-  @HostListener('document:keydown.escape')
-  closeDock(): void {
-    this.dockOpen.set(false);
-  }
-
-  /** How far one slide is from the next, gap included. */
-  private stride(track: HTMLElement): number {
-    const [first, second] = Array.from(track.children) as HTMLElement[];
-    return first && second ? second.offsetLeft - first.offsetLeft : 0;
-  }
-
-  /** Keeps the dots in step with the slide the visitor has swiped to. */
-  onSlides(track: HTMLElement): void {
-    const stride = this.stride(track);
-    if (stride > 0) {
-      this.slide.set(Math.round(track.scrollLeft / stride));
-    }
-  }
-
-  /** Moves one slide left or right. */
-  step(track: HTMLElement, direction: number): void {
-    track.scrollBy({ left: direction * this.stride(track), behavior: 'smooth' });
   }
 
   /** Which way the featured film last moved, so the next one slides in from the right side. */
   readonly swipeDirection = signal(1);
   private touchStartX = 0;
   private touchStartY = 0;
+  private wheelMoved = false;
+  private wheelTimer?: ReturnType<typeof setTimeout>;
 
   showFeatured(index: number): void {
     this.swipeDirection.set(index >= this.featuredIndex() ? 1 : -1);
@@ -222,6 +208,21 @@ export class LandingComponent {
   swipeStart(event: TouchEvent): void {
     this.touchStartX = event.changedTouches[0].clientX;
     this.touchStartY = event.changedTouches[0].clientY;
+  }
+
+  /**
+   * A two-finger sideways swipe on a trackpad sends horizontal wheel events. One gesture moves the
+   * featured film once; the gesture ends after a short pause with no wheel events (its inertia included).
+   */
+  swipeWheel(event: WheelEvent): void {
+    const horizontal = Math.abs(event.deltaX) > Math.abs(event.deltaY) && Math.abs(event.deltaX) > 4;
+    clearTimeout(this.wheelTimer);
+    this.wheelTimer = setTimeout(() => (this.wheelMoved = false), WHEEL_GESTURE_GAP_MS);
+    if (!horizontal || this.wheelMoved) return;
+
+    this.wheelMoved = true;
+    const next = this.featuredIndex() + (event.deltaX > 0 ? 1 : -1);
+    if (next >= 0 && next < this.featuredPicks().length) this.showFeatured(next);
   }
 
   /** A mostly horizontal swipe moves to the next or previous featured film. */

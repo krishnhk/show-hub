@@ -14,16 +14,15 @@ import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { debounceTime, distinctUntilChanged } from 'rxjs';
 
-import { Movie, TheaterWithMovies } from '../../core/models/catalog.model';
+import { languagesOf, Movie, TheaterWithMovies } from '../../core/models/catalog.model';
 import { CatalogService } from '../../core/services/catalog.service';
 import { LocationService } from '../../core/services/location.service';
 import { EmptyStateComponent } from '../../shared/components/empty-state/empty-state.component';
-import { MovieCardComponent } from '../../shared/components/movie-card/movie-card.component';
 
 @Component({
   selector: 'app-search',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [ReactiveFormsModule, RouterLink, MovieCardComponent, EmptyStateComponent],
+  imports: [ReactiveFormsModule, RouterLink, EmptyStateComponent],
   templateUrl: './search.html',
   styleUrl: './search.css',
 })
@@ -33,6 +32,7 @@ export class SearchComponent implements OnInit {
   private readonly router = inject(Router);
   private readonly destroyRef = inject(DestroyRef);
   readonly location = inject(LocationService);
+  protected readonly languagesOf = languagesOf;
 
   readonly queryControl = new FormControl('', { nonNullable: true });
   readonly term = signal('');
@@ -40,10 +40,21 @@ export class SearchComponent implements OnInit {
   readonly theaters = signal<TheaterWithMovies[]>([]);
   readonly loading = signal(true);
   readonly error = signal<string | null>(null);
+  /** Which kind of result the visitor has chosen to see when both kinds came back. */
+  readonly scope = signal<'all' | 'movies' | 'theaters'>('all');
 
   readonly searching = computed(() => this.term().trim() !== '');
   readonly noResults = computed(
     () => !this.loading() && this.movies().length === 0 && this.theaters().length === 0,
+  );
+  readonly total = computed(() => this.movies().length + this.theaters().length);
+  // Theatres appear only for a search. Without one the page shows what is on, as movies alone.
+  // A tab narrows the results only when both kinds came back; otherwise the one kind is always shown.
+  readonly showMovies = computed(
+    () => !this.searching() || this.scope() !== 'theaters' || this.theaters().length === 0,
+  );
+  readonly showTheaters = computed(
+    () => this.searching() && (this.scope() !== 'movies' || this.movies().length === 0),
   );
 
   private requestId = 0;
@@ -84,6 +95,7 @@ export class SearchComponent implements OnInit {
   clear(): void {
     this.queryControl.setValue('');
   }
+
 
   private load(text: string, city: string): void {
     const id = ++this.requestId;
