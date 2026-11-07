@@ -78,10 +78,10 @@ export class SellTicketsComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    // Old links such as /sell/new?bookingId=7 go straight to that booking's page.
+    // Old links such as /sell?bookingId=7 go straight to that booking's page.
     const bookingId = Number(this.route.snapshot.queryParamMap.get('bookingId'));
     if (Number.isFinite(bookingId) && bookingId > 0) {
-      void this.router.navigate(['/sell/new', bookingId], { replaceUrl: true });
+      void this.router.navigate(['/sell/booking', bookingId], { replaceUrl: true });
       return;
     }
 
@@ -97,7 +97,7 @@ export class SellTicketsComponent implements OnInit {
   /** Opens the booking's selling page. */
   open(booking: BookingDetail): void {
     if (!this.isTooClose(booking)) {
-      void this.router.navigate(['/sell/new', booking.id]);
+      void this.router.navigate(['/sell/booking', booking.id]);
     }
   }
 }

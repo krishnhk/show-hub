@@ -17,9 +17,9 @@
   display: flex;
   flex-direction: column;
   width: 100%;
-  max-width: 880px;
+  max-width: 980px;
   margin-inline: auto;
-  padding: 22px 26px;
+  padding: 26px 32px;
 }
 
 .sell-head {

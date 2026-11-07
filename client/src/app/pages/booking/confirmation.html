@@ -11,7 +11,7 @@
     </app-empty-state>
   } @else if (booking(); as current) {
     <div class="column">
-    <a class="back back-link" routerLink="/my-bookings">← My tickets</a>
+    <a class="back back-link" routerLink="/my-bookings">← My bookings</a>
 
     @if (justBooked()) {
       <div class="banner success" role="status">
@@ -145,12 +145,12 @@
               <p class="policy">Taking the tickets off the market makes the QR code valid again.</p>
             }
             @if (canSell()) {
-              <a class="btn btn-outline btn-block" [routerLink]="['/sell/new', current.id]">
+              <a class="btn btn-outline btn-block" [routerLink]="['/sell/booking', current.id]">
                 Sell these tickets
               </a>
             }
             @if (canShare()) {
-              <a class="btn btn-outline btn-block" [routerLink]="['/bookings', current.id, 'share']">
+              <a class="btn btn-outline btn-block" [routerLink]="['/my-bookings', current.id, 'share']">
                 Share seats
               </a>
             }

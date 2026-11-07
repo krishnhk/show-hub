@@ -33,7 +33,7 @@ export class PublicProfileComponent implements OnInit {
   private readonly reviewsApi = inject(ReviewService);
   private readonly toast = inject(ToastService);
 
-  readonly userId = Number(this.route.snapshot.paramMap.get('id'));
+  readonly userId = Number(this.route.snapshot.paramMap.get('userId'));
 
   readonly profile = signal<PublicProfile | null>(null);
   readonly reviews = signal<Review[]>([]);

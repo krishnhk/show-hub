@@ -10,7 +10,7 @@
         @if (ticket(); as booked) {
           for {{ booked.showtime.movie.title }}
         }
-        and are in My Tickets now.
+        and are in My bookings now.
       </p>
 
       @if (order.walletUsed > 0) {
@@ -35,7 +35,7 @@
   } @else if (ticket(); as current) {
     <div class="co">
       <div>
-        <a class="back-link text-sm" [routerLink]="['/resale', ticketId]">← Back to the ticket</a>
+        <a class="back-link text-sm" [routerLink]="['/resale/listings', ticketId]">← Back to the ticket</a>
         <h1 class="co-title">Checkout</h1>
       </div>
 
@@ -131,7 +131,7 @@
           </button>
 
           <p class="co-hint">
-            The seats go to My Tickets right away and the seller is paid. Resale tickets are final once booked.
+            The seats go to My bookings right away and the seller is paid. Resale tickets are final once booked.
           </p>
         </div>
       </section>

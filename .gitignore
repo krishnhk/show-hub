@@ -54,3 +54,6 @@ Thumbs.db
 
 # Local copies kept before bigger changes (not part of the project)
 backup/
+
+# Personal standards and review checklists (read while working, not part of the project)
+checklist/

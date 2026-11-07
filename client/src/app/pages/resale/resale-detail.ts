@@ -37,7 +37,7 @@ export class ResaleDetailComponent implements OnInit {
   private readonly auth = inject(AuthService);
   private readonly toast = inject(ToastService);
 
-  readonly ticketId = Number(this.route.snapshot.paramMap.get('id'));
+  readonly ticketId = Number(this.route.snapshot.paramMap.get('listingId'));
 
   readonly ticket = signal<ResaleTicketDetail | null>(null);
   readonly loading = signal(true);
@@ -132,7 +132,7 @@ export class ResaleDetailComponent implements OnInit {
 
   buy(): void {
     if (!this.auth.isLoggedIn()) {
-      this.router.navigate(['/login'], { queryParams: { returnUrl: `/resale/${this.ticketId}` } });
+      this.router.navigate(['/sign-in'], { queryParams: { returnUrl: `/resale/listings/${this.ticketId}` } });
       return;
     }
     if (!this.isAvailable() || this.isOwner()) {
@@ -144,7 +144,7 @@ export class ResaleDetailComponent implements OnInit {
       return;
     }
 
-    this.router.navigate(['/resale', this.ticketId, 'checkout'], {
+    this.router.navigate(['/resale/listings', this.ticketId, 'checkout'], {
       queryParams: this.buyingAll() ? {} : { seats: this.chosen().join(',') },
     });
   }

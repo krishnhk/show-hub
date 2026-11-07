@@ -44,7 +44,7 @@ export class SellListingDetailComponent {
   private readonly toast = inject(ToastService);
   readonly store = inject(MyListingsStore);
 
-  private readonly listingId = Number(this.route.snapshot.paramMap.get('id'));
+  private readonly listingId = Number(this.route.snapshot.paramMap.get('listingId'));
 
   /** Price per seat for each category in the listing being edited. */
   readonly editPrices = signal<Partial<Record<SeatCategory, number | null>>>({});
@@ -225,7 +225,7 @@ export class SellListingDetailComponent {
     }
     this.resale.delistTicket(ticket.id).subscribe({
       next: () => {
-        this.toast.success('Listing removed. Your tickets are back in My tickets.');
+        this.toast.success('Listing removed. Your tickets are back in My bookings.');
         this.store.refresh();
         this.back();
       },

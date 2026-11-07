@@ -10,8 +10,8 @@
         {{ done.recipientName }}'s account, as a ticket of their own.
       </p>
       <div class="row-wrap actions">
-        <a class="btn" [routerLink]="['/bookings', bookingId, 'confirmation']">Back to my ticket</a>
-        <a class="btn btn-ghost" routerLink="/my-bookings">My tickets</a>
+        <a class="btn" [routerLink]="['/my-bookings', bookingId]">Back to my ticket</a>
+        <a class="btn btn-ghost" routerLink="/my-bookings">My bookings</a>
       </div>
     </div>
   } @else if (notFound() || !booking()) {
@@ -24,12 +24,12 @@
       title="These seats cannot be shared"
       message="You can share seats of a confirmed booking before the show starts, as long as you keep one seat and the seats are not listed for sale."
     >
-      <a class="btn btn-outline btn-sm" [routerLink]="['/bookings', bookingId, 'confirmation']">Back to my ticket</a>
+      <a class="btn btn-outline btn-sm" [routerLink]="['/my-bookings', bookingId]">Back to my ticket</a>
     </app-empty-state>
   } @else if (booking(); as current) {
     <div class="co">
       <div>
-        <a class="back-link text-sm" [routerLink]="['/bookings', bookingId, 'confirmation']">← Back to my ticket</a>
+        <a class="back-link text-sm" [routerLink]="['/my-bookings', bookingId]">← Back to my ticket</a>
         <h1 class="co-title">Share seats</h1>
       </div>
 

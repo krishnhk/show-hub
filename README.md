@@ -12,7 +12,8 @@ backend to set up. Data resets when the page reloads.
 - **Booking:** pick a film and language, choose a day (only days with shows), choose seats,
   pay from the wallet or a card, and get a ticket with a QR code. Each ticket carries a
   fixed service fee.
-- **My tickets:** active, completed and resale-listed tickets in one place.
+- **My bookings:** active, completed and resale-listed tickets in one place, plus a Theatres tab with the
+  theatres you have been to, a seat map of the seats you used and the films you watched from each.
 - **Resale:** list some or all of a booking, browse spare tickets by day, and buy them.
 - **Sharing:** give some seats of a booking to someone else by their mobile number; the seats
   move to their account at once as a ticket of their own.

@@ -38,7 +38,7 @@ export class ResaleCheckoutComponent implements OnInit {
   private readonly auth = inject(AuthService);
   protected readonly wallet = inject(WalletStore);
 
-  readonly ticketId = Number(this.route.snapshot.paramMap.get('id'));
+  readonly ticketId = Number(this.route.snapshot.paramMap.get('listingId'));
   readonly feePerTicket = BOOKING_COMMISSION_PER_TICKET;
 
   readonly ticket = signal<ResaleTicketDetail | null>(null);
@@ -138,6 +138,6 @@ export class ResaleCheckoutComponent implements OnInit {
 
   ticketsLink(): string[] {
     const id = this.paid()?.bookingId;
-    return id ? ['/bookings', String(id), 'confirmation'] : ['/my-bookings'];
+    return id ? ['/my-bookings', String(id)] : ['/my-bookings'];
   }
 }

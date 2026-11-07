@@ -182,7 +182,7 @@ export class ConfirmationComponent implements OnInit {
 
   readonly copied = signal(false);
 
-  readonly bookingId = Number(this.route.snapshot.paramMap.get('id'));
+  readonly bookingId = Number(this.route.snapshot.paramMap.get('bookingId'));
 
   readonly booking = signal<BookingDetail | null>(null);
   readonly loading = signal(true);

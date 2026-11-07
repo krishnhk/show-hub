@@ -3,13 +3,11 @@ import { RouterLink } from '@angular/router';
 
 import { SELLER_KEEPS } from '../../core/data/resale-rules';
 import { ResaleTicketDetail } from '../../core/models/resale.model';
-import { MyListingsStore } from '../../core/services/my-listings.store';
+import { ListingFilter, MyListingsStore } from '../../core/services/my-listings.store';
 import { EmptyStateComponent } from '../../shared/components/empty-state/empty-state.component';
 import { FilmThumbComponent } from '../../shared/components/film-thumb/film-thumb.component';
 import { ShowDatePipe, ShowTimePipe, TimeAgoPipe } from '../../shared/pipes/date.pipes';
 import { InrPipe } from '../../shared/pipes/inr.pipe';
-
-type ListingFilter = 'active' | 'sold' | 'closed' | 'all';
 
 /**
  * Resale listings the seller has already posted. Each row opens that listing on its own page,
@@ -26,7 +24,7 @@ export class SellListingsComponent {
   readonly store = inject(MyListingsStore);
 
   readonly filterOpen = signal(false);
-  private readonly chosenFilter = signal<ListingFilter | null>(null);
+  private readonly chosenFilter = this.store.chosenFilter;
 
   readonly counts = computed(() => {
     const all = this.store.listings();

@@ -51,7 +51,7 @@ export class MovieDetailComponent {
   private readonly catalog = inject(CatalogService);
   readonly location = inject(LocationService);
 
-  readonly movieId = Number(this.route.snapshot.paramMap.get('id'));
+  readonly movieId = Number(this.route.snapshot.paramMap.get('movieId'));
   /** Language picked on the movie card, when the movie plays in more than one. */
   readonly language = this.route.snapshot.queryParamMap.get('lang');
 

@@ -28,12 +28,13 @@
         }
       </app-show-summary>
 
-      <section class="card">
-        @if (current.status === 'Available') {
-          @let ticket = current;
+      @if (current.status === 'Available') {
+        @let ticket = current;
 
-          <div class="block">
-            <h2 class="label">Price per seat</h2>
+        <section class="co-card edit">
+          <div class="co-total">
+            <div class="price-block">
+            <h2 class="co-label">Price per seat</h2>
             <div class="price-lines">
               @for (group of editGroups(); track group.category) {
                 <div class="price-line">
@@ -62,28 +63,32 @@
                 </div>
               }
             </div>
+            @if (editWarning(); as warning) {
+              <p class="hint field-warning">{{ warning }}</p>
+            }
+            </div>
+
+            <div class="receipt">
+              <div class="receipt-main">
+                <h2 class="co-label next">You get</h2>
+                <span class="co-amount">{{ editReceive() | inr }}</span>
+              </div>
+              <dl class="co-sum">
+                <div>
+                  <dt>Listed at</dt>
+                  <dd>{{ editTotal() | inr }}</dd>
+                </div>
+                <div>
+                  <dt>Seller fee <span class="muted">· {{ feePercent }}%</span></dt>
+                  <dd>−{{ editFee() | inr }}</dd>
+                </div>
+              </dl>
+            </div>
           </div>
 
-          <dl class="receipt">
-            <div>
-              <dt>Listed at</dt>
-              <dd>{{ editTotal() | inr }}</dd>
-            </div>
-            <div>
-              <dt>Seller fee ({{ feePercent }}%)</dt>
-              <dd>−{{ editFee() | inr }}</dd>
-            </div>
-            <div class="total">
-              <dt>You get</dt>
-              <dd>{{ editReceive() | inr }}</dd>
-            </div>
-          </dl>
-          @if (editWarning(); as warning) {
-            <p class="hint field-warning">{{ warning }}</p>
-          }
-
-          <div class="block">
-            <h2 class="label">Buyers can</h2>
+          <div class="co-pay">
+            <div class="buyers">
+            <h2 class="co-label">Buyers can</h2>
             <div class="seg" role="group" aria-label="Buyer option">
               <button
                 type="button"
@@ -107,46 +112,48 @@
                 </span>
               </button>
             </div>
+            </div>
+
+            <div class="buttons">
+              <button type="button" class="btn btn-block btn-lg" [disabled]="!canSave()" (click)="saveEdit()">
+                {{ saving() ? 'Saving…' : 'Save changes' }}
+              </button>
+              <button type="button" class="btn btn-outline btn-block" (click)="back()">Cancel</button>
+              <button type="button" class="link danger" (click)="askDelist(ticket)">Delist</button>
+            </div>
+          </div>
+        </section>
+      } @else {
+        @let sold = current;
+
+        <section class="co-card">
+          <div class="co-total">
+            <div class="receipt">
+              <div class="receipt-main">
+                <h2 class="co-label">Credited to wallet</h2>
+                <span class="co-amount">
+                  @if (sold.status === 'Sold') { {{ sold.sellerReceives | inr }} } @else { None }
+                </span>
+              </div>
+              <dl class="co-sum">
+                <div>
+                  <dt>Bought price</dt>
+                  <dd>{{ sold.originalPrice | inr }}</dd>
+                </div>
+                <div>
+                  <dt>{{ sold.status === 'Sold' ? 'Sold price' : 'Listed price' }}</dt>
+                  <dd>{{ sold.resalePrice | inr }}</dd>
+                </div>
+                <div>
+                  <dt>Seller fee @if (sold.status === 'Sold') { <span class="muted">· {{ feePercent }}%</span> }</dt>
+                  <dd>@if (sold.status === 'Sold') { −{{ sold.sellerCommission | inr }} } @else { None }</dd>
+                </div>
+              </dl>
+            </div>
           </div>
 
-          <div class="actions">
-            <button type="button" class="link danger" (click)="askDelist(ticket)">Delist</button>
-            <span class="spacer"></span>
-            <button type="button" class="btn btn-outline" (click)="back()">Cancel</button>
-            <button type="button" class="btn" [disabled]="!canSave()" (click)="saveEdit()">
-              {{ saving() ? 'Saving…' : 'Save changes' }}
-            </button>
-          </div>
-                } @else {
-          @let sold = current;
-
-          <div class="block">
-            <h2 class="label">Summary</h2>
-            <dl class="receipt">
-              <div>
-                <dt>Bought price</dt>
-                <dd>{{ sold.originalPrice | inr }}</dd>
-              </div>
-              <div>
-                <dt>{{ sold.status === 'Sold' ? 'Sold price' : 'Listed price' }}</dt>
-                <dd>{{ sold.resalePrice | inr }}</dd>
-              </div>
-              <div>
-                <dt>Seller fee</dt>
-                <dd>@if (sold.status === 'Sold') { −{{ sold.sellerCommission | inr }} } @else { None }</dd>
-              </div>
-              <div class="total">
-                <dt>Credited to wallet</dt>
-                <dd>@if (sold.status === 'Sold') { {{ sold.sellerReceives | inr }} } @else { None }</dd>
-              </div>
-            </dl>
-            @if (sold.status === 'Sold') {
-              <p class="hint">Sold price − seller fee ({{ feePercent }}%)</p>
-            }
-          </div>
-
-          <div class="block">
-            <h2 class="label">History</h2>
+          <div class="co-pay">
+            <h2 class="co-label">History</h2>
             <ol class="timeline">
               <li>
                 <span class="k">Listed at</span>
@@ -160,13 +167,13 @@
               } @else {
                 <li>
                   <span class="k">{{ statusLabel(sold.status) }}</span>
-                  <span class="v">{{ sold.status === 'Delisted' ? 'You removed this listing' : 'Show started, tickets returned to My Tickets' }}</span>
+                  <span class="v">{{ sold.status === 'Delisted' ? 'You removed this listing' : 'Show started, tickets returned to My bookings' }}</span>
                 </li>
               }
             </ol>
           </div>
-        }
-      </section>
+        </section>
+      }
     </div>
   } @else {
     <app-empty-state icon="🏷️" title="Listing not found" message="It may have been removed.">
@@ -177,7 +184,7 @@
   @if (delistTarget(); as target) {
     <app-confirm-dialog
       title="Remove this listing?"
-      [message]="'Seats ' + target.seatNumbers.join(', ') + ' for ' + target.showtime.movie.title + ' will leave the marketplace and return to My tickets.'"
+      [message]="'Seats ' + target.seatNumbers.join(', ') + ' for ' + target.showtime.movie.title + ' will leave the marketplace and return to My bookings.'"
       confirmLabel="Remove listing"
       cancelLabel="Keep listed"
       (confirmed)="confirmDelist()"

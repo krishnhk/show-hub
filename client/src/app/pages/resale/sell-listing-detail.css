@@ -13,12 +13,12 @@
   text-decoration: none;
 }
 
-/* The show and its seats on top, then what you can do with the listing */
+/* The show and its seats on top, then one box: the money on the left, what you can do on the right */
 
 .layout {
   display: flex;
   flex-direction: column;
-  max-width: 640px;
+  max-width: 980px;
   margin-inline: auto;
 }
 
@@ -26,34 +26,10 @@ app-show-summary {
   margin-bottom: 18px;
 }
 
-.card {
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
-  padding: 18px 24px;
-  border: 1px solid var(--border-soft);
-  border-radius: var(--radius);
-  background: var(--surface);
-}
-
-.block {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
-.label {
-  margin: 0;
-  font-size: 0.7rem;
-  font-weight: 700;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  color: var(--text-muted);
-}
-
-.hint {
-  font-size: 0.8rem;
-  color: var(--text-muted);
+.next {
+  margin-top: 12px;
+  padding-top: 16px;
+  border-top: 1px solid var(--border-soft);
 }
 
 .field-error {
@@ -61,7 +37,7 @@ app-show-summary {
 }
 
 .field-warning {
-  margin: -8px 0 0;
+  margin: 0;
   color: var(--warning);
 }
 
@@ -143,57 +119,11 @@ app-show-summary {
   margin: 0;
 }
 
-/* The money, as a receipt */
-
-.receipt {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  margin: 0;
-  padding: 10px 14px;
-  border-radius: var(--radius);
-  background: var(--surface-2);
-}
-
-.receipt > div {
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: 12px;
-}
-
-.receipt dt {
-  font-size: 0.9rem;
-  color: var(--text-muted);
-}
-
-.receipt dd {
-  margin: 0;
-  font-weight: 500;
-  font-variant-numeric: tabular-nums;
-}
-
-.receipt .total {
-  margin-top: 2px;
-  padding-top: 8px;
-  border-top: 1px solid var(--border);
-}
-
-.receipt .total dt {
-  font-weight: 600;
-  color: var(--text);
-}
-
-.receipt .total dd {
-  font-size: 1.35rem;
-  font-weight: 700;
-}
-
 /* Buyer option */
 
 .seg {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: 1fr;
   gap: 8px;
 }
 
@@ -222,19 +152,8 @@ app-show-summary {
   cursor: not-allowed;
 }
 
-/* Actions */
-
-.actions {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.spacer {
-  flex: 1;
-}
-
 .link {
+  align-self: center;
   padding: 4px 6px;
   border: 0;
   background: none;
@@ -316,25 +235,156 @@ app-show-summary {
   overflow-wrap: anywhere;
 }
 
+/* The wrappers vanish on a phone, where everything stacks in one column. */
+
+.receipt,
+.receipt-main,
+.price-block,
+.buyers,
+.buttons {
+  display: contents;
+}
+
+@media (min-width: 821px) {
+  /* A closed listing: the amount in a panel, its history opposite */
+  .co-card:not(.edit) {
+    align-items: stretch;
+  }
+
+  .co-card:not(.edit) .co-total {
+    gap: 14px;
+  }
+
+  .co-card:not(.edit) .receipt {
+    flex: 1;
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    align-items: center;
+    padding: 18px 20px;
+    border-radius: var(--radius);
+    background: var(--surface-2);
+  }
+
+  .co-card:not(.edit) .receipt-main {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    padding-right: 28px;
+  }
+
+  .co-card:not(.edit) .receipt .co-sum {
+    margin: 0;
+    padding: 0 0 0 28px;
+    border-top: 0;
+    border-left: 1px solid var(--border);
+  }
+
+  /* An open listing in two compact rows: price and buyer options above, the amount and the buttons below */
+  .co-card.edit {
+    position: relative;
+    grid-template-columns: minmax(0, 1fr) 340px;
+    gap: 24px 32px;
+    align-items: start;
+    padding: 24px;
+  }
+
+  .co-card.edit::before {
+    content: '';
+    position: absolute;
+    top: 24px;
+    bottom: 24px;
+    right: calc(24px + 340px + 16px);
+    border-left: 2px dashed var(--border);
+  }
+
+  .co-card.edit .co-total,
+  .co-card.edit .co-pay {
+    display: contents;
+  }
+
+  .co-card.edit .price-block,
+  .co-card.edit .buyers {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .co-card.edit .price-block { grid-column: 1; grid-row: 1; }
+  .co-card.edit .buyers { grid-column: 2; grid-row: 1; }
+
+  .co-card.edit .buyers .seg {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .co-card.edit .buyers .seg button {
+    padding: 9px 11px;
+  }
+
+  .co-card.edit .receipt {
+    grid-column: 1;
+    grid-row: 2;
+    align-self: stretch;
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    align-items: center;
+    padding: 18px 20px;
+    border-radius: var(--radius);
+    background: var(--surface-2);
+  }
+
+  .co-card.edit .receipt-main {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    padding-right: 28px;
+  }
+
+  .co-card.edit .receipt .next {
+    margin: 0;
+    padding: 0;
+    border: 0;
+  }
+
+  .co-card.edit .receipt .co-sum {
+    margin: 0;
+    padding: 0 0 0 28px;
+    border-top: 0;
+    border-left: 1px solid var(--border);
+  }
+
+  .co-card.edit .buttons {
+    grid-column: 2;
+    grid-row: 2;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+
+  .co-card.edit .buttons .btn-lg {
+    grid-column: 1 / -1;
+  }
+
+  .co-card.edit .buttons .link {
+    padding: 10px 12px;
+    border: 1.5px solid color-mix(in srgb, var(--danger) 35%, var(--border));
+    border-radius: var(--radius-sm);
+    text-align: center;
+    text-decoration: none;
+  }
+
+  .co-card.edit .buttons .link:hover {
+    background: var(--danger-soft);
+  }
+
+  .co-card.edit .price-line {
+    grid-template-columns: minmax(0, 1fr) 130px;
+  }
+}
+
 /* Narrow screens */
 
 @media (max-width: 560px) {
-  .actions .btn { flex: 1; }
-  .actions .spacer { display: none; }
-  .actions .link { order: 3; width: 100%; text-align: center; }
-  .actions { flex-wrap: wrap; }
-
-
-  .card {
-    gap: 16px;
-    padding: 16px;
-  }
-
   .price-line {
     grid-template-columns: minmax(0, 1fr) 130px;
-  }
-
-  .seg {
-    grid-template-columns: 1fr;
   }
 }

@@ -1,5 +1,5 @@
 <div class="container page">
-  <a class="back-link text-sm" routerLink="/sell/new">← Sell tickets</a>
+  <a class="back-link text-sm" routerLink="/sell">← Ready to sell</a>
 
   @if (loading()) {
     <app-loading-spinner label="Loading booking…" />
@@ -184,7 +184,7 @@
     </section>
   } @else {
     <app-empty-state icon="🎫" title="Can't sell this booking" [message]="unavailable() ?? ''">
-      <a class="btn btn-sm" routerLink="/sell/new">Back to Sell tickets</a>
+      <a class="btn btn-sm" routerLink="/sell">Back to Ready to sell</a>
     </app-empty-state>
   }
 </div>

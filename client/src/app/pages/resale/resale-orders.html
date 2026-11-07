@@ -1,9 +1,9 @@
 <div class="container page">
   <header class="page-head">
     <div>
-      <h1>Resale orders</h1>
+      <h1>Resale history</h1>
       <p class="subtitle">
-        Your resale purchases and sales. Bought tickets are in My Tickets; sale proceeds go straight to your wallet.
+        Your resale purchases and sales. Bought tickets are in My bookings; sale proceeds go straight to your wallet.
       </p>
     </div>
     <a class="btn btn-outline btn-sm" routerLink="/resale">Browse marketplace</a>
@@ -42,7 +42,7 @@
     >
       <div class="row-wrap" style="justify-content: center">
         <a class="btn btn-sm" routerLink="/resale">Browse resale</a>
-        <a class="btn btn-outline btn-sm" routerLink="/sell/new">Sell a ticket</a>
+        <a class="btn btn-outline btn-sm" routerLink="/sell">Sell a ticket</a>
       </div>
     </app-empty-state>
   } @else {
@@ -88,7 +88,7 @@
               <span class="text-xs text-muted">
                 {{ transaction.role === 'buyer' ? 'Seller' : 'Buyer' }}:
                 @if (transaction.counterpart; as other) {
-                  <a class="link-plain" [routerLink]="['/profile', other.id]">{{ other.fullName }}</a>
+                  <a class="link-plain" [routerLink]="['/member', other.id]">{{ other.fullName }}</a>
                 } @else {
                   —
                 }
@@ -132,13 +132,13 @@
               }
               @if (transaction.counterpart; as other) {
                 @if (transaction.status === 'Completed') {
-                  <a class="btn btn-ghost btn-sm" [routerLink]="['/profile', other.id]">
+                  <a class="btn btn-ghost btn-sm" [routerLink]="['/member', other.id]">
                     Rate {{ transaction.role === 'buyer' ? 'seller' : 'buyer' }}
                   </a>
                 }
               }
               @if (transaction.ticket; as ticket) {
-                <a class="btn btn-ghost btn-sm" [routerLink]="['/resale', ticket.id]">View listing</a>
+                <a class="btn btn-ghost btn-sm" [routerLink]="['/resale/listings', ticket.id]">View listing</a>
               }
             </div>
           </div>

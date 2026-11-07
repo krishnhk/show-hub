@@ -137,7 +137,7 @@ export class CheckoutComponent implements OnInit {
           this.toast.success('Payment successful. Your tickets are confirmed.');
           const walletUsed = response.walletUsed ?? this.walletPortion();
           const amountDue = response.amountDue ?? Math.max(0, response.totalAmount - walletUsed);
-          this.router.navigate(['/bookings', response.bookingId, 'confirmation'], {
+          this.router.navigate(['/my-bookings', response.bookingId], {
             state: { walletUsed, amountDue, justBooked: true },
           });
         },

@@ -23,7 +23,7 @@ export class ShareSeatsComponent implements OnInit {
   private readonly route = inject(ActivatedRoute);
   private readonly bookings = inject(BookingService);
 
-  readonly bookingId = Number(this.route.snapshot.paramMap.get('id'));
+  readonly bookingId = Number(this.route.snapshot.paramMap.get('bookingId'));
 
   readonly booking = signal<BookingDetail | null>(null);
   readonly loading = signal(true);

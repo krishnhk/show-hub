@@ -44,7 +44,7 @@
         title="Nothing listed yet"
         message="Pick an upcoming booking to create your first resale listing."
       >
-        <a class="btn btn-sm" routerLink="/sell/new">Sell tickets</a>
+        <a class="btn btn-sm" routerLink="/sell">Sell tickets</a>
       </app-empty-state>
     } @else if (visible().length === 0) {
       <app-empty-state icon="🔎" title="No listings here" message="Try another filter to see the rest.">
@@ -83,7 +83,7 @@
                 @if (listing.status === 'Delisted') {
                   You removed this listing · {{ listing.listedAt | timeAgo }}
                 } @else if (listing.status === 'Expired') {
-                  Show started · back in My Tickets
+                  Show started · back in My bookings
                 } @else {
                   Listed {{ listing.listedAt | timeAgo }}
                 }
