@@ -836,7 +836,7 @@ export class MockStore {
       type: 'booking',
       title: 'Seats shared',
       body: `${seats.join(', ')} for ${movieTitle} are now in ${name}'s account.`,
-      link: `/bookings/${booking.id}/confirmation`,
+      link: `/my-bookings/${booking.id}`,
     });
 
     return {
@@ -1415,7 +1415,7 @@ export class MockStore {
     this.pushNotification({
       type: 'resale',
       title: 'Your ticket is confirmed',
-      body: `${booking.quantity} ticket${booking.quantity > 1 ? 's' : ''} for ${movieTitle} are in My Tickets.`,
+      body: `${booking.quantity} ticket${booking.quantity > 1 ? 's' : ''} for ${movieTitle} are in My bookings.`,
       link: '/my-bookings',
     });
 

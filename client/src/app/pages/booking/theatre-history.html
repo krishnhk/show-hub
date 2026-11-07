@@ -1,0 +1,170 @@
+<div class="container page">
+  <a class="back back-link" routerLink="/my-bookings/theatres">← Theatres</a>
+
+  @if (loading()) {
+    <app-loading-spinner label="Loading theatre…" />
+  } @else if (error(); as message) {
+    <div class="alert alert-error">{{ message }}</div>
+  } @else if (summary(); as s) {
+    <header class="hall-head">
+      <div>
+        <h1>{{ s.theater.name }}</h1>
+        <div class="sub">{{ area() }}</div>
+      </div>
+      <div class="pills">
+        <span class="tag">{{ s.watched }} {{ s.watched === 1 ? 'visit' : 'visits' }}</span>
+        <span class="tag">{{ s.seatsUsed }} {{ s.seatsUsed === 1 ? 'seat' : 'seats' }} used</span>
+        @if (s.upcoming > 0) {
+          <span class="tag up">{{ s.upcoming }} upcoming</span>
+        }
+      </div>
+    </header>
+
+    <div class="split">
+      <section class="card map" aria-label="Seat map">
+        <div class="screen">{{ seatMaps()[0]?.screenLabel ?? 'Screen' }}</div>
+
+        <div class="hall">
+          @for (item of hallRows(); track item.row.label) {
+            @if (item.header; as header) {
+              <div class="cat">{{ header }}</div>
+            }
+            <div class="srow">
+              <span class="lbl">{{ item.row.label }}</span>
+              @for (seat of item.row.seats; track seat; let index = $index) {
+                <button
+                  type="button"
+                  class="seat"
+                  [class.l1]="level(seat) === 1"
+                  [class.l2]="level(seat) === 2"
+                  [class.l3]="level(seat) === 3"
+                  [class.up]="upcoming(seat)"
+                  [class.sel]="selectedSeat() === seat || filmSeats().has(seat)"
+                  [class.dim]="filmVisit() && !filmSeats().has(seat)"
+                  [attr.aria-label]="seatLabel(seat)"
+                  [attr.aria-pressed]="selectedSeat() === seat"
+                  (click)="pickSeat(seat)"
+                >
+                  {{ index + 1 }}
+                </button>
+              }
+              <span class="lbl">{{ item.row.label }}</span>
+            </div>
+          }
+        </div>
+
+        <div class="legend">
+          <span><i class="a"></i>Once</span>
+          <span><i class="b"></i>Twice</span>
+          <span><i class="c"></i>3 or more</span>
+          <span><i class="u"></i>Upcoming</span>
+          <span><i></i>Not used</span>
+        </div>
+      </section>
+
+      <section class="card panel" aria-label="Films">
+        @if (selectedSeat(); as seat) {
+          <div class="p-head">
+            <div>
+              <h2>Seat {{ seat }}</h2>
+              <div class="p-sub">
+                {{ seatCategory() }} ·
+                @if (seatWatched() > 0) {
+                  {{ seatWatched() }} {{ seatWatched() === 1 ? 'film' : 'films' }} watched here
+                } @else if (seatVisits().length > 0) {
+                  Booked, not watched yet
+                } @else {
+                  Not used yet
+                }
+              </div>
+            </div>
+            <button type="button" class="x" (click)="clear()">Clear</button>
+          </div>
+          @if (seatVisits().length > 0) {
+            <ul class="list">
+              @for (visit of seatVisits(); track visit.bookingId) {
+                <li>
+                  <ng-container *ngTemplateOutlet="filmRow; context: { visit: visit, seat: seat, tap: false }" />
+                </li>
+              }
+            </ul>
+          } @else {
+            <div class="empty">
+              <b>You have not sat in {{ seat }} yet</b>
+              <span>Pick a seat with a mark to see its films.</span>
+            </div>
+          }
+        } @else if (filmVisit(); as visit) {
+          <div class="p-head">
+            <div>
+              <h2>{{ visit.movieTitle }}</h2>
+              <div class="p-sub">{{ visit.showDateTime | showDate }}</div>
+            </div>
+            <button type="button" class="x" (click)="clear()">Show all</button>
+          </div>
+          <ul class="list">
+            <li>
+              <ng-container *ngTemplateOutlet="filmRow; context: { visit: visit, seat: null, tap: false }" />
+            </li>
+          </ul>
+        } @else {
+          <div class="p-head">
+            <h2>Films at {{ s.theater.name }}</h2>
+          </div>
+          <ul class="list">
+            @for (item of items(); track $index) {
+              @if (item.kind === 'month') {
+                <li class="month">{{ item.label }}</li>
+              } @else {
+                <li>
+                  <ng-container *ngTemplateOutlet="filmRow; context: { visit: item.visit, seat: null, tap: true }" />
+                </li>
+              }
+            }
+          </ul>
+        }
+      </section>
+    </div>
+  } @else {
+    <app-empty-state
+      icon="🎭"
+      title="Theatre not found"
+      message="You have no bookings at this theatre."
+    >
+      <a class="btn btn-sm" routerLink="/my-bookings/theatres">Back to your theatres</a>
+    </app-empty-state>
+  }
+</div>
+
+<ng-template #filmRow let-visit="visit" let-seat="seat" let-tap="tap">
+  @if (tap) {
+    <button type="button" class="film" (click)="pickFilm(visit)">
+      <ng-container *ngTemplateOutlet="filmBody; context: { visit: visit, seat: seat, tap: tap }" />
+    </button>
+  } @else {
+    <div class="film">
+      <ng-container *ngTemplateOutlet="filmBody; context: { visit: visit, seat: seat, tap: tap }" />
+    </div>
+  }
+</ng-template>
+
+<ng-template #filmBody let-visit="visit" let-seat="seat">
+  <app-film-thumb [posterUrl]="visit.posterUrl" [alt]="visit.movieTitle" />
+  <div class="fm">
+    <div class="fm-top">
+      <b>{{ visit.movieTitle }}</b>
+      @if (visit.upcoming) {
+        <span class="tag up">Upcoming</span>
+      }
+    </div>
+    <div class="when">{{ visit.showDateTime | showDate }} · {{ visit.showDateTime | showTime }}</div>
+    <div class="fm-bot">
+      <div class="with">
+        @for (id of visit.seats; track id) {
+          <span class="mono" [class.hit]="seat === id">{{ id }}</span>
+        }
+      </div>
+      <span class="fmt">{{ visit.format }} · {{ visit.language }}</span>
+    </div>
+  </div>
+</ng-template>

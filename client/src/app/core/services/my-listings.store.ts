@@ -3,6 +3,8 @@ import { Injectable, inject, signal } from '@angular/core';
 import { ResaleTicketDetail } from '../models/resale.model';
 import { ResaleService } from './resale.service';
 
+export type ListingFilter = 'active' | 'sold' | 'closed' | 'all';
+
 /** The seller's own listings and their totals, shared by every page under /sell. */
 @Injectable({ providedIn: 'root' })
 export class MyListingsStore {
@@ -16,6 +18,9 @@ export class MyListingsStore {
     earnings: 0,
   });
   readonly loading = signal(true);
+
+  /** The filter the seller picked on Your listings, kept here so it survives opening a listing and coming back. */
+  readonly chosenFilter = signal<ListingFilter | null>(null);
 
   refresh(): void {
     this.resale.getMyListings().subscribe({

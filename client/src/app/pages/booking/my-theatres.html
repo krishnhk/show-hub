@@ -1,0 +1,117 @@
+<div class="container page">
+  <app-my-bookings-header />
+
+  @if (error(); as message) {
+    <div class="alert alert-error">{{ message }}</div>
+  }
+
+  @if (loading()) {
+    <app-loading-spinner label="Loading theatres…" />
+  } @else if (!error() && theatres().length === 0) {
+    <app-empty-state
+      icon="🎟️"
+      title="Your theatres will collect here"
+      message="Book a show and the theatre, your seats and the film appear on this tab after you have watched it."
+    >
+      <a class="btn btn-sm" routerLink="/movies">Browse movies</a>
+    </app-empty-state>
+  } @else if (theatres().length > 0) {
+    <div class="bar">
+      <div class="search">
+        <svg class="search-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+          <circle cx="11" cy="11" r="7" />
+          <path d="M20 20l-3.5-3.5" />
+        </svg>
+        <input
+          class="input search-input"
+          type="search"
+          autocomplete="off"
+          placeholder="Search theatres"
+          aria-label="Search your theatres by name or area"
+          [value]="query()"
+          (input)="query.set($any($event.target).value)"
+        />
+        @if (query()) {
+          <button type="button" class="clear" aria-label="Clear search" (click)="clearSearch()">✕</button>
+        }
+      </div>
+
+      <div class="filter">
+        <button
+          type="button"
+          class="btn btn-outline sort-btn"
+          aria-haspopup="listbox"
+          [attr.aria-expanded]="menuOpen()"
+          (click)="toggleMenu()"
+        >
+          <span class="k">Sort by</span>
+          <span class="v">{{ sortLabel() }}</span>
+          <svg class="caret" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+            <path d="M6 9l6 6 6-6" />
+          </svg>
+        </button>
+
+        @if (menuOpen()) {
+          <div class="menu" role="listbox" aria-label="Sort theatres">
+            @for (o of sorts; track o.id) {
+              <button
+                type="button"
+                role="option"
+                class="menu-item"
+                [class.on]="sort() === o.id"
+                [attr.aria-selected]="sort() === o.id"
+                (click)="pick(o.id)"
+              >
+                {{ o.label }}
+              </button>
+            }
+          </div>
+        }
+      </div>
+    </div>
+
+    @if (visible().length === 0) {
+      <app-empty-state
+        icon="🔍"
+        [title]="'No theatre matches “' + query().trim() + '”'"
+        message="Try the theatre name or the area."
+      >
+        <button type="button" class="btn btn-outline btn-sm" (click)="clearSearch()">Clear search</button>
+      </app-empty-state>
+    } @else {
+      <div class="grid">
+        @for (s of visible(); track s.theater.id) {
+          <a class="th" [routerLink]="['/my-bookings/theatres', s.theater.id]">
+            <div class="th-body">
+              <app-theatre-logo [name]="s.theater.name" [id]="s.theater.id" />
+              <div class="th-main">
+                <h3>{{ s.theater.name }}</h3>
+                <div class="area">{{ area(s.theater) }}</div>
+              </div>
+              <div class="stat" [class.none]="s.watched === 0">
+                <b>{{ s.watched }}</b>
+                <span>{{ s.watched === 1 ? 'visit' : 'visits' }}</span>
+              </div>
+            </div>
+
+            <div class="facts">
+              @if (s.watched > 0) {
+                <span><b>{{ s.seatsUsed }}</b> {{ s.seatsUsed === 1 ? 'seat' : 'seats' }} used</span>
+              } @else {
+                <span class="muted">No seats used yet</span>
+              }
+              @if (s.upcoming > 0) {
+                <span class="tag-up">{{ s.upcoming }} upcoming</span>
+              }
+            </div>
+
+            <div class="last">
+              <span class="film">{{ s.last.upcoming ? 'Next' : 'Last' }}: {{ s.last.movieTitle }}</span>
+              <span class="date">{{ s.last.showDateTime | date: 'd MMM' }}</span>
+            </div>
+          </a>
+        }
+      </div>
+    }
+  }
+</div>

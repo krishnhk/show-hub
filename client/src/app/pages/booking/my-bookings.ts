@@ -5,6 +5,7 @@ import { BookingDetail } from '../../core/models/booking.model';
 import { BookingService } from '../../core/services/booking.service';
 import { EmptyStateComponent } from '../../shared/components/empty-state/empty-state.component';
 import { FilmThumbComponent } from '../../shared/components/film-thumb/film-thumb.component';
+import { MyBookingsHeaderComponent } from '../../shared/components/my-bookings-header/my-bookings-header.component';
 import { LoadingSpinnerComponent } from '../../shared/components/loading-spinner/loading-spinner.component';
 import { ShowDatePipe, ShowTimePipe } from '../../shared/pipes/date.pipes';
 
@@ -19,6 +20,7 @@ type TicketState = 'upcoming' | 'listed' | 'cancelled' | 'past';
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     RouterLink,
+    MyBookingsHeaderComponent,
     FilmThumbComponent,
     LoadingSpinnerComponent,
     EmptyStateComponent,

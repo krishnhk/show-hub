@@ -889,8 +889,9 @@ export function buildBookings(): Booking[] {
 
   // Sixteen more past tickets for the demo user, all for Tamil films whose shows are over.
   PLAIN_PAST_SHOWS.forEach((showtime, index) => {
-    const row = 'ABCDEFGH'[index % 8];
-    const seats = [`${row}${3 + (index % 6)}`, `${row}${4 + (index % 6)}`];
+    // The same pair of seats at a theatre every time, so a regular's favourite seats show on the Theatres tab.
+    const row = 'ABCDEFGH'[showtime.theaterId % 8];
+    const seats = [`${row}5`, `${row}6`];
     const bookingPrice = seats.reduce((total, seat) => total + seatUnitPrice(showtime, seat).price, 0);
     bookings.push({
       id: id++,

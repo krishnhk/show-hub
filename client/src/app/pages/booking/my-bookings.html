@@ -1,16 +1,5 @@
 <div class="container page">
-  <header class="page-head">
-    <div>
-      <h1>My tickets</h1>
-      <p class="subtitle">
-        @if (loading()) {
-          Loading your bookings…
-        } @else {
-          {{ activeList().length }} upcoming
-        }
-      </p>
-    </div>
-  </header>
+  <app-my-bookings-header />
 
   @if (error(); as message) {
     <div class="alert alert-error">{{ message }}</div>
@@ -33,7 +22,7 @@
 
     <div class="tickets">
       @for (booking of shown(); track booking.id) {
-        <a class="ticket" [attr.data-state]="state(booking)" [routerLink]="['/bookings', booking.id, 'confirmation']">
+        <a class="ticket" [attr.data-state]="state(booking)" [routerLink]="['/my-bookings', booking.id]">
           <div class="in">
             <app-film-thumb [posterUrl]="booking.showtime.movie.posterUrl" [alt]="booking.showtime.movie.title" />
 
