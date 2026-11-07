@@ -4,6 +4,9 @@
     <div class="sell-grid">
       <section class="panel">
         <div class="panel-title">Pick a booking to sell</div>
+        <p class="sell-note">
+          Tickets for shows starting in less than {{ cutoffMinutes }} minutes can't be listed for resale, so they are not shown here.
+        </p>
 
         @if (eligibleBookings().length === 0) {
           <app-empty-state

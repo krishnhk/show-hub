@@ -33,6 +33,8 @@ export class SellTicketsComponent implements OnInit {
 
   readonly bookings = signal<BookingDetail[]>([]);
   readonly loading = signal(true);
+  /** How long before a show its tickets can no longer be listed. */
+  readonly cutoffMinutes = LISTING_CUTOFF_MINUTES;
 
   /** Sellable bookings, the show that starts soonest first since its seats lose value fastest. */
   readonly eligibleBookings = computed(() =>
@@ -41,7 +43,8 @@ export class SellTicketsComponent implements OnInit {
         (booking) =>
           booking.status === 'Completed' &&
           booking.unlistedSeats.length > 0 &&
-          new Date(booking.showtime.showDateTime).getTime() > Date.now(),
+          // a show closer than the listing cutoff cannot be put up for resale, so its ticket is not offered here
+          new Date(booking.showtime.showDateTime).getTime() - Date.now() >= LISTING_CUTOFF_MINUTES * 60000,
       )
       .sort(
         (a, b) => new Date(a.showtime.showDateTime).getTime() - new Date(b.showtime.showDateTime).getTime(),

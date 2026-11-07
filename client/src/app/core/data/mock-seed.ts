@@ -415,6 +415,26 @@ function pastShowtime(movieId: number, minutesAgo: number, index: number): Showt
   return showtime;
 }
 
+/** A show that starts `minutesAhead` minutes from now, for a ticket too close to the listing cutoff to resell. */
+function startingShowtime(title: string, minutesAhead: number, index: number): Showtime {
+  const movie = MOVIES.find((item) => item.title === title)!;
+  const theater = THEATERS[index % THEATERS.length];
+  const format = FORMATS[index % FORMATS.length];
+  const showtime: Showtime = {
+    id: nextShowtimeId++,
+    movieId: movie.id,
+    theaterId: theater.id,
+    showDateTime: new Date(Date.now() + minutesAhead * 60_000).toISOString(),
+    language: languageFor(movie, `starting-${title}-${index}`),
+    format,
+    totalSeats: 96,
+    availableSeats: 60 + index,
+    basePrice: basePriceFor(format),
+  };
+  SHOWTIMES.push(showtime);
+  return showtime;
+}
+
 // Behind the unsold listing (started 20 minutes ago), the two sold ones and the delisted one.
 const startedShowtime = pastShowtime(13, 20, 0);
 const SOLD_SHOWS = [pastShowtime(14, 180, 1), pastShowtime(15, 60, 2)];
@@ -821,6 +841,33 @@ export function buildBookings(): Booking[] {
 
   // Demo user: a Premium + Regular ticket for Scene, and a ticket that spans all four categories for
   // Jailer 2. Both are active tickets, for shows at least a day away.
+  // Demo user: tickets for shows starting within the next half hour. They are active, but too close to the
+  // listing cutoff to be put up for resale, so the Ready to sell list leaves them out.
+  const closingTickets = [
+    { show: startingShowtime('Dragon', 10, 0), seats: ['C4', 'C5'] },
+    { show: startingShowtime('Coolie', 20, 1), seats: ['E7'] },
+    { show: startingShowtime('Good Bad Ugly', 25, 2), seats: ['H10', 'H11'] },
+  ];
+  for (const { show, seats } of closingTickets) {
+    const bookingPrice = show.basePrice * seats.length;
+    bookings.push({
+      id: id++,
+      showtimeId: show.id,
+      userId: 1,
+      quantity: seats.length,
+      seatNumbers: seats,
+      bookingPrice,
+      commissionFee: BOOKING_COMMISSION_PER_TICKET * seats.length,
+      totalAmount: bookingPrice + BOOKING_COMMISSION_PER_TICKET * seats.length,
+      paymentId: `pi_mock_${id}`,
+      status: 'Completed',
+      qrCode: `THIRAIHUB:SH-${1000 + id}`,
+      confirmationCode: `SH${1000 + id}`,
+      bookedAt: isoDaysAgo(1),
+      cancelledAt: null,
+    });
+  }
+
   const activeTickets = [
     { show: upcomingShow('Scene'), seats: ['B2', 'D6'] },
     { show: upcomingShowAt('Jailer 2', fourCategoryTheaterId()), seats: ['A3', 'B5', 'F2', 'G9'] },
