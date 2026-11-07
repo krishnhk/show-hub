@@ -12,7 +12,7 @@ import { theatreHue, theatreInitials } from '../../../core/utils/theatre-visits'
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     @if (logoUrl(); as url) {
-      <span class="tile logo" [class.fill]="logoFill()" aria-hidden="true">
+      <span class="tile logo" aria-hidden="true">
         <img [src]="url" alt="" />
       </span>
     } @else {
@@ -57,20 +57,12 @@ import { theatreHue, theatreInitials } from '../../../core/utils/theatre-visits'
       height: 100%;
       object-fit: contain;
     }
-
-    /* a photo or full-bleed mark fills the square edge to edge */
-    .tile.logo.fill {
-      padding: 0;
-      overflow: hidden;
-    }
   `,
 })
 export class TheatreLogoComponent {
   readonly name = input.required<string>();
   readonly id = input.required<number>();
   readonly logoUrl = input<string | null | undefined>(null);
-  /** The logo fills its square instead of sitting on white with padding. */
-  readonly logoFill = input<boolean | null | undefined>(false);
 
   protected readonly initials = computed(() => theatreInitials(this.name()));
   protected readonly hue = computed(() => theatreHue(this.id()));

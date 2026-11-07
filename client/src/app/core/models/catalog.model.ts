@@ -32,8 +32,6 @@ export interface Theater {
   distanceKm?: number;
   /** The theatre's logo image, when one is available; otherwise a tile is drawn from its initials. */
   logoUrl?: string | null;
-  /** True when the logo is a photo or a full-bleed mark that fills its square, rather than a mark on white. */
-  logoFills?: boolean;
 }
 
 export interface Showtime {
