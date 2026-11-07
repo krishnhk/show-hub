@@ -20,6 +20,7 @@ import { LocationService } from '../../core/services/location.service';
 import { EmptyStateComponent } from '../../shared/components/empty-state/empty-state.component';
 import { buildStripDays, DayStripComponent } from '../../shared/components/day-strip/day-strip.component';
 import { LoadingSpinnerComponent } from '../../shared/components/loading-spinner/loading-spinner.component';
+import { TheatreLogoComponent } from '../../shared/components/theatre-logo/theatre-logo.component';
 import { ShowDatePipe, ShowTimePipe } from '../../shared/pipes/date.pipes';
 
 interface TheatreGroup {
@@ -39,6 +40,7 @@ function mergeValues(current: string[], incoming: string[]): string[] {
     DayStripComponent,
     LoadingSpinnerComponent,
     EmptyStateComponent,
+    TheatreLogoComponent,
     ShowDatePipe,
     ShowTimePipe,
   ],

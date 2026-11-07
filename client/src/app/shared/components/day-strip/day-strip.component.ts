@@ -9,8 +9,8 @@ export interface StripDay {
   enabled: boolean;
 }
 
-/** Disabled days shown after the last day that has anything. */
-const TRAILING_DAYS = 7;
+/** How many days the strip shows when the days with shows fit in it. */
+const STRIP_DAYS = 7;
 
 /** A date as local yyyy-mm-dd, so shows and strip days compare by calendar day. */
 export function dayKey(date: Date): string {
@@ -22,6 +22,10 @@ export function dayKey(date: Date): string {
 function fromKey(key: string): Date {
   const [year, month, day] = key.split('-').map(Number);
   return new Date(year, (month ?? 1) - 1, day ?? 1);
+}
+
+function addDays(date: Date, days: number): Date {
+  return new Date(date.getFullYear(), date.getMonth(), date.getDate() + days);
 }
 
 function stripDay(date: Date, today: Date, enabled: boolean): StripDay {
@@ -36,22 +40,41 @@ function stripDay(date: Date, today: Date, enabled: boolean): StripDay {
 }
 
 /**
- * Only the days that have something, starting with the first one even when today and tomorrow are
- * empty, then a week of disabled days after the last. With nothing at all it shows a week of
- * disabled days from today.
+ * The strip has one day per day with something when there are more than seven of them. Otherwise it
+ * has seven days in all: the days with something, the empty days between them, and empty days after
+ * the last one to fill up to seven. With nothing at all it shows seven empty days from today.
  */
 export function buildStripDays(withItems: Set<string>): StripDay[] {
   const now = new Date();
   const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
   const keys = [...withItems].sort();
-  const last = keys.length ? fromKey(keys[keys.length - 1]) : new Date(today.getTime() - 86_400_000);
 
-  return [
-    ...keys.map((key) => stripDay(fromKey(key), today, true)),
-    ...Array.from({ length: TRAILING_DAYS }, (_, offset) =>
-      stripDay(new Date(last.getFullYear(), last.getMonth(), last.getDate() + offset + 1), today, false),
-    ),
-  ];
+  if (keys.length === 0) {
+    return Array.from({ length: STRIP_DAYS }, (_, offset) => stripDay(addDays(today, offset), today, false));
+  }
+  if (keys.length > STRIP_DAYS) {
+    return keys.map((key) => stripDay(fromKey(key), today, true));
+  }
+
+  const first = fromKey(keys[0]);
+  const last = fromKey(keys[keys.length - 1]);
+  const span = Math.round((last.getTime() - first.getTime()) / 86_400_000) + 1;
+  const days: StripDay[] = [];
+  if (span <= STRIP_DAYS) {
+    // every day from the first show to the last, the empty ones in between included
+    for (let offset = 0; offset < span; offset++) {
+      const date = addDays(first, offset);
+      days.push(stripDay(date, today, withItems.has(dayKey(date))));
+    }
+  } else {
+    // the days with shows are too spread out to show every day between them
+    keys.forEach((key) => days.push(stripDay(fromKey(key), today, true)));
+  }
+  while (days.length < STRIP_DAYS) {
+    const next = addDays(fromKey(days[days.length - 1].key), 1);
+    days.push(stripDay(next, today, false));
+  }
+  return days;
 }
 
 /**
@@ -84,7 +107,7 @@ export function buildStripDays(withItems: Set<string>): StripDay[] {
        exactly on the page's left edge. */
     .days {
       display: flex;
-      gap: 8px;
+      gap: 6px;
       margin-inline: -2px;
       padding: 2px 2px 8px;
       overflow-x: auto;
@@ -99,8 +122,8 @@ export function buildStripDays(withItems: Set<string>): StripDay[] {
       flex-direction: column;
       align-items: center;
       gap: 1px;
-      min-width: 68px;
-      padding: 8px 10px;
+      min-width: 52px;
+      padding: 6px 8px;
       border: 1px solid var(--border);
       border-radius: var(--radius-sm, 10px);
       background: var(--surface);
@@ -109,10 +132,10 @@ export function buildStripDays(withItems: Set<string>): StripDay[] {
       cursor: pointer;
     }
 
-    .day b { font-size: 1.1rem; line-height: 1.2; }
+    .day b { font-size: 0.98rem; line-height: 1.2; }
 
     .day small {
-      font-size: 0.68rem;
+      font-size: 0.6rem;
       letter-spacing: 0.06em;
       text-transform: uppercase;
       color: var(--text-muted);
