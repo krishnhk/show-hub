@@ -201,6 +201,7 @@ export const THEATERS: Theater[] = [
     latitude: 13.0545,
     longitude: 80.2578,
     phoneNumber: null,
+    logoUrl: '/theatres/pvr.png',
   },
   {
     id: 2,
@@ -210,6 +211,7 @@ export const THEATERS: Theater[] = [
     latitude: 13.0587,
     longitude: 80.264,
     phoneNumber: null,
+    logoUrl: '/theatres/pvr.png',
   },
   {
     id: 3,
@@ -219,6 +221,7 @@ export const THEATERS: Theater[] = [
     latitude: 12.9913,
     longitude: 80.2185,
     phoneNumber: null,
+    logoUrl: '/theatres/inox.png',
   },
   {
     id: 4,
@@ -228,6 +231,7 @@ export const THEATERS: Theater[] = [
     latitude: 13.0872,
     longitude: 80.201,
     phoneNumber: null,
+    logoUrl: '/theatres/pvr.png',
   },
   {
     id: 5,
@@ -237,6 +241,7 @@ export const THEATERS: Theater[] = [
     latitude: 13.041,
     longitude: 80.257,
     phoneNumber: null,
+    logoUrl: '/theatres/inox.png',
   },
   {
     id: 6,
@@ -246,6 +251,8 @@ export const THEATERS: Theater[] = [
     latitude: 13.0511,
     longitude: 80.1953,
     phoneNumber: null,
+    logoUrl: '/theatres/rohini.jpg',
+    logoFills: true,
   },
   {
     id: 7,
@@ -255,12 +262,15 @@ export const THEATERS: Theater[] = [
     latitude: 12.8486,
     longitude: 80.2273,
     phoneNumber: null,
+    logoUrl: '/theatres/ags-logo.png',
   },
   {
     id: 8,
     name: 'Ega Multiplex',
     city: 'Chennai',
     address: '810 Poonamallee High Road, Kilpauk',
+    logoUrl: '/theatres/ega.png',
+    logoFills: true,
     latitude: 13.0841,
     longitude: 80.2411,
     phoneNumber: null,

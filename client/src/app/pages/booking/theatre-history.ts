@@ -27,6 +27,7 @@ import {
 import { EmptyStateComponent } from '../../shared/components/empty-state/empty-state.component';
 import { FilmThumbComponent } from '../../shared/components/film-thumb/film-thumb.component';
 import { LoadingSpinnerComponent } from '../../shared/components/loading-spinner/loading-spinner.component';
+import { TheatreLogoComponent } from '../../shared/components/theatre-logo/theatre-logo.component';
 import { ShowDatePipe, ShowTimePipe } from '../../shared/pipes/date.pipes';
 
 const MAX_HALL_SHOWS = 8;
@@ -48,6 +49,7 @@ type FilmItem = { kind: 'month'; label: string } | { kind: 'visit'; visit: Theat
     EmptyStateComponent,
     FilmThumbComponent,
     LoadingSpinnerComponent,
+    TheatreLogoComponent,
     ShowDatePipe,
     ShowTimePipe,
   ],

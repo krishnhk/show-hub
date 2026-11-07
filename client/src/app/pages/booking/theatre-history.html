@@ -7,9 +7,12 @@
     <div class="alert alert-error">{{ message }}</div>
   } @else if (summary(); as s) {
     <header class="hall-head">
-      <div>
-        <h1>{{ s.theater.name }}</h1>
-        <div class="sub">{{ area() }}</div>
+      <div class="hall-title">
+        <app-theatre-logo style="--logo-size: 64px" [name]="s.theater.name" [id]="s.theater.id" [logoUrl]="s.theater.logoUrl" [logoFill]="s.theater.logoFills" />
+        <div>
+          <h1>{{ s.theater.name }}</h1>
+          <div class="sub">{{ area() }}</div>
+        </div>
       </div>
       <div class="pills">
         <span class="tag">{{ s.watched }} {{ s.watched === 1 ? 'visit' : 'visits' }}</span>

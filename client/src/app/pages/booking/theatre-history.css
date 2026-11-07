@@ -27,6 +27,13 @@
   gap: 8px 16px;
 }
 
+.hall-title {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  min-width: 0;
+}
+
 .hall-head h1 { font-size: 1.7rem; }
 .sub { color: var(--text-muted); font-size: 0.9rem; }
 

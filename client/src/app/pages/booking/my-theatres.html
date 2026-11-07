@@ -83,7 +83,7 @@
         @for (s of visible(); track s.theater.id) {
           <a class="th" [routerLink]="['/my-bookings/theatres', s.theater.id]">
             <div class="th-body">
-              <app-theatre-logo [name]="s.theater.name" [id]="s.theater.id" />
+              <app-theatre-logo [name]="s.theater.name" [id]="s.theater.id" [logoUrl]="s.theater.logoUrl" [logoFill]="s.theater.logoFills" />
               <div class="th-main">
                 <h3>{{ s.theater.name }}</h3>
                 <div class="area">{{ area(s.theater) }}</div>
